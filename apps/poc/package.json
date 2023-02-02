@@ -1,0 +1,16 @@
+{
+  "name": "@fraud-tool/app-poc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "clean": "rm -rf ./dist && rm -rf tsconfig.tsbuildinfo",
+    "build": "tsc -p ./tsconfig.json"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fraud-tool/lib-nodes": "^1.0.0"
+  }
+}
