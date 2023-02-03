@@ -1,4 +1,4 @@
-import { Types } from '@fraud-tool/lib-nodes';
+import { Types } from '@fraud-tool/lib-engine';
 
 export type TUserType = {
   id: string,

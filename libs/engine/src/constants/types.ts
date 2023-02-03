@@ -6,7 +6,6 @@ export enum EPrimitive {
 
 export type TComplexType<TCustomType, TNativeType> = {
   name: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   fields: { [key: string]: EPrimitive | TComplexType<any, any> },
   toNative: (input: TCustomType) => TNativeType,
   fromNative: (input: TNativeType) => TCustomType

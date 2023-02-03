@@ -11,6 +11,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@fraud-tool/lib-nodes": "^1.0.0"
+    "@fraud-tool/lib-engine": "^1.0.0"
   }
 }

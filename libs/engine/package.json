@@ -1,5 +1,5 @@
 {
-  "name": "@fraud-tool/lib-nodes",
+  "name": "@fraud-tool/lib-engine",
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
