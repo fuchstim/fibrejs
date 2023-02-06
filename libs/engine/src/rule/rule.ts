@@ -10,7 +10,8 @@ type TRuleInputs = {
   [key: string]: any
 };
 type TRuleOutput = {
-  triggered: boolean
+  triggered: boolean,
+  // ToDo: Add more rule execution information
 };
 
 type TStageOutputs = TRuleInputs;

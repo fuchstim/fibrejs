@@ -24,16 +24,18 @@ export default class CompareStringsNode extends BaseNode<TNodeInput, TNodeOutput
       id: 'compareStrings',
       name: 'Compare Strings',
 
-      options: [ {
-        id: 'operation',
-        name: 'Operation',
-        type: ENodeOptionType.DROP_DOWN,
-        dropDownOptions: [
+      options: [
+        {
+          id: 'operation',
+          name: 'Operation',
+          type: ENodeOptionType.DROP_DOWN,
+          dropDownOptions: [
           { id: EOperation.EQUAL, name: 'Equal', },
           { id: EOperation.NOT_EQUAL, name: 'Not Equal', },
-        ],
-        validate: v => Object.values(EOperation).includes(v),
-      }, ],
+          ],
+          validate: v => Object.values(EOperation).includes(v),
+        },
+      ],
       inputs: [
         { id: 'inputA', name: 'Input A', type: CStringType, },
         { id: 'inputB', name: 'Input B', type: CStringType, },

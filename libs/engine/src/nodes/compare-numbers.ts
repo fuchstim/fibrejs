@@ -28,20 +28,22 @@ export default class CompareNumbersNode extends BaseNode<TNodeInput, TNodeOutput
       id: 'compareNumbers',
       name: 'Compare Numbers',
 
-      options: [ {
-        id: 'operation',
-        name: 'Operation',
-        type: ENodeOptionType.DROP_DOWN,
-        dropDownOptions: [
+      options: [
+        {
+          id: 'operation',
+          name: 'Operation',
+          type: ENodeOptionType.DROP_DOWN,
+          dropDownOptions: [
           { id: EOperation.EQUAL, name: 'Equal', },
           { id: EOperation.NOT_EQUAL, name: 'Not Equal', },
           { id: EOperation.GREATER, name: 'Greater', },
           { id: EOperation.GREATER_EQUAL, name: 'Greater or Equal', },
           { id: EOperation.LESS, name: 'Less', },
           { id: EOperation.LESS_EQUAL, name: 'Less or Equal', },
-        ],
-        validate: v => Object.values(EOperation).includes(v),
-      }, ],
+          ],
+          validate: v => Object.values(EOperation).includes(v),
+        },
+      ],
       inputs: [
         { id: 'inputA', name: 'Input A', type: CNumberType, },
         { id: 'inputB', name: 'Input B', type: CNumberType, },
