@@ -32,7 +32,7 @@ export type TConfig = {
 
 class Config {
   validate(config: TConfig): boolean {
-    return true; // TODO: Actually validate config
+    return true; // TODO: Actually validate config. Detect e.g. circular references, invalid options, invalid nodeIds etc
   }
 
   parse(config: TConfig, availableNodes: BaseNode<any, any, any>[]): RuleSet[] {

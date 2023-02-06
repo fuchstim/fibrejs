@@ -23,7 +23,7 @@ export default class Rule {
   constructor(options: TRuleOptions) {
     this.id = options.id;
     this.name = options.name;
-    this.stages = options.stages;
+    this.stages = this._sortStages(options.stages);
 
     const entryStages = this.stages.filter(
       stage => stage.type === ERuleStageType.ENTRY
@@ -38,17 +38,16 @@ export default class Rule {
   }
 
   async execute(ruleInputs: TRuleInputs): Promise<TRuleOutput> {
-    const sortedStages = this._sortStages(this.stages);
     const stageOutputs: TStageOutputs = {};
 
-    for (const stage of sortedStages) {
+    for (const stage of this.stages) {
       stageOutputs[stage.id] = await stage.execute(
         stageOutputs,
         stage.type === ERuleStageType.ENTRY ? ruleInputs : {}
       );
     }
 
-    const exitStage = sortedStages.find(s => s.type === ERuleStageType.EXIT)!;
+    const exitStage = this.stages.find(s => s.type === ERuleStageType.EXIT)!;
 
     return {
       triggered: Boolean(stageOutputs[exitStage.id].result),
