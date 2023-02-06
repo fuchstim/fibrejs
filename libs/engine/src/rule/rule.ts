@@ -1,54 +1,61 @@
-import FlowStage, { EFlowStageType } from './flow-stage';
+import RuleStage, { ERuleStageType } from './rule-stage';
 
-type TFlowOptions = {
+type TRuleOptions = {
   id: string,
   name: string,
-  stages: FlowStage[]
+  stages: RuleStage[]
 };
 
-type TFlowInputOutputs = {
+type TRuleInputs = {
   [key: string]: any
 };
+type TRuleOutput = {
+  result: boolean
+};
 
-export default class Flow {
+type TStageOutputs = TRuleInputs;
+
+export default class Rule {
   readonly id: string;
   readonly name: string;
-  private stages: FlowStage[];
+  readonly stages: RuleStage[];
 
-  constructor(options: TFlowOptions) {
+  constructor(options: TRuleOptions) {
     this.id = options.id;
     this.name = options.name;
     this.stages = options.stages;
 
     const entryStages = this.stages.filter(
-      stage => stage.type === EFlowStageType.ENTRY
+      stage => stage.type === ERuleStageType.ENTRY
     );
     const exitStages = this.stages.filter(
-      stage => stage.type === EFlowStageType.EXIT
+      stage => stage.type === ERuleStageType.EXIT
     );
 
     if (entryStages.length !== 1 || exitStages.length !== 1) {
-      throw new Error('Invalid number of entry / exit FlowStages defined');
+      throw new Error('Invalid number of entry / exit RuleStages defined');
     }
   }
 
-  async execute(flowInputs: TFlowInputOutputs) {
+  async execute(ruleInputs: TRuleInputs): Promise<TRuleOutput> {
     const sortedStages = this._sortStages(this.stages);
-    const stageOutputs: TFlowInputOutputs = {};
+    const stageOutputs: TStageOutputs = {};
 
     for (const stage of sortedStages) {
       stageOutputs[stage.id] = await stage.execute(
         stageOutputs,
-        stage.type === EFlowStageType.ENTRY ? flowInputs : {}
+        stage.type === ERuleStageType.ENTRY ? ruleInputs : {}
       );
     }
 
-    const exitStage = sortedStages.find(s => s.type === EFlowStageType.EXIT)!;
+    const exitStage = sortedStages.find(s => s.type === ERuleStageType.EXIT)!;
 
-    return stageOutputs[exitStage.id];
+    return {
+      result: Boolean(stageOutputs[exitStage.id].result),
+    };
   }
 
-  private _sortStages(stages: FlowStage[]): FlowStage[] {
+  private _sortStages(stages: RuleStage[]): RuleStage[] {
     const stagesWithoutDependencies = stages.filter(
       stage => stage.dependsOn.length === 0
     );
@@ -65,7 +72,7 @@ export default class Flow {
       );
 
       if (!availableStages.length) {
-        throw new Error('Circular FlowStage reference detected');
+        throw new Error('Invalid RuleStage dependencies detected');
       }
 
       sortedStageIds.push(

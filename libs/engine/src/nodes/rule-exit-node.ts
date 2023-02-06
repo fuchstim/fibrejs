@@ -5,14 +5,14 @@ type TNodeInput = {
   result: boolean,
 };
 
-export default class RuleResultNode extends BaseNode<TNodeInput, TNodeInput> {
+export default class RuleExitNode extends BaseNode<TNodeInput, TNodeInput> {
   constructor() {
     super({
       id: 'ruleResult',
-      title: 'Rule Result',
+      name: 'Rule Result',
 
       inputs: {
-        result: { title: 'Rule Result', type: EPrimitive.BOOLEAN, },
+        result: { name: 'Rule Result', type: EPrimitive.BOOLEAN, },
       },
       outputs: {},
     });

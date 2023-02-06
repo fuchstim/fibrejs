@@ -1,13 +1,7 @@
 import { EPrimitive, TComplexType } from '../constants/types';
 
-type TNodeOption = string;
-
-type TNodeOptions = {
-  [key: string]: TNodeOption
-};
-
 type TNodeInputOutput = {
-  title: string,
+  name: string,
   type: EPrimitive | TComplexType<any, any>,
 };
 
@@ -17,28 +11,30 @@ type TNodeInputsOutputs = {
 
 type TNodeConfig = {
   id: string,
-  title: string,
+  name: string,
   description?: string,
-  options?: TNodeOptions,
   inputs: TNodeInputsOutputs,
   outputs: TNodeInputsOutputs,
 };
 
 export abstract class BaseNode<TInput, TOutput> {
-  protected __config: TNodeConfig;
+  readonly id: string;
+  private name: string;
+  private description?: string;
+  private inputs: TNodeInputsOutputs;
+  private outputs: TNodeInputsOutputs;
 
   constructor(options: TNodeConfig) {
-    this.__config = options;
+    this.id = options.id;
+    this.name = options.name;
+    this.description = options.description;
+    this.inputs = options.inputs;
+    this.outputs = options.outputs;
   }
 
   abstract execute(input: TInput): Promise<TOutput> | TOutput;
 
   toJSON() {
-    const nodeOptions = this.__config;
-    if (!nodeOptions) {
-      throw new Error('Failed to serialize node without options');
-    }
-
     throw new Error('TODO: Implement serialization');
   }
 }

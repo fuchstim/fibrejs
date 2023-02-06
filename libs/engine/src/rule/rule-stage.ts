@@ -1,36 +1,35 @@
 import BaseNode from '../nodes/base-node';
 
-export enum EFlowStageType {
+export enum ERuleStageType {
   ENTRY = 'ENTRY',
-  MIDDLE = 'MIDDLE',
   EXIT = 'EXIT',
 }
 
-export type TFlowStageInput = {
-  flowStageId: string,
+export type TRuleStageInput = {
+  ruleStageId: string,
   outputKey: string,
   inputKey: string,
 };
 
-export type TFlowStageOptions = {
+export type TRuleStageOptions = {
   id: string,
-  type: EFlowStageType,
+  type?: ERuleStageType,
   node: BaseNode<any, any>,
-  inputs?: TFlowStageInput[]
+  inputs: TRuleStageInput[]
 };
 
 export type TPreviousStageOutputs = {
   [stageId: string]: any
 };
 
-export default class FlowStage {
+export default class RuleStage {
   readonly id: string;
-  readonly type: EFlowStageType;
-  private node: BaseNode<any, any>;
-  private inputs?: TFlowStageInput[];
+  readonly type?: ERuleStageType;
+  readonly node: BaseNode<any, any>;
+  readonly inputs: TRuleStageInput[];
   private executed = false;
 
-  constructor(options: TFlowStageOptions) {
+  constructor(options: TRuleStageOptions) {
     this.id = options.id;
     this.type = options.type;
     this.node = options.node;
@@ -38,18 +37,18 @@ export default class FlowStage {
   }
 
   get dependsOn() {
-    return this.inputs?.map(input => input.flowStageId) ?? [];
+    return this.inputs.map(input => input.ruleStageId);
   }
 
   async execute(previousOutputs: TPreviousStageOutputs, additionalNodeInputs = {}): Promise<any> {
     if (this.executed) {
-      throw new Error('Cannot execute FlowStage that was already executed');
+      throw new Error('Cannot execute RuleStage that was already executed');
     }
 
     const nodeInputs = this.inputs?.reduce(
-      (acc, { flowStageId, inputKey, outputKey, }) => ({
+      (acc, { ruleStageId, inputKey, outputKey, }) => ({
         ...acc,
-        [inputKey]: previousOutputs[flowStageId][outputKey],
+        [inputKey]: previousOutputs[ruleStageId][outputKey],
       }),
       additionalNodeInputs
     );

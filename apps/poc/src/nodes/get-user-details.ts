@@ -13,14 +13,14 @@ export default class GetUserNode extends BaseNode<TNodeInput, TNodeOutput> {
   constructor() {
     super({
       id: 'getUser',
-      title: 'Get User',
+      name: 'Get User',
       description: 'Retrieve details for a given user ID',
 
       inputs: {
-        userId: { title: 'User ID', type: Types.EPrimitive.STRING, },
+        userId: { name: 'User ID', type: Types.EPrimitive.STRING, },
       },
       outputs: {
-        user: { title: 'User', type: CUserType, },
+        user: { name: 'User', type: CUserType, },
       },
     });
   }

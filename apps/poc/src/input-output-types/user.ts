@@ -10,6 +10,7 @@ export const CUserType: Types.TComplexType<TUserType, TUserType> = {
   fields: {
     id: Types.EPrimitive.STRING,
     username: Types.EPrimitive.STRING,
+    age: Types.EPrimitive.NUMBER,
     createdAt: Types.CDateType,
   },
   toNative: user => user,
