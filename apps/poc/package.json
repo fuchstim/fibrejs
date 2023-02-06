@@ -1,5 +1,5 @@
 {
-  "name": "@tripwire/app-poc",
+  "name": "@tripwire/poc",
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
