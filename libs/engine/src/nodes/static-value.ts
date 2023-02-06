@@ -1,5 +1,5 @@
-import BaseNode, { ENodeOptionType } from './base';
-import { CAnyType } from '../constants/types';
+import { BaseNode, ENodeOptionType } from '../common/base-node';
+import { CAnyType } from '../common/types';
 
 type TNodeOutput = {
   value: string | number | boolean,

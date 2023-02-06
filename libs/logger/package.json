@@ -1,5 +1,5 @@
 {
-  "name": "@fraud-tool/lib-logger",
+  "name": "@tripwire/lib-logger",
   "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {

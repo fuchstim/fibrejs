@@ -1,5 +1,5 @@
-import BaseNode from './base';
-import { CBooleanType } from '../constants/types';
+import { BaseNode } from '../common/base-node';
+import { CBooleanType } from '../common/types';
 
 type TNodeInput = {
   result: boolean,

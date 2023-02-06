@@ -1,5 +1,5 @@
 {
-  "name": "@fraud-tool/lib-engine",
+  "name": "@tripwire/lib-engine",
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
@@ -11,6 +11,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@fraud-tool/lib-logger": "^1.0.0"
+    "@tripwire/lib-logger": "^1.0.0"
   }
 }

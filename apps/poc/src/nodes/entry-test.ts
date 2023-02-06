@@ -1,6 +1,6 @@
-import { BaseNode } from '@fraud-tool/lib-engine';
+import { BaseNode } from '@tripwire/lib-engine';
 
-import { CStringType } from '@fraud-tool/lib-engine/dist/constants/types';
+import { CStringType } from '@tripwire/lib-engine/dist/constants/types';
 
 type TNodeInput = {
   userId: string,

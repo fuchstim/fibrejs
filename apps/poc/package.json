@@ -1,5 +1,5 @@
 {
-  "name": "@fraud-tool/app-poc",
+  "name": "@tripwire/app-poc",
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
@@ -11,6 +11,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@fraud-tool/lib-engine": "^1.0.0"
+    "@tripwire/lib-engine": "^1.0.0"
   }
 }

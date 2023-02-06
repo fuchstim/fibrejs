@@ -1,10 +1,10 @@
 import fs from 'fs';
-import Engine from '@fraud-tool/lib-engine';
+import Engine from '@tripwire/lib-engine';
 
 import GetUserNode from './nodes/get-user';
-import { ERuleSeverity } from '@fraud-tool/lib-engine/dist/constants/severities';
+import { ERuleSeverity } from '@tripwire/lib-engine/dist/constants/severities';
 import EntryTestNode from './nodes/entry-test';
-import { ERuleStageType } from '@fraud-tool/lib-engine/dist/rule/rule-stage';
+import { ERuleStageType } from '@tripwire/lib-engine/dist/rule/rule-stage';
 
 const engine = new Engine({
   customNodes: [

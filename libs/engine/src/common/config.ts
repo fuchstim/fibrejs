@@ -1,8 +1,8 @@
-import { BaseNode } from '.';
-import { ERuleSeverity } from './constants/severities';
-import Rule from './rule/rule';
-import RuleSet, { TRuleWithSeverity } from './rule/rule-set';
-import RuleStage, { ERuleStageType, TRuleStageNodeOptions, TRuleStageInput } from './rule/rule-stage';
+import { BaseNode } from '..';
+import { ERuleSeverity } from '../constants/severities';
+import Rule from '../rule/rule';
+import RuleSet, { TRuleWithSeverity } from '../rule/rule-set';
+import RuleStage, { ERuleStageType, TRuleStageNodeOptions, TRuleStageInput } from '../rule/rule-stage';
 
 type TRuleStageConfig = {
   id: string,

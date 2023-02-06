@@ -1,5 +1,5 @@
-import BaseNode, { ENodeOptionType } from './base';
-import { CBooleanType, CStringType } from '../constants/types';
+import { BaseNode, ENodeOptionType } from '../common/base-node';
+import { CBooleanType, CStringType } from '../common/types';
 
 type TNodeInput = {
   inputA: string,

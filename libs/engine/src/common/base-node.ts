@@ -1,4 +1,4 @@
-import { EPrimitive, TSerializedType, TType } from '../constants/types';
+import { EPrimitive, TSerializedType, TType } from './types';
 
 export enum ENodeOptionType {
   DROP_DOWN = 'DROP_DOWN',
@@ -152,4 +152,3 @@ export abstract class BaseNode<TInput, TOutput, TOptions extends TNodeOptions> {
     };
   }
 }
-export default BaseNode;

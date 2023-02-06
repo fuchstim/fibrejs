@@ -1,14 +1,14 @@
 // Constants
-export * as Types from './constants/types';
+export * as Types from './common/types';
 
 // Nodes
-export * from './nodes/base';
+export { BaseNode } from './common/base-node';
 
 import RuleSet, { TRuleSetExecutionResult, TRuleSetInputs } from './rule/rule-set';
 
-import Config, { TConfig } from './config';
+import Config, { TConfig } from './common/config';
 
-import BaseNode, { TSerializedNode } from './nodes/base';
+import { BaseNode, TSerializedNode } from './common/base-node';
 import ExitNode from './nodes/exit';
 import CompareBooleansNode from './nodes/compare-booleans';
 import CompareNumbersNode from './nodes/compare-numbers';

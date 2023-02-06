@@ -1,4 +1,4 @@
-import BaseNode from '../nodes/base';
+import { BaseNode } from '../common/base-node';
 
 export enum ERuleStageType {
   ENTRY = 'ENTRY',

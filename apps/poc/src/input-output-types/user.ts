@@ -1,4 +1,4 @@
-import { Types } from '@fraud-tool/lib-engine';
+import { Types } from '@tripwire/lib-engine';
 
 export type TUserType = {
   id: string,

@@ -1,0 +1,78 @@
+{
+  "version": -1,
+  "ruleSets": [
+    {
+      "id": "testRuleSet",
+      "name": "Test Rule Set",
+      "rules": [
+        {
+          "id": "rule-1",
+          "name": "Rule 1",
+          "severity": "CRITICAL",
+          "stages": [
+            {
+              "id": "stage-1",
+              "type": "ENTRY",
+              "nodeId": "entryTest",
+              "inputs": [],
+              "nodeOptions": {}
+            },
+            {
+              "id": "stage-4",
+              "nodeId": "staticValue",
+              "inputs": [],
+              "nodeOptions": {
+                "valueType": "NUMBER",
+                "value": 50
+              }
+            },
+            {
+              "id": "stage-2",
+              "nodeId": "getUser",
+              "inputs": [
+                {
+                  "ruleStageId": "stage-1",
+                  "outputId": "userId",
+                  "inputId": "userId"
+                }
+              ],
+              "nodeOptions": {}
+            },
+            {
+              "id": "stage-3",
+              "nodeId": "compareNumbers",
+              "inputs": [
+                {
+                  "ruleStageId": "stage-2",
+                  "outputId": "user.age",
+                  "inputId": "inputA"
+                },
+                {
+                  "ruleStageId": "stage-4",
+                  "outputId": "value",
+                  "inputId": "inputB"
+                }
+              ],
+              "nodeOptions": {
+                "operation": "LESS"
+              }
+            },
+            {
+              "id": "stage-5",
+              "type": "EXIT",
+              "nodeId": "exit",
+              "inputs": [
+                {
+                  "ruleStageId": "stage-3",
+                  "outputId": "result",
+                  "inputId": "result"
+                }
+              ],
+              "nodeOptions": {}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
