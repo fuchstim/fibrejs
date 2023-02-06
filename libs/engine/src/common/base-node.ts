@@ -1,154 +1,87 @@
-import { EPrimitive, TSerializedType, TType } from './types';
+import Rule from '../rule/rule';
+import { TType } from './types';
 
-export enum ENodeOptionType {
+export type TNodeOptions = { [key: string]: string | number | boolean };
+
+export enum ENodeMetadataOptionType {
   DROP_DOWN = 'DROP_DOWN',
   INPUT = 'INPUT',
 }
 
-export type TDropDownOption = {
+export type TNodeMetadataOption = {
   id: string,
   name: string,
+  type: ENodeMetadataOptionType,
+  dropDownOptions?: { id: string, name: string }[],
+  validate: (optionValue: any) => boolean,
 };
 
-export type TNodeOptionPrimitive = string | number | boolean;
-
-export type TNodeOptions = { [key: string]: TNodeOptionPrimitive };
-
-export type TNodeOption = {
-  id: string,
-  name: string,
-  type: ENodeOptionType,
-  dropDownOptions?: TDropDownOption[],
-  validate: (optionValue: any, otherOptions: TNodeOptions) => boolean,
-};
-
-export type TNodeInputOutput = {
+export type TNodeMetadataInputOutput = {
   id: string,
   name: string,
   type: TType<any, any>,
 };
 
-export type TNodeConfig = {
+export type TGetter<TContext, TReturnType> = (context: TContext) => TReturnType;
+export type TOptionalGetter<TContext, TReturnType> = TReturnType | TGetter<TContext, TReturnType>;
+
+export type TNodeContext = {
+  rules: Rule[],
+  nodeOptions: TNodeOptions
+};
+export type TNodeMetadata = {
+  options: TOptionalGetter<TNodeContext, TNodeMetadataOption[]>,
+  inputs: TOptionalGetter<TNodeContext, TNodeMetadataInputOutput[]>,
+  outputs: TOptionalGetter<TNodeContext, TNodeMetadataInputOutput[]>,
+};
+
+export type TNodeConfig = TNodeMetadata & {
   id: string,
   name: string,
   description?: string,
-
-  options: TNodeOption[],
-  inputs: TNodeInputOutput[],
-  outputs: TNodeInputOutput[],
 };
 
-export type TSerializedNodeOption = {
-  id: string,
-  name: string,
-  type: ENodeOptionType,
-  dropDownOptions?: TDropDownOption[],
-};
-
-export type TSerializedNodeInputOutput = {
-  id: string,
-  name: string,
-  type: TSerializedType,
-};
-
-export type TSerializedNode = {
-  id: string,
-  name: string,
-  description?: string,
-
-  options: TSerializedNodeOption[],
-  inputs: TSerializedNodeInputOutput[],
-  outputs: TSerializedNodeInputOutput[],
-};
-
-export abstract class BaseNode<TInput, TOutput, TOptions extends TNodeOptions> {
+export abstract class BaseNode<TInputs, TOutputs, TOptions extends TNodeOptions> {
   readonly id: string;
-  private name: string;
-  private description?: string;
+  readonly name: string;
+  readonly description?: string;
 
-  private options: TNodeOption[];
-  private inputs: TNodeInputOutput[];
-  private outputs: TNodeInputOutput[];
+  private metadata: TNodeMetadata;
 
   constructor(config: TNodeConfig) {
-    this.id = config.id;
-    this.name = config.name;
-    this.description = config.description;
+    const { id, name, description, ...metadata } = config;
 
-    this.options = config.options;
-    this.inputs = config.inputs;
-    this.outputs = config.outputs;
+    this.id = id;
+    this.name = name;
+    this.description = description;
+
+    this.metadata = metadata;
   }
 
-  abstract execute(input: TInput, options: TOptions): Promise<TOutput> | TOutput;
+  abstract execute(inputs: TInputs, options: TOptions): Promise<TOutputs> | TOutputs;
 
-  validateOptions(options: TOptions): boolean {
+  getMetadata(context: TNodeContext) {
+    const { options, inputs, outputs, } = this.metadata;
+
+    return {
+      options: typeof options === 'function' ? options(context) : options,
+      inputs: typeof inputs === 'function' ? inputs(context) : inputs,
+      outputs: typeof outputs === 'function' ? outputs(context) : outputs,
+    };
+  }
+
+  validateOptions(options: TOptions, context: TNodeContext): boolean {
+    const { options: optionConfigs, } = this.getMetadata(context);
+
     const isValid = Object
       .entries(options)
-      .every(([ key, value, ]) => {
-        const optionConfig = this.options.find(option => option.id === key);
+      .every(([ optionId, value, ]) => {
+        const optionConfig = optionConfigs.find(option => option.id === optionId);
         if (!optionConfig?.validate) { return false; }
 
-        return optionConfig.validate(value, options);
+        return optionConfig.validate(value);
       });
 
     return isValid;
-  }
-
-  serialize(): TSerializedNode {
-    return {
-      id: this.id,
-      name: this.name,
-      description: this.description,
-
-      options: this.options.map(
-        option => this.serializeOption(option)
-      ),
-      inputs: this.inputs.map(
-        input => this.serializeInputOutput(input)
-      ),
-      outputs: this.outputs.map(
-        output => this.serializeInputOutput(output)
-      ),
-    };
-  }
-
-  private serializeOption(option: TNodeOption): TSerializedNodeOption {
-    const { id, name, type, dropDownOptions, } = option;
-
-    return {
-      id,
-      name,
-      type,
-      dropDownOptions,
-    };
-  }
-
-  private serializeInputOutput(io: TNodeInputOutput): TSerializedNodeInputOutput {
-    return {
-      id: io.id,
-      name: io.name,
-      type: this.serializeType(io.type),
-    };
-  }
-
-  private serializeType(type: TType<any, any>): TSerializedType {
-    return {
-      id: type.id,
-      name: type.name,
-      fields: Object
-        .entries(type.fields)
-        .reduce(
-          (acc, [ fieldKey, fieldType, ]) => {
-            const isPrimitive = Object.values(EPrimitive).includes(fieldType as EPrimitive);
-
-            return {
-              ...acc,
-              [fieldKey]: isPrimitive ? fieldType as EPrimitive : this.serializeType(fieldType as TType<any, any>),
-            };
-          },
-          {}
-        ),
-    };
   }
 }

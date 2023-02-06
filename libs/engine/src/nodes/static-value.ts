@@ -1,5 +1,5 @@
-import { BaseNode, ENodeOptionType } from '../common/base-node';
-import { CAnyType, TBooleanType, TNumberType, TStringType } from '../common/types';
+import { BaseNode, ENodeMetadataOptionType } from '../common/base-node';
+import { CBooleanType, CNumberType, CStringType, TBooleanType, TNumberType, TStringType } from '../common/types';
 
 type TNodeOutput = {
   value: TStringType | TNumberType | TBooleanType,
@@ -21,11 +21,11 @@ export default class StaticValueNode extends BaseNode<never, TNodeOutput, TNodeO
       id: 'staticValue',
       name: 'Static Value',
 
-      options: [
+      options: context => ([
         {
           id: 'valueType',
           name: 'Value Type',
-          type: ENodeOptionType.DROP_DOWN,
+          type: ENodeMetadataOptionType.DROP_DOWN,
           dropDownOptions: [
             { id: EValueType.STRING, name: 'String', },
             { id: EValueType.NUMBER, name: 'Number', },
@@ -36,26 +36,34 @@ export default class StaticValueNode extends BaseNode<never, TNodeOutput, TNodeO
         {
           id: 'value',
           name: 'Value',
-          type: ENodeOptionType.INPUT,
-          validate: (optionValue, otherOptions) => {
-            switch (otherOptions.valueType as EValueType) {
+          type: ENodeMetadataOptionType.INPUT,
+          validate: value => {
+            switch (context.nodeOptions.valueType as EValueType) {
               case EValueType.STRING:
-                return typeof optionValue === 'string';
+                return typeof value === 'string';
               case EValueType.NUMBER:
-                return typeof optionValue === 'number';
+                return typeof value === 'number';
               case EValueType.BOOLEAN:
-                return typeof optionValue === 'boolean';
+                return typeof value === 'boolean';
 
               default:
                 return false;
             }
           },
         },
-      ],
+      ]),
       inputs: [],
-      outputs: [
-        { id: 'value', name: 'Value', type: CAnyType, },
-      ],
+      outputs: context => {
+        const valueType = {
+          [EValueType.STRING]: CStringType,
+          [EValueType.NUMBER]: CNumberType,
+          [EValueType.BOOLEAN]: CBooleanType,
+        }[context.nodeOptions.valueType as string];
+
+        return [
+          { id: 'value', name: 'Value', type: valueType!, },
+        ];
+      },
     });
   }
 

@@ -1,5 +1,4 @@
 export enum EPrimitive {
-  ANY = 'ANY',
   STRING = 'STRING',
   NUMBER = 'NUMBER',
   BOOLEAN = 'BOOLEAN',
@@ -11,25 +10,6 @@ export type TType<TCustomType, TNativeType> = {
   fields: { [key: string]: EPrimitive | TType<any, any> },
   toNative: (input: TCustomType) => TNativeType,
   fromNative: (input: TNativeType) => TCustomType
-};
-
-export type TSerializedType = {
-  id: string,
-  name: string,
-  fields: { [key: string]: EPrimitive | TSerializedType, },
-};
-
-export type TAnyType = {
-  value: string | number | boolean,
-};
-export const CAnyType: TType<TAnyType, string | number | boolean> = {
-  id: EPrimitive.ANY,
-  name: 'Any',
-  fields: {
-    value: EPrimitive.ANY,
-  },
-  toNative: ({ value, }) => value,
-  fromNative: value => ({ value, }),
 };
 
 export type TStringType = {

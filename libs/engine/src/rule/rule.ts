@@ -38,6 +38,24 @@ export default class Rule {
     }
   }
 
+  get entryStage() {
+    const entryStage = this.stages.find(
+      stage => stage.type === ERuleStageType.ENTRY
+    );
+    if (!entryStage) { throw new Error(`Failed to find entry stage for rule ${this.id}`); }
+
+    return entryStage;
+  }
+
+  get exitStage() {
+    const exitStage = this.stages.find(
+      stage => stage.type === ERuleStageType.EXIT
+    );
+    if (!exitStage) { throw new Error(`Failed to find exit stage for rule ${this.id}`); }
+
+    return exitStage;
+  }
+
   async execute(ruleInputs: TRuleInputs): Promise<TRuleOutput> {
     const stageOutputs: TStageOutputs = {};
 
@@ -48,10 +66,8 @@ export default class Rule {
       );
     }
 
-    const exitStage = this.stages.find(s => s.type === ERuleStageType.EXIT)!;
-
     return {
-      triggered: Boolean(stageOutputs[exitStage.id].result.value),
+      triggered: Boolean(stageOutputs[this.exitStage.id].result.value),
     };
   }
 

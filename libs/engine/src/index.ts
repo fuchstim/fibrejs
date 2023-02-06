@@ -7,13 +7,14 @@ import RuleSet, { TRuleSetExecutionResult, TRuleSetInputs } from './rule/rule-se
 
 import Config, { TEngineConfig } from './common/config';
 
-import { BaseNode, TSerializedNode } from './common/base-node';
+import { BaseNode } from './common/base-node';
 import ExitNode from './nodes/exit';
 import CompareBooleansNode from './nodes/compare-booleans';
 import CompareNumbersNode from './nodes/compare-numbers';
 import CompareStringsNode from './nodes/compare-strings';
 import StaticValueNode from './nodes/static-value';
 import Rule from './rule/rule';
+import serializer, { TSerializedNode } from './common/serializer';
 
 export type TEngineOptions = {
   customNodes?: BaseNode<any, any, any>[]
@@ -51,8 +52,13 @@ export default class Engine {
   }
 
   exportSerializedNodes(): TSerializedNode[] {
+    const context = {
+      rules: this.rules,
+      nodeOptions: {},
+    };
+
     return this.nodes.map(
-      node => node.serialize()
+      node => serializer.serializeNode(node, context)
     );
   }
 

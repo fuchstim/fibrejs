@@ -1,4 +1,4 @@
-import { BaseNode, ENodeOptionType } from '../common/base-node';
+import { BaseNode, ENodeMetadataOptionType } from '../common/base-node';
 import { CBooleanType, CStringType, TBooleanType, TStringType } from '../common/types';
 
 type TNodeInput = {
@@ -28,7 +28,7 @@ export default class CompareStringsNode extends BaseNode<TNodeInput, TNodeOutput
         {
           id: 'operation',
           name: 'Operation',
-          type: ENodeOptionType.DROP_DOWN,
+          type: ENodeMetadataOptionType.DROP_DOWN,
           dropDownOptions: [
             { id: EOperation.EQUAL, name: 'Equal', },
             { id: EOperation.NOT_EQUAL, name: 'Not Equal', },
