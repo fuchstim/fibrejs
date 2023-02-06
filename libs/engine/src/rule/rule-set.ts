@@ -1,7 +1,7 @@
 import { ERuleSeverity } from '../constants/rule-severities';
 import Rule from './rule';
 
-export type TRuleWithSeverity = {
+export type TRuleSetEntry = {
   rule: Rule,
   severity: ERuleSeverity,
 };
@@ -9,7 +9,7 @@ export type TRuleWithSeverity = {
 export type TRuleSetOptions = {
   id: string,
   name: string,
-  rules: TRuleWithSeverity[],
+  entries: TRuleSetEntry[],
 };
 
 export type TRuleSetInputs = {
@@ -24,12 +24,12 @@ export type TRuleSetExecutionResult = {
 export default class RuleSet {
   readonly id: string;
   readonly name: string;
-  readonly rules: TRuleWithSeverity[];
+  readonly entries: TRuleSetEntry[];
 
   constructor(options: TRuleSetOptions) {
     this.id = options.id;
     this.name = options.name;
-    this.rules = options.rules;
+    this.entries = options.entries;
   }
 
   async execute(inputs: TRuleSetInputs): Promise<TRuleSetExecutionResult> {
@@ -43,7 +43,7 @@ export default class RuleSet {
     ];
 
     const ruleResults = await Promise.all(
-      this.rules.map(async ({ rule, severity, }) => {
+      this.entries.map(async ({ rule, severity, }) => {
         const { triggered, } = await rule.execute(inputs);
 
         return { severity, triggered, };

@@ -1,7 +1,7 @@
 import { BaseNode } from '..';
 import { ERuleSeverity } from '../constants/rule-severities';
 import Rule from '../rule/rule';
-import RuleSet, { TRuleWithSeverity } from '../rule/rule-set';
+import RuleSet, { TRuleSetEntry } from '../rule/rule-set';
 import RuleStage, { ERuleStageType, TRuleStageInput } from '../rule/rule-stage';
 import { TNodeOptions } from './base-node';
 
@@ -16,19 +16,30 @@ type TRuleStageConfig = {
 type TRuleConfig = {
   id: string,
   name: string,
-  severity: ERuleSeverity,
   stages: TRuleStageConfig[],
+};
+
+type TRuleSetEntryConfig = {
+  ruleId: string,
+  severity: ERuleSeverity,
 };
 
 type TRuleSetConfig = {
   id: string,
   name: string,
-  rules: TRuleConfig[],
+  entries: TRuleSetEntryConfig[]
 };
 
 export type TEngineConfig = {
   version: number,
+  rules: TRuleConfig[],
   ruleSets: TRuleSetConfig[]
+};
+
+export type TParsedEngineConfig = {
+  version: number,
+  rules: Rule[],
+  ruleSets: RuleSet[],
 };
 
 class Config {
@@ -36,96 +47,73 @@ class Config {
     return true; // TODO: Actually validate config. Detect e.g. circular references, invalid options, invalid nodeIds etc
   }
 
-  parse(config: TEngineConfig, availableNodes: BaseNode<any, any, any>[]): RuleSet[] {
+  parse(config: TEngineConfig, availableNodes: BaseNode<any, any, any>[]): TParsedEngineConfig {
     if (!this.validate(config)) {
       throw new Error('Failed to parse invalid config');
     }
 
-    const ruleSets = config.ruleSets.map(
-      ruleSetConfig => this.parseRuleSet(ruleSetConfig, availableNodes)
+    const rules = config.rules.map(
+      rule => this.parseRule(rule, availableNodes)
     );
 
-    return ruleSets;
+    const ruleSets = config.ruleSets.map(
+      ruleSetConfig => this.parseRuleSet(ruleSetConfig, rules)
+    );
+
+    return {
+      version: config.version,
+      rules,
+      ruleSets,
+    };
   }
 
-  export(version: number, ruleSets: RuleSet[]): TEngineConfig {
+  export(version: number, rules: Rule[], ruleSets: RuleSet[]): TEngineConfig {
+    const ruleConfigs = rules.map(
+      rule => this.exportRule(rule)
+    );
+
     const ruleSetConfigs = ruleSets.map(
       ruleSet => this.exportRuleSet(ruleSet)
     );
 
     return {
       version,
+      rules: ruleConfigs,
       ruleSets: ruleSetConfigs,
     };
   }
 
-  private parseRuleSet(ruleSetConfig: TRuleSetConfig, availableNodes: BaseNode<any, any, any>[]): RuleSet {
-    const rules = ruleSetConfig.rules.map(
-      ruleConfig => this.parseRule(ruleConfig, availableNodes)
-    );
+  private parseRule(ruleConfig: TRuleConfig, availableNodes: BaseNode<any, any, any>[]): Rule {
+    const { id, name, stages, } = ruleConfig;
 
-    const { id, name, } = ruleSetConfig;
-
-    return new RuleSet({
+    return new Rule({
       id,
       name,
-      rules,
+      stages: stages.map(
+        stageConfig => this.parseRuleStage(stageConfig, availableNodes)
+      ),
     });
   }
 
-  private exportRuleSet(ruleSet: RuleSet): TRuleSetConfig {
-    const ruleConfigs = ruleSet.rules.map(
-      rule => this.exportRule(rule)
-    );
-
-    const { id, name, } = ruleSet;
+  private exportRule(rule: Rule): TRuleConfig {
+    const { id, name, stages, } = rule;
 
     return {
       id,
       name,
-      rules: ruleConfigs,
-    };
-  }
-
-  private parseRule(ruleConfig: TRuleConfig, availableNodes: BaseNode<any, any, any>[]): TRuleWithSeverity {
-    const stages = ruleConfig.stages.map(
-      stageConfig => this.parseRuleStage(stageConfig, availableNodes)
-    );
-
-    const { id, name, severity, } = ruleConfig;
-
-    return {
-      severity,
-      rule: new Rule({
-        id,
-        name,
-        stages,
-      }),
-    };
-  }
-
-  private exportRule({ rule, severity, }: TRuleWithSeverity): TRuleConfig {
-    const stageConfigs = rule.stages.map(
-      ruleStage => this.exportRuleStage(ruleStage)
-    );
-
-    const { id, name, } = rule;
-
-    return {
-      id,
-      name,
-      severity,
-      stages: stageConfigs,
+      stages: stages.map(
+        ruleStage => this.exportRuleStage(ruleStage)
+      ),
     };
   }
 
   private parseRuleStage(ruleStageConfig: TRuleStageConfig, availableNodes: BaseNode<any, any, any>[]): RuleStage {
-    const node = availableNodes.find(
-      node => node.id === ruleStageConfig.nodeId
-    );
-    if (!node) { throw new Error(`Failed to find node with id ${ruleStageConfig.nodeId}`); }
+    const { id, type, inputs, nodeId, nodeOptions, } = ruleStageConfig;
 
-    const { id, type, inputs, nodeOptions, } = ruleStageConfig;
+    const node = availableNodes.find(
+      node => node.id === nodeId
+    );
+    if (!node) { throw new Error(`Failed to find node with id ${nodeId}`); }
 
     return new RuleStage({
       id,
@@ -145,6 +133,52 @@ class Config {
       nodeId: node.id,
       inputs,
       nodeOptions,
+    };
+  }
+
+  private parseRuleSet(ruleSetConfig: TRuleSetConfig, rules: Rule[]): RuleSet {
+    const { id, name, entries, } = ruleSetConfig;
+
+    return new RuleSet({
+      id,
+      name,
+      entries: entries.map(
+        entry => this.parseRuleSetEntry(entry, rules)
+      ),
+    });
+  }
+
+  private exportRuleSet(ruleSet: RuleSet): TRuleSetConfig {
+    const { id, name, entries, } = ruleSet;
+
+    return {
+      id,
+      name,
+      entries: entries.map(
+        entry => this.exportRuleSetEntry(entry)
+      ),
+    };
+  }
+
+  private parseRuleSetEntry(ruleSetEntryConfig: TRuleSetEntryConfig, rules: Rule[]): TRuleSetEntry {
+    const { ruleId, severity, } = ruleSetEntryConfig;
+
+    const rule = rules.find(
+      rule => rule.id === ruleId
+    );
+    if (!rule) {
+      throw new Error(`Failed to find rule with id ${ruleId}`);
+    }
+
+    return { rule, severity, };
+  }
+
+  private exportRuleSetEntry(ruleSetEntry: TRuleSetEntry): TRuleSetEntryConfig {
+    const { rule, severity, } = ruleSetEntry;
+
+    return {
+      ruleId: rule.id,
+      severity,
     };
   }
 }

@@ -13,17 +13,19 @@ import CompareBooleansNode from './nodes/compare-booleans';
 import CompareNumbersNode from './nodes/compare-numbers';
 import CompareStringsNode from './nodes/compare-strings';
 import StaticValueNode from './nodes/static-value';
+import Rule from './rule/rule';
 
 export type TEngineOptions = {
   customNodes?: BaseNode<any, any, any>[]
 };
 
 export default class Engine {
-  private registeredNodes: BaseNode<any, any, any>[];
-  private registeredRuleSets: { [key: string]: RuleSet } = {};
+  private nodes: BaseNode<any, any, any>[];
+  private rules: Rule[] = [];
+  private ruleSets: RuleSet[] = [];
 
   constructor(options: TEngineOptions) {
-    this.registeredNodes = [
+    this.nodes = [
       ...options.customNodes ?? [],
       new ExitNode(),
       new CompareBooleansNode(),
@@ -34,29 +36,28 @@ export default class Engine {
   }
 
   loadConfig(config: TEngineConfig) {
-    const ruleSets = Config.parse(config, this.registeredNodes);
+    const { rules, ruleSets, } = Config.parse(config, this.nodes);
 
-    this.registeredRuleSets = ruleSets.reduce(
-      (acc, ruleSet) => ({ ...acc, [ruleSet.id]: ruleSet, }),
-      {}
-    );
+    this.rules = rules;
+    this.ruleSets = ruleSets;
   }
 
   exportConfig(): TEngineConfig {
     return Config.export(
       -1,
-      Object.values(this.registeredRuleSets)
+      this.rules,
+      this.ruleSets
     );
   }
 
   exportSerializedNodes(): TSerializedNode[] {
-    return this.registeredNodes.map(
+    return this.nodes.map(
       node => node.serialize()
     );
   }
 
   async executeRuleSet(ruleSetId: string, inputs: TRuleSetInputs): Promise<TRuleSetExecutionResult> {
-    const ruleSet = this.registeredRuleSets[ruleSetId];
+    const ruleSet = this.ruleSets.find(ruleSet => ruleSet.id === ruleSetId);
     if (!ruleSet) {
       throw new Error(`Cannot execute unknown RuleSet: ${ruleSetId}`);
     }
