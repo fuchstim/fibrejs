@@ -17,12 +17,12 @@ export default class GetUserNode extends BaseNode<TNodeInput, TNodeOutput> {
       name: 'Get User',
       description: 'Retrieve details for a given user ID',
 
-      inputs: {
-        userId: { name: 'User ID', type: CStringType, },
-      },
-      outputs: {
-        user: { name: 'User', type: CUserType, },
-      },
+      inputs: [
+        { id: 'userId', name: 'User ID', type: CStringType, },
+      ],
+      outputs: [
+        { id: 'user', name: 'User', type: CUserType, },
+      ],
     });
   }
 

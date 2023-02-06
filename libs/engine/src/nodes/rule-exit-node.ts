@@ -11,10 +11,10 @@ export default class RuleExitNode extends BaseNode<TNodeInput, TNodeInput> {
       id: 'ruleResult',
       name: 'Rule Result',
 
-      inputs: {
-        result: { name: 'Rule Result', type: CBooleanType, },
-      },
-      outputs: {},
+      inputs: [
+        { id: 'result', name: 'Rule Result', type: CBooleanType, },
+      ],
+      outputs: [],
     });
   }
 
