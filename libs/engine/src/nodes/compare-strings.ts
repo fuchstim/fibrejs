@@ -30,8 +30,8 @@ export default class CompareStringsNode extends BaseNode<TNodeInput, TNodeOutput
           name: 'Operation',
           type: ENodeOptionType.DROP_DOWN,
           dropDownOptions: [
-          { id: EOperation.EQUAL, name: 'Equal', },
-          { id: EOperation.NOT_EQUAL, name: 'Not Equal', },
+            { id: EOperation.EQUAL, name: 'Equal', },
+            { id: EOperation.NOT_EQUAL, name: 'Not Equal', },
           ],
           validate: v => Object.values(EOperation).includes(v),
         },

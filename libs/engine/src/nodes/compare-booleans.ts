@@ -31,9 +31,9 @@ export default class CompareBooleans extends BaseNode<TNodeInput, TNodeOutput, T
           name: 'Operation',
           type: ENodeOptionType.DROP_DOWN,
           dropDownOptions: [
-          { id: EOperation.NEITHER, name: 'Neither', },
-          { id: EOperation.EITHER, name: 'Either', },
-          { id: EOperation.BOTH, name: 'Both', },
+            { id: EOperation.NEITHER, name: 'Neither', },
+            { id: EOperation.EITHER, name: 'Either', },
+            { id: EOperation.BOTH, name: 'Both', },
           ],
           validate: v => Object.values(EOperation).includes(v),
         },
