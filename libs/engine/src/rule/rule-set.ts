@@ -12,8 +12,13 @@ export type TRuleSetOptions = {
   rules: TRuleWithSeverity[],
 };
 
-type TRuleSetInputs = {
+export type TRuleSetInputs = {
   [key: string]: any
+};
+
+export type TRuleSetExecutionResult = {
+  triggered: boolean,
+  severity: ERuleSeverity | null,
 };
 
 export default class RuleSet {
@@ -27,9 +32,9 @@ export default class RuleSet {
     this.rules = options.rules;
   }
 
-  async execute(inputs: TRuleSetInputs): Promise<ERuleSeverity> {
+  async execute(inputs: TRuleSetInputs): Promise<TRuleSetExecutionResult> {
     const orderedRuleSeverities = [
-      ERuleSeverity.NONE,
+      ERuleSeverity.INFO,
       ERuleSeverity.LOW,
       ERuleSeverity.MEDIUM,
       ERuleSeverity.HIGH,
@@ -39,17 +44,20 @@ export default class RuleSet {
 
     const ruleResults = await Promise.all(
       this.rules.map(async ({ rule, severity, }) => {
-        const { result, } = await rule.execute(inputs);
+        const { triggered, } = await rule.execute(inputs);
 
-        return { severity, result, };
+        return { severity, triggered, };
       })
     );
 
     const highestSeverityResult = ruleResults
-      .filter(({ result, }) => result === true)
+      .filter(({ triggered, }) => triggered)
       .sort((a, b) => orderedRuleSeverities.indexOf(a.severity) - orderedRuleSeverities.indexOf(b.severity))
       .pop();
 
-    return highestSeverityResult?.severity ?? ERuleSeverity.NONE;
+    return {
+      severity: highestSeverityResult?.severity ?? null,
+      triggered: ruleResults.some(result => result.triggered),
+    };
   }
 }

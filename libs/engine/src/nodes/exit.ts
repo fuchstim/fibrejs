@@ -1,4 +1,4 @@
-import BaseNode from './base-node';
+import BaseNode from './base';
 import { CBooleanType } from '../constants/types';
 
 type TNodeInput = {
@@ -8,7 +8,7 @@ type TNodeInput = {
 export default class ExitNode extends BaseNode<TNodeInput, TNodeInput, never> {
   constructor() {
     super({
-      id: 'ruleResult',
+      id: 'exit',
       name: 'Rule Result',
 
       options: [],

@@ -2,19 +2,20 @@
 export * as Types from './constants/types';
 
 // Nodes
-export * from './nodes/base-node';
+export * from './nodes/base';
 
 import { ERuleSeverity } from './constants/severities';
-import RuleSet from './rule/rule-set';
+import RuleSet, { TRuleSetExecutionResult, TRuleSetInputs } from './rule/rule-set';
 import { TRuleStageInput } from './rule/rule-stage';
 
 import Config, { TConfig } from './config';
 
-import BaseNode from './nodes/base-node';
-import ExitNode from './nodes/exit-node';
-import CompareBooleansNode from './nodes/compare-booleans-node';
-import CompareNumbersNode from './nodes/compare-numbers-node';
-import CompareStringsNode from './nodes/compare-strings-node';
+import BaseNode, { TSerializedNode } from './nodes/base';
+import ExitNode from './nodes/exit';
+import CompareBooleansNode from './nodes/compare-booleans';
+import CompareNumbersNode from './nodes/compare-numbers';
+import CompareStringsNode from './nodes/compare-strings';
+import StaticValueNode from './nodes/static-value';
 
 export type TEngineOptions = {
   customNodes?: BaseNode<any, any, any>[]
@@ -31,6 +32,7 @@ export default class Engine {
       new CompareBooleansNode(),
       new CompareNumbersNode(),
       new CompareStringsNode(),
+      new StaticValueNode(),
     ];
   }
 
@@ -50,7 +52,13 @@ export default class Engine {
     );
   }
 
-  async executeRuleSet(ruleSetId: string, inputs: TRuleStageInput): Promise<ERuleSeverity> {
+  exportSerializedNodes(): TSerializedNode[] {
+    return this.registeredNodes.map(
+      node => node.serialize()
+    );
+  }
+
+  async executeRuleSet(ruleSetId: string, inputs: TRuleSetInputs): Promise<TRuleSetExecutionResult> {
     const ruleSet = this.registeredRuleSets[ruleSetId];
     if (!ruleSet) {
       throw new Error(`Cannot execute unknown RuleSet: ${ruleSetId}`);

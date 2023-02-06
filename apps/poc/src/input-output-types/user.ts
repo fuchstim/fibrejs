@@ -3,10 +3,12 @@ import { Types } from '@fraud-tool/lib-engine';
 export type TUserType = {
   id: string,
   username: string,
+  age: number,
   createdAt: Types.TDateType,
 };
 export const CUserType: Types.TType<TUserType, TUserType> = {
-  name: 'USER',
+  id: 'USER',
+  name: 'User',
   fields: {
     id: Types.EPrimitive.STRING,
     username: Types.EPrimitive.STRING,

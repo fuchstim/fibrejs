@@ -1,10 +1,12 @@
 export enum EPrimitive {
+  ANY = 'ANY',
   STRING = 'STRING',
   NUMBER = 'NUMBER',
   BOOLEAN = 'BOOLEAN',
 }
 
 export type TType<TCustomType, TNativeType> = {
+  id: string,
   name: string,
   fields: { [key: string]: EPrimitive | TType<any, any> },
   toNative: (input: TCustomType) => TNativeType,
@@ -12,15 +14,30 @@ export type TType<TCustomType, TNativeType> = {
 };
 
 export type TSerializedType = {
+  id: string,
   name: string,
   fields: { [key: string]: EPrimitive | TSerializedType, },
+};
+
+export type TAnyType = {
+  value: string | number | boolean,
+};
+export const CAnyType: TType<TAnyType, string | number | boolean> = {
+  id: EPrimitive.ANY,
+  name: 'Any',
+  fields: {
+    value: EPrimitive.ANY,
+  },
+  toNative: ({ value, }) => value,
+  fromNative: value => ({ value, }),
 };
 
 export type TStringType = {
   value: string,
 };
 export const CStringType: TType<TStringType, string> = {
-  name: EPrimitive.STRING,
+  id: EPrimitive.STRING,
+  name: 'String',
   fields: {
     value: EPrimitive.STRING,
   },
@@ -32,7 +49,8 @@ export type TNumberType = {
   value: number,
 };
 export const CNumberType: TType<TNumberType, number> = {
-  name: EPrimitive.NUMBER,
+  id: EPrimitive.NUMBER,
+  name: 'Number',
   fields: {
     value: EPrimitive.NUMBER,
   },
@@ -44,7 +62,8 @@ export type TBooleanType = {
   value: boolean,
 };
 export const CBooleanType: TType<TBooleanType, boolean> = {
-  name: EPrimitive.BOOLEAN,
+  id: EPrimitive.BOOLEAN,
+  name: 'Boolean',
   fields: {
     value: EPrimitive.BOOLEAN,
   },
@@ -63,7 +82,8 @@ export type TDateType = {
   timestamp: string,
 };
 export const CDateType: TType<TDateType, Date> = {
-  name: 'DATE',
+  id: 'DATE',
+  name: 'Date',
   fields: {
     milliseconds: EPrimitive.NUMBER,
     seconds: EPrimitive.NUMBER,

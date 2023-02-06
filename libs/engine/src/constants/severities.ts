@@ -1,5 +1,5 @@
 export enum ERuleSeverity {
-  NONE = 'NONE',
+  INFO = 'INFO',
   LOW = 'LOW',
   MEDIUM = 'MEDIUM',
   HIGH = 'HIGH',

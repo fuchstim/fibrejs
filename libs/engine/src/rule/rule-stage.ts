@@ -1,4 +1,4 @@
-import BaseNode from '../nodes/base-node';
+import BaseNode from '../nodes/base';
 
 export enum ERuleStageType {
   ENTRY = 'ENTRY',
@@ -7,8 +7,8 @@ export enum ERuleStageType {
 
 export type TRuleStageInput = {
   ruleStageId: string,
-  outputKey: string,
-  inputKey: string,
+  outputId: string,
+  inputId: string,
 };
 
 export type TRuleStageNodeOptions = {
@@ -52,10 +52,10 @@ export default class RuleStage {
       throw new Error('Cannot execute RuleStage that was already executed');
     }
 
-    const nodeInputs = this.inputs?.reduce(
-      (acc, { ruleStageId, inputKey, outputKey, }) => ({
+    const nodeInputs = this.inputs.reduce(
+      (acc, { ruleStageId, inputId, outputId, }) => ({
         ...acc,
-        [inputKey]: previousOutputs[ruleStageId][outputKey],
+        [inputId]: this.getOutputByKey(previousOutputs[ruleStageId], outputId),
       }),
       additionalNodeInputs
     );
@@ -64,5 +64,15 @@ export default class RuleStage {
     this.executed = true;
 
     return result;
+  }
+
+  private getOutputByKey(outputs: TPreviousStageOutputs, key: string): any {
+    const pathParts = key.split('.');
+    const value = pathParts.reduce(
+      (acc, pathPart) => acc[pathPart],
+      outputs
+    );
+
+    return value;
   }
 }

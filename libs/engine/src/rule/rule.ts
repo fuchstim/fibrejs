@@ -10,7 +10,7 @@ type TRuleInputs = {
   [key: string]: any
 };
 type TRuleOutput = {
-  result: boolean
+  triggered: boolean
 };
 
 type TStageOutputs = TRuleInputs;
@@ -51,7 +51,7 @@ export default class Rule {
     const exitStage = sortedStages.find(s => s.type === ERuleStageType.EXIT)!;
 
     return {
-      result: Boolean(stageOutputs[exitStage.id].result),
+      triggered: Boolean(stageOutputs[exitStage.id].result),
     };
   }
 

@@ -1,4 +1,4 @@
-import BaseNode, { ENodeOptionType } from './base-node';
+import BaseNode, { ENodeOptionType } from './base';
 import { CBooleanType, CNumberType } from '../constants/types';
 
 type TNodeInput = {

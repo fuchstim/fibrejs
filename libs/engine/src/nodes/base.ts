@@ -10,12 +10,16 @@ export type TDropDownOption = {
   name: string,
 };
 
+export type TNodeOptionPrimitive = string | number | boolean;
+
+export type TNodeOptions = { [key: string]: TNodeOptionPrimitive };
+
 export type TNodeOption = {
   id: string,
   name: string,
   type: ENodeOptionType,
   dropDownOptions?: TDropDownOption[],
-  validate: (v: any) => boolean,
+  validate: (optionValue: any, otherOptions: TNodeOptions) => boolean,
 };
 
 export type TNodeInputOutput = {
@@ -57,7 +61,7 @@ export type TSerializedNode = {
   outputs: TSerializedNodeInputOutput[],
 };
 
-export abstract class BaseNode<TInput, TOutput, TOptions> {
+export abstract class BaseNode<TInput, TOutput, TOptions extends TNodeOptions> {
   readonly id: string;
   private name: string;
   private description?: string;
@@ -77,6 +81,19 @@ export abstract class BaseNode<TInput, TOutput, TOptions> {
   }
 
   abstract execute(input: TInput, options: TOptions): Promise<TOutput> | TOutput;
+
+  validateOptions(options: TOptions): boolean {
+    const isValid = Object
+      .entries(options)
+      .every(([ key, value, ]) => {
+        const optionConfig = this.options.find(option => option.id === key);
+        if (!optionConfig?.validate) { return false; }
+
+        return optionConfig.validate(value, options);
+      });
+
+    return isValid;
+  }
 
   serialize(): TSerializedNode {
     return {
@@ -117,6 +134,7 @@ export abstract class BaseNode<TInput, TOutput, TOptions> {
 
   private serializeType(type: TType<any, any>): TSerializedType {
     return {
+      id: type.id,
       name: type.name,
       fields: Object
         .entries(type.fields)

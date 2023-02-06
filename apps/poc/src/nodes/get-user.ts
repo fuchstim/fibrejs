@@ -32,6 +32,7 @@ export default class GetUserNode extends BaseNode<TNodeInput, TNodeOutput, never
       user: {
         id: input.userId,
         username: 'username',
+        age: 21,
         createdAt: Types.CDateType.fromNative(new Date()),
       },
     };

@@ -1,4 +1,4 @@
-import BaseNode, { ENodeOptionType } from './base-node';
+import BaseNode, { ENodeOptionType } from './base';
 import { CBooleanType } from '../constants/types';
 
 type TNodeInput = {
@@ -19,7 +19,7 @@ type TNodeOptions = {
   operation: EOperation
 };
 
-export default class CompareBooleansNode extends BaseNode<TNodeInput, TNodeOutput, TNodeOptions> {
+export default class CompareBooleans extends BaseNode<TNodeInput, TNodeOutput, TNodeOptions> {
   constructor() {
     super({
       id: 'compareBooleans',
