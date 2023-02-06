@@ -5,7 +5,7 @@ export type TUserType = {
   username: string,
   createdAt: Types.TDateType,
 };
-export const CUserType: Types.TComplexType<TUserType, TUserType> = {
+export const CUserType: Types.TType<TUserType, TUserType> = {
   name: 'USER',
   fields: {
     id: Types.EPrimitive.STRING,

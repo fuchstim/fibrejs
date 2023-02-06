@@ -4,11 +4,52 @@ export enum EPrimitive {
   BOOLEAN = 'BOOLEAN',
 }
 
-export type TComplexType<TCustomType, TNativeType> = {
+export type TType<TCustomType, TNativeType> = {
   name: string,
-  fields: { [key: string]: EPrimitive | TComplexType<any, any> },
+  fields: { [key: string]: EPrimitive | TType<any, any> },
   toNative: (input: TCustomType) => TNativeType,
   fromNative: (input: TNativeType) => TCustomType
+};
+
+export type TSerializedType = {
+  name: string,
+  fields: { [key: string]: EPrimitive | TSerializedType, },
+};
+
+export type TStringType = {
+  value: string,
+};
+export const CStringType: TType<TStringType, string> = {
+  name: EPrimitive.STRING,
+  fields: {
+    value: EPrimitive.STRING,
+  },
+  toNative: ({ value, }) => String(value),
+  fromNative: value => ({ value, }),
+};
+
+export type TNumberType = {
+  value: number,
+};
+export const CNumberType: TType<TNumberType, number> = {
+  name: EPrimitive.NUMBER,
+  fields: {
+    value: EPrimitive.NUMBER,
+  },
+  toNative: ({ value, }) => Number(value),
+  fromNative: value => ({ value, }),
+};
+
+export type TBooleanType = {
+  value: boolean,
+};
+export const CBooleanType: TType<TBooleanType, boolean> = {
+  name: EPrimitive.BOOLEAN,
+  fields: {
+    value: EPrimitive.BOOLEAN,
+  },
+  toNative: ({ value, }) => Boolean(value),
+  fromNative: value => ({ value, }),
 };
 
 export type TDateType = {
@@ -21,7 +62,7 @@ export type TDateType = {
   years: number,
   timestamp: string,
 };
-export const CDateType: TComplexType<TDateType, Date> = {
+export const CDateType: TType<TDateType, Date> = {
   name: 'DATE',
   fields: {
     milliseconds: EPrimitive.NUMBER,

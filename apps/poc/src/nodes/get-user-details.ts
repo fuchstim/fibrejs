@@ -1,6 +1,7 @@
 import { BaseNode, Types } from '@fraud-tool/lib-engine';
 
 import { CUserType, TUserType } from '../input-output-types/user';
+import { CStringType } from '@fraud-tool/lib-engine/dist/constants/types';
 
 type TNodeInput = {
   userId: string,
@@ -17,7 +18,7 @@ export default class GetUserNode extends BaseNode<TNodeInput, TNodeOutput> {
       description: 'Retrieve details for a given user ID',
 
       inputs: {
-        userId: { name: 'User ID', type: Types.EPrimitive.STRING, },
+        userId: { name: 'User ID', type: CStringType, },
       },
       outputs: {
         user: { name: 'User', type: CUserType, },

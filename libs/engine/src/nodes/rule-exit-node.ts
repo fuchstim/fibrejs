@@ -1,5 +1,5 @@
 import BaseNode from './base-node';
-import { EPrimitive } from '../constants/types';
+import { CBooleanType } from '../constants/types';
 
 type TNodeInput = {
   result: boolean,
@@ -12,7 +12,7 @@ export default class RuleExitNode extends BaseNode<TNodeInput, TNodeInput> {
       name: 'Rule Result',
 
       inputs: {
-        result: { name: 'Rule Result', type: EPrimitive.BOOLEAN, },
+        result: { name: 'Rule Result', type: CBooleanType, },
       },
       outputs: {},
     });
