@@ -1,5 +1,5 @@
 import fs from 'fs';
-import Engine, { TEngineConfig } from '@tripwire/lib-engine';
+import Engine, { TEngineConfig } from '@tripwire/engine';
 
 import GetUserNode from './nodes/get-user';
 import EntryTestNode from './nodes/entry-test';

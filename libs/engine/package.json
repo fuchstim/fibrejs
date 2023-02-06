@@ -1,5 +1,5 @@
 {
-  "name": "@tripwire/lib-engine",
+  "name": "@tripwire/engine",
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
@@ -11,6 +11,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@tripwire/lib-logger": "^1.0.0"
+    "@tripwire/logger": "^1.0.0"
   }
 }

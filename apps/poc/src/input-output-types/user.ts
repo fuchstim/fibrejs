@@ -1,4 +1,4 @@
-import { Types } from '@tripwire/lib-engine';
+import { Types } from '@tripwire/engine';
 
 export type TUserType = {
   id: string,

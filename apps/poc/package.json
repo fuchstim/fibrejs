@@ -11,6 +11,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@tripwire/lib-engine": "^1.0.0"
+    "@tripwire/engine": "^1.0.0"
   }
 }

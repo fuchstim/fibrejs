@@ -1,4 +1,4 @@
-import { BaseNode, Types } from '@tripwire/lib-engine';
+import { BaseNode, Types } from '@tripwire/engine';
 
 import { CUserType, TUserType } from '../input-output-types/user';
 

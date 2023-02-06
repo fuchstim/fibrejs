@@ -1,4 +1,4 @@
-import { BaseNode, Types } from '@tripwire/lib-engine';
+import { BaseNode, Types } from '@tripwire/engine';
 
 type TNodeInput = {
   userId: Types.TStringType,
