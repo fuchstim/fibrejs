@@ -50,7 +50,7 @@ export default class Rule {
     const exitStage = this.stages.find(s => s.type === ERuleStageType.EXIT)!;
 
     return {
-      triggered: Boolean(stageOutputs[exitStage.id].result),
+      triggered: Boolean(stageOutputs[exitStage.id].result.value),
     };
   }
 

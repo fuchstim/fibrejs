@@ -1,12 +1,10 @@
-import { BaseNode } from '@tripwire/lib-engine';
-
-import { CStringType } from '@tripwire/lib-engine/dist/constants/types';
+import { BaseNode, Types } from '@tripwire/lib-engine';
 
 type TNodeInput = {
-  userId: string,
+  userId: Types.TStringType,
 };
 type TNodeOutput = {
-  userId: string,
+  userId: Types.TStringType,
 };
 
 export default class EntryTestNode extends BaseNode<TNodeInput, TNodeOutput, never> {
@@ -18,7 +16,7 @@ export default class EntryTestNode extends BaseNode<TNodeInput, TNodeOutput, nev
       options: [],
       inputs: [],
       outputs: [
-        { id: 'userId', name: 'User ID', type: CStringType, },
+        { id: 'userId', name: 'User ID', type: Types.CStringType, },
       ],
     });
   }

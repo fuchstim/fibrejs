@@ -1,4 +1,4 @@
-import { BaseNode } from '../common/base-node';
+import { BaseNode, TNodeOptions } from '../common/base-node';
 
 export enum ERuleStageType {
   ENTRY = 'ENTRY',
@@ -11,16 +11,12 @@ export type TRuleStageInput = {
   inputId: string,
 };
 
-export type TRuleStageNodeOptions = {
-  [key: string]: any
-};
-
 export type TRuleStageOptions = {
   id: string,
   type?: ERuleStageType,
   node: BaseNode<any, any, any>,
   inputs: TRuleStageInput[],
-  nodeOptions: TRuleStageNodeOptions,
+  nodeOptions: TNodeOptions,
 };
 
 export type TPreviousStageOutputs = {
@@ -32,7 +28,7 @@ export default class RuleStage {
   readonly type?: ERuleStageType;
   readonly node: BaseNode<any, any, any>;
   readonly inputs: TRuleStageInput[];
-  readonly nodeOptions: TRuleStageNodeOptions;
+  readonly nodeOptions: TNodeOptions;
   private executed = false;
 
   constructor(options: TRuleStageOptions) {

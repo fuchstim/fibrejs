@@ -1,4 +1,4 @@
-import { ERuleSeverity } from '../constants/severities';
+import { ERuleSeverity } from '../constants/rule-severities';
 import Rule from './rule';
 
 export type TRuleWithSeverity = {

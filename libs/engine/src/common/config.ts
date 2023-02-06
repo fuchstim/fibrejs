@@ -1,15 +1,16 @@
 import { BaseNode } from '..';
-import { ERuleSeverity } from '../constants/severities';
+import { ERuleSeverity } from '../constants/rule-severities';
 import Rule from '../rule/rule';
 import RuleSet, { TRuleWithSeverity } from '../rule/rule-set';
-import RuleStage, { ERuleStageType, TRuleStageNodeOptions, TRuleStageInput } from '../rule/rule-stage';
+import RuleStage, { ERuleStageType, TRuleStageInput } from '../rule/rule-stage';
+import { TNodeOptions } from './base-node';
 
 type TRuleStageConfig = {
   id: string,
   type?: ERuleStageType,
   nodeId: string,
   inputs: TRuleStageInput[],
-  nodeOptions: TRuleStageNodeOptions
+  nodeOptions: TNodeOptions
 };
 
 type TRuleConfig = {
@@ -25,17 +26,17 @@ type TRuleSetConfig = {
   rules: TRuleConfig[],
 };
 
-export type TConfig = {
+export type TEngineConfig = {
   version: number,
   ruleSets: TRuleSetConfig[]
 };
 
 class Config {
-  validate(config: TConfig): boolean {
+  validate(config: TEngineConfig): boolean {
     return true; // TODO: Actually validate config. Detect e.g. circular references, invalid options, invalid nodeIds etc
   }
 
-  parse(config: TConfig, availableNodes: BaseNode<any, any, any>[]): RuleSet[] {
+  parse(config: TEngineConfig, availableNodes: BaseNode<any, any, any>[]): RuleSet[] {
     if (!this.validate(config)) {
       throw new Error('Failed to parse invalid config');
     }
@@ -47,7 +48,7 @@ class Config {
     return ruleSets;
   }
 
-  export(version: number, ruleSets: RuleSet[]): TConfig {
+  export(version: number, ruleSets: RuleSet[]): TEngineConfig {
     const ruleSetConfigs = ruleSets.map(
       ruleSet => this.exportRuleSet(ruleSet)
     );

@@ -1,8 +1,8 @@
 import { BaseNode } from '../common/base-node';
-import { CBooleanType } from '../common/types';
+import { CBooleanType, TBooleanType } from '../common/types';
 
 type TNodeInput = {
-  result: boolean,
+  result: TBooleanType,
 };
 
 export default class ExitNode extends BaseNode<TNodeInput, TNodeInput, never> {

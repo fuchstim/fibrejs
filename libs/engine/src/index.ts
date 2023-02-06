@@ -1,12 +1,11 @@
-// Constants
+// Re-Exports
 export * as Types from './common/types';
-
-// Nodes
 export { BaseNode } from './common/base-node';
+export { TEngineConfig } from './common/config';
 
 import RuleSet, { TRuleSetExecutionResult, TRuleSetInputs } from './rule/rule-set';
 
-import Config, { TConfig } from './common/config';
+import Config, { TEngineConfig } from './common/config';
 
 import { BaseNode, TSerializedNode } from './common/base-node';
 import ExitNode from './nodes/exit';
@@ -34,7 +33,7 @@ export default class Engine {
     ];
   }
 
-  loadConfig(config: TConfig) {
+  loadConfig(config: TEngineConfig) {
     const ruleSets = Config.parse(config, this.registeredNodes);
 
     this.registeredRuleSets = ruleSets.reduce(
@@ -43,7 +42,7 @@ export default class Engine {
     );
   }
 
-  exportConfig(): TConfig {
+  exportConfig(): TEngineConfig {
     return Config.export(
       -1,
       Object.values(this.registeredRuleSets)

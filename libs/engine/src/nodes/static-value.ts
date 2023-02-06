@@ -1,8 +1,8 @@
 import { BaseNode, ENodeOptionType } from '../common/base-node';
-import { CAnyType } from '../common/types';
+import { CAnyType, TBooleanType, TNumberType, TStringType } from '../common/types';
 
 type TNodeOutput = {
-  value: string | number | boolean,
+  value: TStringType | TNumberType | TBooleanType,
 };
 
 enum EValueType {
@@ -62,11 +62,11 @@ export default class StaticValueNode extends BaseNode<never, TNodeOutput, TNodeO
   execute(_: never, { valueType, value, }: TNodeOptions): TNodeOutput {
     switch (valueType) {
       case EValueType.STRING:
-        return { value: String(value), };
+        return { value: { value: String(value), }, };
       case EValueType.NUMBER:
-        return { value: Number(value), };
+        return { value: { value: Number(value), }, };
       case EValueType.BOOLEAN:
-        return { value: Boolean(value), };
+        return { value: { value: Boolean(value), }, };
 
       default: throw new Error(`Invalid valueType specified: ${valueType}`);
     }

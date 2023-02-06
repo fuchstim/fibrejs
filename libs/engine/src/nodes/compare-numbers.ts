@@ -1,13 +1,13 @@
 import { BaseNode, ENodeOptionType } from '../common/base-node';
-import { CBooleanType, CNumberType } from '../common/types';
+import { CBooleanType, CNumberType, TBooleanType, TNumberType } from '../common/types';
 
 type TNodeInput = {
-  inputA: number,
-  inputB: number,
+  inputA: TNumberType,
+  inputB: TNumberType,
 };
 
 type TNodeOutput = {
-  result: boolean,
+  result: TBooleanType,
 };
 
 enum EOperation {
@@ -54,14 +54,16 @@ export default class CompareNumbersNode extends BaseNode<TNodeInput, TNodeOutput
 
   execute({ inputA, inputB, }: TNodeInput, { operation, }: TNodeOptions): TNodeOutput {
     const result = {
-      [EOperation.EQUAL]: inputA === inputB,
-      [EOperation.NOT_EQUAL]: inputA !== inputB,
-      [EOperation.GREATER]: inputA > inputB,
-      [EOperation.GREATER_EQUAL]: inputA >= inputB,
-      [EOperation.LESS]: inputA < inputB,
-      [EOperation.LESS_EQUAL]: inputA <= inputB,
+      [EOperation.EQUAL]: inputA.value === inputB.value,
+      [EOperation.NOT_EQUAL]: inputA.value !== inputB.value,
+      [EOperation.GREATER]: inputA.value > inputB.value,
+      [EOperation.GREATER_EQUAL]: inputA.value >= inputB.value,
+      [EOperation.LESS]: inputA.value < inputB.value,
+      [EOperation.LESS_EQUAL]: inputA.value <= inputB.value,
     }[operation];
 
-    return { result, };
+    return {
+      result: { value: result, },
+    };
   }
 }

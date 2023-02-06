@@ -1,13 +1,13 @@
 import { BaseNode, ENodeOptionType } from '../common/base-node';
-import { CBooleanType } from '../common/types';
+import { CBooleanType, TBooleanType } from '../common/types';
 
 type TNodeInput = {
-  inputA: boolean,
-  inputB: boolean,
+  inputA: TBooleanType,
+  inputB: TBooleanType,
 };
 
 type TNodeOutput = {
-  result: boolean,
+  result: TBooleanType,
 };
 
 enum EOperation {
@@ -48,11 +48,13 @@ export default class CompareBooleans extends BaseNode<TNodeInput, TNodeOutput, T
 
   execute({ inputA, inputB, }: TNodeInput, { operation, }: TNodeOptions): TNodeOutput {
     const result = {
-      [EOperation.NEITHER]: !inputA && !inputB,
-      [EOperation.EITHER]: inputA || inputB,
-      [EOperation.BOTH]: inputA && inputB,
+      [EOperation.NEITHER]: !inputA.value && !inputB.value,
+      [EOperation.EITHER]: inputA.value || inputB.value,
+      [EOperation.BOTH]: inputA.value && inputB.value,
     }[operation];
 
-    return { result, };
+    return {
+      result: { value: result, },
+    };
   }
 }
