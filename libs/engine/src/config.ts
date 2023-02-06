@@ -2,13 +2,14 @@ import { BaseNode } from '.';
 import { ERuleSeverity } from './constants/severities';
 import Rule from './rule/rule';
 import RuleSet, { TRuleWithSeverity } from './rule/rule-set';
-import RuleStage, { ERuleStageType, TRuleStageInput } from './rule/rule-stage';
+import RuleStage, { ERuleStageType, TRuleStageNodeOptions, TRuleStageInput } from './rule/rule-stage';
 
 type TRuleStageConfig = {
   id: string,
   type?: ERuleStageType,
   nodeId: string,
   inputs: TRuleStageInput[],
+  nodeOptions: TRuleStageNodeOptions
 };
 
 type TRuleConfig = {
@@ -34,7 +35,7 @@ class Config {
     return true; // TODO: Actually validate config
   }
 
-  parse(config: TConfig, availableNodes: BaseNode<any, any>[]): RuleSet[] {
+  parse(config: TConfig, availableNodes: BaseNode<any, any, any>[]): RuleSet[] {
     if (!this.validate(config)) {
       throw new Error('Failed to parse invalid config');
     }
@@ -57,7 +58,7 @@ class Config {
     };
   }
 
-  private parseRuleSet(ruleSetConfig: TRuleSetConfig, availableNodes: BaseNode<any, any>[]): RuleSet {
+  private parseRuleSet(ruleSetConfig: TRuleSetConfig, availableNodes: BaseNode<any, any, any>[]): RuleSet {
     const rules = ruleSetConfig.rules.map(
       ruleConfig => this.parseRule(ruleConfig, availableNodes)
     );
@@ -85,7 +86,7 @@ class Config {
     };
   }
 
-  private parseRule(ruleConfig: TRuleConfig, availableNodes: BaseNode<any, any>[]): TRuleWithSeverity {
+  private parseRule(ruleConfig: TRuleConfig, availableNodes: BaseNode<any, any, any>[]): TRuleWithSeverity {
     const stages = ruleConfig.stages.map(
       stageConfig => this.parseRuleStage(stageConfig, availableNodes)
     );
@@ -117,30 +118,32 @@ class Config {
     };
   }
 
-  private parseRuleStage(ruleStageConfig: TRuleStageConfig, availableNodes: BaseNode<any, any>[]): RuleStage {
+  private parseRuleStage(ruleStageConfig: TRuleStageConfig, availableNodes: BaseNode<any, any, any>[]): RuleStage {
     const node = availableNodes.find(
       node => node.id === ruleStageConfig.nodeId
     );
     if (!node) { throw new Error(`Failed to find node with id ${ruleStageConfig.nodeId}`); }
 
-    const { id, type, inputs, } = ruleStageConfig;
+    const { id, type, inputs, nodeOptions, } = ruleStageConfig;
 
     return new RuleStage({
       id,
       type,
       node,
       inputs,
+      nodeOptions,
     });
   }
 
   private exportRuleStage(ruleStage: RuleStage): TRuleStageConfig {
-    const { id, type, node, inputs, } = ruleStage;
+    const { id, type, node, inputs, nodeOptions, } = ruleStage;
 
     return {
       id,
       type,
       nodeId: node.id,
       inputs,
+      nodeOptions,
     };
   }
 }

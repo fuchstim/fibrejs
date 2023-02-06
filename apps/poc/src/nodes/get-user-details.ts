@@ -10,13 +10,14 @@ type TNodeOutput = {
   user: TUserType,
 };
 
-export default class GetUserNode extends BaseNode<TNodeInput, TNodeOutput> {
+export default class GetUserNode extends BaseNode<TNodeInput, TNodeOutput, never> {
   constructor() {
     super({
       id: 'getUser',
       name: 'Get User',
       description: 'Retrieve details for a given user ID',
 
+      options: [],
       inputs: [
         { id: 'userId', name: 'User ID', type: CStringType, },
       ],

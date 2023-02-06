@@ -11,11 +11,16 @@ export type TRuleStageInput = {
   inputKey: string,
 };
 
+export type TRuleStageNodeOptions = {
+  [key: string]: any
+};
+
 export type TRuleStageOptions = {
   id: string,
   type?: ERuleStageType,
-  node: BaseNode<any, any>,
-  inputs: TRuleStageInput[]
+  node: BaseNode<any, any, any>,
+  inputs: TRuleStageInput[],
+  nodeOptions: TRuleStageNodeOptions,
 };
 
 export type TPreviousStageOutputs = {
@@ -25,8 +30,9 @@ export type TPreviousStageOutputs = {
 export default class RuleStage {
   readonly id: string;
   readonly type?: ERuleStageType;
-  readonly node: BaseNode<any, any>;
+  readonly node: BaseNode<any, any, any>;
   readonly inputs: TRuleStageInput[];
+  readonly nodeOptions: TRuleStageNodeOptions;
   private executed = false;
 
   constructor(options: TRuleStageOptions) {
@@ -34,6 +40,7 @@ export default class RuleStage {
     this.type = options.type;
     this.node = options.node;
     this.inputs = options.inputs;
+    this.nodeOptions = options.nodeOptions;
   }
 
   get dependsOn() {
@@ -53,7 +60,7 @@ export default class RuleStage {
       additionalNodeInputs
     );
 
-    const result = await this.node.execute(nodeInputs);
+    const result = await this.node.execute(nodeInputs, this.nodeOptions);
     this.executed = true;
 
     return result;

@@ -5,25 +5,32 @@ export * as Types from './constants/types';
 export * from './nodes/base-node';
 
 import { ERuleSeverity } from './constants/severities';
-import BaseNode from './nodes/base-node';
-import RuleExitNode from './nodes/rule-exit-node';
 import RuleSet from './rule/rule-set';
 import { TRuleStageInput } from './rule/rule-stage';
 
 import Config, { TConfig } from './config';
 
+import BaseNode from './nodes/base-node';
+import ExitNode from './nodes/exit-node';
+import CompareBooleansNode from './nodes/compare-booleans-node';
+import CompareNumbersNode from './nodes/compare-numbers-node';
+import CompareStringsNode from './nodes/compare-strings-node';
+
 export type TEngineOptions = {
-  customNodes?: BaseNode<any, any>[]
+  customNodes?: BaseNode<any, any, any>[]
 };
 
 export default class Engine {
-  private registeredNodes: BaseNode<any, any>[];
+  private registeredNodes: BaseNode<any, any, any>[];
   private registeredRuleSets: { [key: string]: RuleSet } = {};
 
   constructor(options: TEngineOptions) {
     this.registeredNodes = [
       ...options.customNodes ?? [],
-      new RuleExitNode(),
+      new ExitNode(),
+      new CompareBooleansNode(),
+      new CompareNumbersNode(),
+      new CompareStringsNode(),
     ];
   }
 

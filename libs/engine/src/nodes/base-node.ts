@@ -1,61 +1,109 @@
 import { EPrimitive, TSerializedType, TType } from '../constants/types';
 
-type TNodeInputOutput = {
+export enum ENodeOptionType {
+  DROP_DOWN = 'DROP_DOWN',
+  INPUT = 'INPUT',
+}
+
+export type TDropDownOption = {
+  id: string,
+  name: string,
+};
+
+export type TNodeOption = {
+  id: string,
+  name: string,
+  type: ENodeOptionType,
+  dropDownOptions?: TDropDownOption[],
+  validate: (v: any) => boolean,
+};
+
+export type TNodeInputOutput = {
   id: string,
   name: string,
   type: TType<any, any>,
 };
 
-type TNodeConfig = {
+export type TNodeConfig = {
   id: string,
   name: string,
   description?: string,
+
+  options: TNodeOption[],
   inputs: TNodeInputOutput[],
   outputs: TNodeInputOutput[],
 };
 
-type TSerializedNodeInputOutput = {
+export type TSerializedNodeOption = {
+  id: string,
+  name: string,
+  type: ENodeOptionType,
+  dropDownOptions?: TDropDownOption[],
+};
+
+export type TSerializedNodeInputOutput = {
   id: string,
   name: string,
   type: TSerializedType,
 };
 
-type TSerializedNode = {
+export type TSerializedNode = {
   id: string,
   name: string,
   description?: string,
+
+  options: TSerializedNodeOption[],
   inputs: TSerializedNodeInputOutput[],
   outputs: TSerializedNodeInputOutput[],
 };
 
-export abstract class BaseNode<TInput, TOutput> {
+export abstract class BaseNode<TInput, TOutput, TOptions> {
   readonly id: string;
   private name: string;
   private description?: string;
+
+  private options: TNodeOption[];
   private inputs: TNodeInputOutput[];
   private outputs: TNodeInputOutput[];
 
-  constructor(options: TNodeConfig) {
-    this.id = options.id;
-    this.name = options.name;
-    this.description = options.description;
-    this.inputs = options.inputs;
-    this.outputs = options.outputs;
+  constructor(config: TNodeConfig) {
+    this.id = config.id;
+    this.name = config.name;
+    this.description = config.description;
+
+    this.options = config.options;
+    this.inputs = config.inputs;
+    this.outputs = config.outputs;
   }
 
-  abstract execute(input: TInput): Promise<TOutput> | TOutput;
+  abstract execute(input: TInput, options: TOptions): Promise<TOutput> | TOutput;
 
   serialize(): TSerializedNode {
     return {
       id: this.id,
       name: this.name,
       description: this.description,
+
+      options: this.options.map(
+        option => this.serializeOption(option)
+      ),
       inputs: this.inputs.map(
         input => this.serializeInputOutput(input)
       ),
       outputs: this.outputs.map(
         output => this.serializeInputOutput(output)
       ),
+    };
+  }
+
+  private serializeOption(option: TNodeOption): TSerializedNodeOption {
+    const { id, name, type, dropDownOptions, } = option;
+
+    return {
+      id,
+      name,
+      type,
+      dropDownOptions,
     };
   }
 
