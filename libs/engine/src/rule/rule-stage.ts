@@ -29,7 +29,6 @@ export default class RuleStage {
   readonly node: BaseNode<any, any, any>;
   readonly inputs: TRuleStageInput[];
   readonly nodeOptions: TNodeOptions;
-  private executed = false;
 
   constructor(options: TRuleStageOptions) {
     this.id = options.id;
@@ -44,10 +43,6 @@ export default class RuleStage {
   }
 
   async execute(previousOutputs: TPreviousStageOutputs, additionalNodeInputs = {}): Promise<any> {
-    if (this.executed) {
-      throw new Error('Cannot execute RuleStage that was already executed');
-    }
-
     const nodeInputs = this.inputs.reduce(
       (acc, { ruleStageId, inputId, outputId, }) => ({
         ...acc,
@@ -57,7 +52,6 @@ export default class RuleStage {
     );
 
     const result = await this.node.execute(nodeInputs, this.nodeOptions);
-    this.executed = true;
 
     return result;
   }
