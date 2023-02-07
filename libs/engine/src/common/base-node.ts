@@ -33,7 +33,7 @@ export abstract class BaseNode<TInputs, TOutputs, TOptions extends TBaseNodeOpti
     const { options: optionConfigs, } = this.getMetadata(context);
 
     const isValid = Object
-      .entries(options)
+      .entries(options ?? {})
       .every(([ optionId, value, ]) => {
         const optionConfig = optionConfigs.find(option => option.id === optionId);
         if (!optionConfig?.validate) { return false; }

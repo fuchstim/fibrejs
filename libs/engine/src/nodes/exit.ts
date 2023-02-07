@@ -5,7 +5,7 @@ type TNodeInput = {
   result: TBooleanType,
 };
 
-export default class ExitNode extends BaseNode<TNodeInput, TNodeInput, any> {
+export default class ExitNode extends BaseNode<TNodeInput, TNodeInput, void> {
   constructor() {
     super({
       id: 'exit',

@@ -21,7 +21,7 @@ export type TNodeMetadataInputOutput = {
   type: TType<any, any>,
 };
 
-export type TBaseNodeOptions = TKeyValue<string, any>;
+export type TBaseNodeOptions = TKeyValue<string, any> | void;
 
 export type TNodeContext<TNodeOptions extends TBaseNodeOptions> = TRuleContext & {
   nodeOptions: TNodeOptions

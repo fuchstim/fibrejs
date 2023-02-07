@@ -9,7 +9,7 @@ type TNodeOutput = {
   user: TUserType,
 };
 
-export default class GetUserNode extends BaseNode<TNodeInput, TNodeOutput, never> {
+export default class GetUserNode extends BaseNode<TNodeInput, TNodeOutput, void> {
   constructor() {
     super({
       id: 'getUser',
