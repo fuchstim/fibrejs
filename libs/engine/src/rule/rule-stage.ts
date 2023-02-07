@@ -1,27 +1,6 @@
-import { BaseNode, TNodeOptions } from '../common/base-node';
-
-export enum ERuleStageType {
-  ENTRY = 'ENTRY',
-  EXIT = 'EXIT',
-}
-
-export type TRuleStageInput = {
-  ruleStageId: string,
-  outputId: string,
-  inputId: string,
-};
-
-export type TRuleStageOptions = {
-  id: string,
-  type?: ERuleStageType,
-  node: BaseNode<any, any, any>,
-  inputs: TRuleStageInput[],
-  nodeOptions: TNodeOptions,
-};
-
-export type TPreviousStageOutputs = {
-  [stageId: string]: any
-};
+import { BaseNode } from '../common/base-node';
+import { TNodeOptions } from '../types/node';
+import { ERuleStageType, TRuleStageInput, TRuleStageOptions, TRuleStagePreviousOutputs } from '../types/rule-stage';
 
 export default class RuleStage {
   readonly id: string;
@@ -42,7 +21,7 @@ export default class RuleStage {
     return this.inputs.map(input => input.ruleStageId);
   }
 
-  async execute(previousOutputs: TPreviousStageOutputs, additionalNodeInputs = {}): Promise<any> {
+  async execute(previousOutputs: TRuleStagePreviousOutputs, additionalNodeInputs = {}): Promise<any> {
     const nodeInputs = this.inputs.reduce(
       (acc, { ruleStageId, inputId, outputId, }) => ({
         ...acc,
@@ -56,7 +35,7 @@ export default class RuleStage {
     return result;
   }
 
-  private getOutputByKey(outputs: TPreviousStageOutputs, key: string): any {
+  private getOutputByKey(outputs: TRuleStagePreviousOutputs, key: string): any {
     const pathParts = key.split('.');
     const value = pathParts.reduce(
       (acc, pathPart) => acc[pathPart],

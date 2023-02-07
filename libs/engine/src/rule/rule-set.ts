@@ -1,25 +1,5 @@
 import { ERuleSeverity } from '../constants/rule-severities';
-import Rule from './rule';
-
-export type TRuleSetEntry = {
-  rule: Rule,
-  severity: ERuleSeverity,
-};
-
-export type TRuleSetOptions = {
-  id: string,
-  name: string,
-  entries: TRuleSetEntry[],
-};
-
-export type TRuleSetInputs = {
-  [key: string]: any
-};
-
-export type TRuleSetExecutionResult = {
-  triggered: boolean,
-  severity: ERuleSeverity | null,
-};
+import { TRuleSetEntry, TRuleSetOptions, TRuleSetInputs, TRuleSetExecutionResult } from '../types/rule-set';
 
 export default class RuleSet {
   readonly id: string;

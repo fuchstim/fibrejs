@@ -1,5 +1,6 @@
-import { BaseNode, ENodeMetadataOptionType } from '../common/base-node';
+import { BaseNode } from '../common/base-node';
 import { CBooleanType, CNumberType, CStringType, TBooleanType, TNumberType, TStringType } from '../common/types';
+import { ENodeMetadataOptionType } from '../types/node';
 
 type TNodeOutput = {
   value: TStringType | TNumberType | TBooleanType,
@@ -29,7 +30,7 @@ export default class StaticValueNode extends BaseNode<never, TNodeOutput, TNodeO
           dropDownOptions: [
             { id: EValueType.STRING, name: 'String', },
             { id: EValueType.NUMBER, name: 'Number', },
-            { id: EValueType.BOOLEAN, name: 'boolean', },
+            { id: EValueType.BOOLEAN, name: 'Boolean', },
           ],
           validate: v => Object.values(EValueType).includes(v),
         },
@@ -61,7 +62,7 @@ export default class StaticValueNode extends BaseNode<never, TNodeOutput, TNodeO
         }[context.nodeOptions.valueType as string];
 
         return [
-          { id: 'value', name: 'Value', type: valueType!, },
+          { id: 'value', name: 'Value', type: valueType || CStringType, },
         ];
       },
     });

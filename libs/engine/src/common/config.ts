@@ -1,53 +1,16 @@
-import { BaseNode } from '..';
-import { ERuleSeverity } from '../constants/rule-severities';
+import { BaseNode } from '../common/base-node';
 import Rule from '../rule/rule';
-import RuleSet, { TRuleSetEntry } from '../rule/rule-set';
-import RuleStage, { ERuleStageType, TRuleStageInput } from '../rule/rule-stage';
-import { TNodeOptions } from './base-node';
-
-type TRuleStageConfig = {
-  id: string,
-  type?: ERuleStageType,
-  nodeId: string,
-  inputs: TRuleStageInput[],
-  nodeOptions: TNodeOptions
-};
-
-type TRuleConfig = {
-  id: string,
-  name: string,
-  stages: TRuleStageConfig[],
-};
-
-type TRuleSetEntryConfig = {
-  ruleId: string,
-  severity: ERuleSeverity,
-};
-
-type TRuleSetConfig = {
-  id: string,
-  name: string,
-  entries: TRuleSetEntryConfig[]
-};
-
-export type TEngineConfig = {
-  version: number,
-  rules: TRuleConfig[],
-  ruleSets: TRuleSetConfig[]
-};
-
-export type TParsedEngineConfig = {
-  version: number,
-  rules: Rule[],
-  ruleSets: RuleSet[],
-};
+import RuleSet from '../rule/rule-set';
+import RuleStage from '../rule/rule-stage';
+import { TConfigEngine, TConfigRule, TConfigRuleSet, TConfigRuleSetEntry, TConfigRuleStage, TParsedEngineConfig } from '../types/config';
+import { TRuleSetEntry } from '../types/rule-set';
 
 class Config {
-  validate(config: TEngineConfig): boolean {
+  validate(config: TConfigEngine): boolean {
     return true; // TODO: Actually validate config. Detect e.g. circular references, invalid options, invalid nodeIds etc
   }
 
-  parse(config: TEngineConfig, availableNodes: BaseNode<any, any, any>[]): TParsedEngineConfig {
+  parse(config: TConfigEngine, availableNodes: BaseNode<any, any, any>[]): TParsedEngineConfig {
     if (!this.validate(config)) {
       throw new Error('Failed to parse invalid config');
     }
@@ -67,7 +30,7 @@ class Config {
     };
   }
 
-  export(version: number, rules: Rule[], ruleSets: RuleSet[]): TEngineConfig {
+  export(version: number, rules: Rule[], ruleSets: RuleSet[]): TConfigEngine {
     const ruleConfigs = rules.map(
       rule => this.exportRule(rule)
     );
@@ -83,7 +46,7 @@ class Config {
     };
   }
 
-  private parseRule(ruleConfig: TRuleConfig, availableNodes: BaseNode<any, any, any>[]): Rule {
+  private parseRule(ruleConfig: TConfigRule, availableNodes: BaseNode<any, any, any>[]): Rule {
     const { id, name, stages, } = ruleConfig;
 
     return new Rule({
@@ -95,7 +58,7 @@ class Config {
     });
   }
 
-  private exportRule(rule: Rule): TRuleConfig {
+  private exportRule(rule: Rule): TConfigRule {
     const { id, name, stages, } = rule;
 
     return {
@@ -107,7 +70,7 @@ class Config {
     };
   }
 
-  private parseRuleStage(ruleStageConfig: TRuleStageConfig, availableNodes: BaseNode<any, any, any>[]): RuleStage {
+  private parseRuleStage(ruleStageConfig: TConfigRuleStage, availableNodes: BaseNode<any, any, any>[]): RuleStage {
     const { id, type, inputs, nodeId, nodeOptions, } = ruleStageConfig;
 
     const node = availableNodes.find(
@@ -124,7 +87,7 @@ class Config {
     });
   }
 
-  private exportRuleStage(ruleStage: RuleStage): TRuleStageConfig {
+  private exportRuleStage(ruleStage: RuleStage): TConfigRuleStage {
     const { id, type, node, inputs, nodeOptions, } = ruleStage;
 
     return {
@@ -136,7 +99,7 @@ class Config {
     };
   }
 
-  private parseRuleSet(ruleSetConfig: TRuleSetConfig, rules: Rule[]): RuleSet {
+  private parseRuleSet(ruleSetConfig: TConfigRuleSet, rules: Rule[]): RuleSet {
     const { id, name, entries, } = ruleSetConfig;
 
     return new RuleSet({
@@ -148,7 +111,7 @@ class Config {
     });
   }
 
-  private exportRuleSet(ruleSet: RuleSet): TRuleSetConfig {
+  private exportRuleSet(ruleSet: RuleSet): TConfigRuleSet {
     const { id, name, entries, } = ruleSet;
 
     return {
@@ -160,7 +123,7 @@ class Config {
     };
   }
 
-  private parseRuleSetEntry(ruleSetEntryConfig: TRuleSetEntryConfig, rules: Rule[]): TRuleSetEntry {
+  private parseRuleSetEntry(ruleSetEntryConfig: TConfigRuleSetEntry, rules: Rule[]): TRuleSetEntry {
     const { ruleId, severity, } = ruleSetEntryConfig;
 
     const rule = rules.find(
@@ -173,7 +136,7 @@ class Config {
     return { rule, severity, };
   }
 
-  private exportRuleSetEntry(ruleSetEntry: TRuleSetEntry): TRuleSetEntryConfig {
+  private exportRuleSetEntry(ruleSetEntry: TRuleSetEntry): TConfigRuleSetEntry {
     const { rule, severity, } = ruleSetEntry;
 
     return {

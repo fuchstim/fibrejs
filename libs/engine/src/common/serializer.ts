@@ -1,34 +1,7 @@
-import { BaseNode, ENodeMetadataOptionType, TNodeContext, TNodeMetadataInputOutput, TNodeMetadataOption } from './base-node';
-import { EPrimitive, TType } from './types';
-
-type TSerializedType = {
-  id: string,
-  name: string,
-  fields: { [key: string]: EPrimitive | TSerializedType, },
-};
-
-type TSerializedNodeOption = {
-  id: string,
-  name: string,
-  type: ENodeMetadataOptionType,
-  dropDownOptions?: { id: string, name: string }[],
-};
-
-type TSerializedNodeInputOutput = {
-  id: string,
-  name: string,
-  type: TSerializedType,
-};
-
-export type TSerializedNode = {
-  id: string,
-  name: string,
-  description?: string,
-
-  options: TSerializedNodeOption[],
-  inputs: TSerializedNodeInputOutput[],
-  outputs: TSerializedNodeInputOutput[],
-};
+import { BaseNode } from '../common/base-node';
+import { TNodeContext, TNodeMetadataOption, TNodeMetadataInputOutput } from '../types/node';
+import { TSerializedNode, TSerializedNodeOption, TSerializedNodeInputOutput, TSerializedType } from '../types/serializer';
+import { TType, EPrimitive } from './types';
 
 class Serializer {
   serializeNode(node: BaseNode<any, any, any>, context: TNodeContext): TSerializedNode {

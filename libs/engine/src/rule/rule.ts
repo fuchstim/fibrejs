@@ -1,20 +1,6 @@
-import RuleStage, { ERuleStageType } from './rule-stage';
-
-type TRuleOptions = {
-  id: string,
-  name: string,
-  stages: RuleStage[]
-};
-
-type TRuleInputs = {
-  [key: string]: any
-};
-type TRuleOutput = {
-  triggered: boolean,
-  // ToDo: Add more rule execution information
-};
-
-type TStageOutputs = TRuleInputs;
+import { TRuleOptions, TRuleInputs, TRuleOutput, TStageOutputs } from '../types/rule';
+import { ERuleStageType } from '../types/rule-stage';
+import RuleStage from './rule-stage';
 
 export default class Rule {
   readonly id: string;

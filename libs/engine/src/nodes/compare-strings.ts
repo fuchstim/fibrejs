@@ -1,5 +1,6 @@
-import { BaseNode, ENodeMetadataOptionType } from '../common/base-node';
+import { BaseNode } from '../common/base-node';
 import { CBooleanType, CStringType, TBooleanType, TStringType } from '../common/types';
+import { ENodeMetadataOptionType } from '../types/node';
 
 type TNodeInput = {
   inputA: TStringType,

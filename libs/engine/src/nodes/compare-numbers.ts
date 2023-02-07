@@ -1,5 +1,6 @@
-import { BaseNode, ENodeMetadataOptionType } from '../common/base-node';
+import { BaseNode } from '../common/base-node';
 import { CBooleanType, CNumberType, TBooleanType, TNumberType } from '../common/types';
+import { ENodeMetadataOptionType } from '../types/node';
 
 type TNodeInput = {
   inputA: TNumberType,

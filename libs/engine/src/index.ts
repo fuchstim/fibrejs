@@ -1,11 +1,11 @@
 // Re-Exports
 export * as Types from './common/types';
 export { BaseNode } from './common/base-node';
-export { TEngineConfig } from './common/config';
+export { TConfigEngine as TEngineConfig } from './types/config';
 
-import RuleSet, { TRuleSetExecutionResult, TRuleSetInputs } from './rule/rule-set';
+import RuleSet from './rule/rule-set';
 
-import Config, { TEngineConfig } from './common/config';
+import Config from './common/config';
 
 import { BaseNode } from './common/base-node';
 import ExitNode from './nodes/exit';
@@ -14,7 +14,10 @@ import CompareNumbersNode from './nodes/compare-numbers';
 import CompareStringsNode from './nodes/compare-strings';
 import StaticValueNode from './nodes/static-value';
 import Rule from './rule/rule';
-import serializer, { TSerializedNode } from './common/serializer';
+import serializer from './common/serializer';
+import { TConfigEngine } from './types/config';
+import { TSerializedNode } from './types/serializer';
+import { TRuleSetExecutionResult, TRuleSetInputs } from './types/rule-set';
 
 export type TEngineOptions = {
   customNodes?: BaseNode<any, any, any>[]
@@ -36,14 +39,14 @@ export default class Engine {
     ];
   }
 
-  loadConfig(config: TEngineConfig) {
+  loadConfig(config: TConfigEngine) {
     const { rules, ruleSets, } = Config.parse(config, this.nodes);
 
     this.rules = rules;
     this.ruleSets = ruleSets;
   }
 
-  exportConfig(): TEngineConfig {
+  exportConfig(): TConfigEngine {
     return Config.export(
       -1,
       this.rules,
