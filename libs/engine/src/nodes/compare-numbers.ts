@@ -1,6 +1,6 @@
 import { BaseNode } from '../common/base-node';
 import { CBooleanType, CNumberType, TBooleanType, TNumberType } from '../common/types';
-import { ENodeMetadataOptionType } from '../types/node';
+import { ENodeMetadataOptionType, TNodeContext } from '../types/node';
 
 type TNodeInput = {
   inputA: TNumberType,
@@ -55,7 +55,7 @@ export default class CompareNumbersNode extends BaseNode<TNodeInput, TNodeOutput
     });
   }
 
-  execute({ inputA, inputB, }: TNodeInput, { operation, }: TNodeOptions): TNodeOutput {
+  execute({ inputA, inputB, }: TNodeInput, context: TNodeContext<TNodeOptions>): TNodeOutput {
     const result = {
       [EOperation.EQUAL]: inputA.value === inputB.value,
       [EOperation.NOT_EQUAL]: inputA.value !== inputB.value,
@@ -63,7 +63,7 @@ export default class CompareNumbersNode extends BaseNode<TNodeInput, TNodeOutput
       [EOperation.GREATER_EQUAL]: inputA.value >= inputB.value,
       [EOperation.LESS]: inputA.value < inputB.value,
       [EOperation.LESS_EQUAL]: inputA.value <= inputB.value,
-    }[operation];
+    }[context.nodeOptions.operation];
 
     return {
       result: { value: result, },

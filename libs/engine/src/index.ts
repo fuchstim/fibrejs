@@ -71,7 +71,10 @@ export default class Engine {
       throw new Error(`Cannot execute unknown RuleSet: ${ruleSetId}`);
     }
 
-    const result = await ruleSet.execute(inputs);
+    const result = await ruleSet.execute(
+      inputs,
+      { rules: this.rules, }
+    );
 
     return result;
   }

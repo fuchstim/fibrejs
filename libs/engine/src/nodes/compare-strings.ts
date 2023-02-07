@@ -1,6 +1,6 @@
 import { BaseNode } from '../common/base-node';
 import { CBooleanType, CStringType, TBooleanType, TStringType } from '../common/types';
-import { ENodeMetadataOptionType } from '../types/node';
+import { ENodeMetadataOptionType, TNodeContext } from '../types/node';
 
 type TNodeInput = {
   inputA: TStringType,
@@ -47,11 +47,11 @@ export default class CompareStringsNode extends BaseNode<TNodeInput, TNodeOutput
     });
   }
 
-  execute({ inputA, inputB, }: TNodeInput, { operation, }: TNodeOptions): TNodeOutput {
+  execute({ inputA, inputB, }: TNodeInput, context: TNodeContext<TNodeOptions>): TNodeOutput {
     const result = {
       [EOperation.EQUAL]: inputA.value === inputB.value,
       [EOperation.NOT_EQUAL]: inputA.value !== inputB.value,
-    }[operation];
+    }[context.nodeOptions.operation];
 
     return {
       result: { value: result, },

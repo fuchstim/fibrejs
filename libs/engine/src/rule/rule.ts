@@ -1,4 +1,4 @@
-import { TRuleOptions, TRuleInputs, TRuleOutput, TStageOutputs } from '../types/rule';
+import { TRuleOptions, TRuleInputs, TRuleOutput, TStageOutputs, TRuleContext } from '../types/rule';
 import { ERuleStageType } from '../types/rule-stage';
 import RuleStage from './rule-stage';
 
@@ -42,13 +42,14 @@ export default class Rule {
     return exitStage;
   }
 
-  async execute(ruleInputs: TRuleInputs): Promise<TRuleOutput> {
+  async execute(inputs: TRuleInputs, context: TRuleContext): Promise<TRuleOutput> {
     const stageOutputs: TStageOutputs = {};
 
     for (const stage of this.stages) {
       stageOutputs[stage.id] = await stage.execute(
         stageOutputs,
-        stage.type === ERuleStageType.ENTRY ? ruleInputs : {}
+        stage.type === ERuleStageType.ENTRY ? inputs : {},
+        context
       );
     }
 

@@ -1,3 +1,4 @@
+import Rule from '../rule/rule';
 import RuleStage from '../rule/rule-stage';
 import { TKeyValue } from './common';
 
@@ -7,8 +8,12 @@ export type TRuleOptions = {
   stages: RuleStage[]
 };
 
-export type TRuleInputs = TKeyValue<any>;
-export type TStageOutputs = TKeyValue<any>;
+export type TRuleInputs = TKeyValue<string, any>;
+export type TStageOutputs = TKeyValue<string, any>;
+
+export type TRuleContext ={
+  rules: Rule[],
+};
 
 export type TRuleOutput = {
   triggered: boolean,

@@ -1,8 +1,6 @@
 import { TType } from '../common/types';
-import Rule from '../rule/rule';
-import { TOptionalGetter } from './common';
-
-export type TNodeOptions = { [key: string]: string | number | boolean };
+import { TKeyValue, TOptionalGetter } from './common';
+import { TRuleContext } from './rule';
 
 export enum ENodeMetadataOptionType {
   DROP_DOWN = 'DROP_DOWN',
@@ -23,18 +21,19 @@ export type TNodeMetadataInputOutput = {
   type: TType<any, any>,
 };
 
-export type TNodeContext = {
-  rules: Rule[],
+export type TBaseNodeOptions = TKeyValue<string, any>;
+
+export type TNodeContext<TNodeOptions extends TBaseNodeOptions> = TRuleContext & {
   nodeOptions: TNodeOptions
 };
 
-export type TNodeMetadata = {
-  options: TOptionalGetter<TNodeContext, TNodeMetadataOption[]>,
-  inputs: TOptionalGetter<TNodeContext, TNodeMetadataInputOutput[]>,
-  outputs: TOptionalGetter<TNodeContext, TNodeMetadataInputOutput[]>,
+export type TNodeMetadata<TNodeOptions extends TBaseNodeOptions> = {
+  options: TOptionalGetter<TNodeContext<TNodeOptions>, TNodeMetadataOption[]>,
+  inputs: TOptionalGetter<TNodeContext<TNodeOptions>, TNodeMetadataInputOutput[]>,
+  outputs: TOptionalGetter<TNodeContext<TNodeOptions>, TNodeMetadataInputOutput[]>,
 };
 
-export type TNodeConfig = TNodeMetadata & {
+export type TNodeConfig<TNodeOptions extends TBaseNodeOptions> = TNodeMetadata<TNodeOptions> & {
   id: string,
   name: string,
   description?: string,

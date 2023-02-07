@@ -21,4 +21,4 @@ export type TRuleStageOptions = {
   nodeOptions: TNodeOptions,
 };
 
-export type TRuleStagePreviousOutputs = TKeyValue<any>;
+export type TRuleStagePreviousOutputs = TKeyValue<string, any>;

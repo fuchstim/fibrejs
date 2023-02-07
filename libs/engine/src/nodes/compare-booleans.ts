@@ -1,6 +1,6 @@
 import { BaseNode } from '../common/base-node';
 import { CBooleanType, TBooleanType } from '../common/types';
-import { ENodeMetadataOptionType } from '../types/node';
+import { ENodeMetadataOptionType, TNodeContext } from '../types/node';
 
 type TNodeInput = {
   inputA: TBooleanType,
@@ -49,12 +49,12 @@ export default class CompareBooleans extends BaseNode<TNodeInput, TNodeOutput, T
     });
   }
 
-  execute({ inputA, inputB, }: TNodeInput, { operation, }: TNodeOptions): TNodeOutput {
+  execute({ inputA, inputB, }: TNodeInput, context: TNodeContext<TNodeOptions>): TNodeOutput {
     const result = {
       [EOperation.NEITHER]: !inputA.value && !inputB.value,
       [EOperation.EITHER]: inputA.value || inputB.value,
       [EOperation.BOTH]: inputA.value && inputB.value,
-    }[operation];
+    }[context.nodeOptions.operation];
 
     return {
       result: { value: result, },

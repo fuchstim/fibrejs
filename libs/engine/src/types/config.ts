@@ -1,7 +1,7 @@
 import { ERuleSeverity } from '../constants/rule-severities';
 import Rule from '../rule/rule';
 import RuleSet from '../rule/rule-set';
-import { TNodeOptions } from './node';
+import { TBaseNodeOptions } from './node';
 import { ERuleStageType, TRuleStageInput } from './rule-stage';
 
 export type TConfigRuleStage = {
@@ -9,7 +9,7 @@ export type TConfigRuleStage = {
   type?: ERuleStageType,
   nodeId: string,
   inputs: TRuleStageInput[],
-  nodeOptions: TNodeOptions
+  nodeOptions: TBaseNodeOptions
 };
 
 export type TConfigRule = {

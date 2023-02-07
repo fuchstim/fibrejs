@@ -1,5 +1,6 @@
 import { BaseNode } from '../common/base-node';
-import { TNodeOptions } from '../types/node';
+import { TBaseNodeOptions } from '../types/node';
+import { TRuleContext } from '../types/rule';
 import { ERuleStageType, TRuleStageInput, TRuleStageOptions, TRuleStagePreviousOutputs } from '../types/rule-stage';
 
 export default class RuleStage {
@@ -7,7 +8,7 @@ export default class RuleStage {
   readonly type?: ERuleStageType;
   readonly node: BaseNode<any, any, any>;
   readonly inputs: TRuleStageInput[];
-  readonly nodeOptions: TNodeOptions;
+  readonly nodeOptions: TBaseNodeOptions;
 
   constructor(options: TRuleStageOptions) {
     this.id = options.id;
@@ -21,7 +22,7 @@ export default class RuleStage {
     return this.inputs.map(input => input.ruleStageId);
   }
 
-  async execute(previousOutputs: TRuleStagePreviousOutputs, additionalNodeInputs = {}): Promise<any> {
+  async execute(previousOutputs: TRuleStagePreviousOutputs, additionalNodeInputs = {}, ruleContext: TRuleContext): Promise<any> {
     const nodeInputs = this.inputs.reduce(
       (acc, { ruleStageId, inputId, outputId, }) => ({
         ...acc,
@@ -30,7 +31,11 @@ export default class RuleStage {
       additionalNodeInputs
     );
 
-    const result = await this.node.execute(nodeInputs, this.nodeOptions);
+    const nodeContext = {
+      ...ruleContext,
+      nodeOptions: this.nodeOptions,
+    };
+    const result = await this.node.execute(nodeInputs, nodeContext);
 
     return result;
   }

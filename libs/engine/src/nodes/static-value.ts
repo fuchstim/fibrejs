@@ -1,6 +1,6 @@
 import { BaseNode } from '../common/base-node';
 import { CBooleanType, CNumberType, CStringType, TBooleanType, TNumberType, TStringType } from '../common/types';
-import { ENodeMetadataOptionType } from '../types/node';
+import { ENodeMetadataOptionType, TNodeContext } from '../types/node';
 
 type TNodeOutput = {
   value: TStringType | TNumberType | TBooleanType,
@@ -68,7 +68,9 @@ export default class StaticValueNode extends BaseNode<never, TNodeOutput, TNodeO
     });
   }
 
-  execute(_: never, { valueType, value, }: TNodeOptions): TNodeOutput {
+  execute(_: never, context: TNodeContext<TNodeOptions>): TNodeOutput {
+    const { valueType, value, } = context.nodeOptions;
+
     switch (valueType) {
       case EValueType.STRING:
         return { value: { value: String(value), }, };

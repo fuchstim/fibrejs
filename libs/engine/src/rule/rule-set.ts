@@ -1,4 +1,5 @@
 import { ERuleSeverity } from '../constants/rule-severities';
+import { TRuleContext } from '../types/rule';
 import { TRuleSetEntry, TRuleSetOptions, TRuleSetInputs, TRuleSetExecutionResult } from '../types/rule-set';
 
 export default class RuleSet {
@@ -12,7 +13,7 @@ export default class RuleSet {
     this.entries = options.entries;
   }
 
-  async execute(inputs: TRuleSetInputs): Promise<TRuleSetExecutionResult> {
+  async execute(inputs: TRuleSetInputs, context: TRuleContext): Promise<TRuleSetExecutionResult> {
     const orderedRuleSeverities = [
       ERuleSeverity.INFO,
       ERuleSeverity.LOW,
@@ -24,7 +25,7 @@ export default class RuleSet {
 
     const ruleResults = await Promise.all(
       this.entries.map(async ({ rule, severity, }) => {
-        const { triggered, } = await rule.execute(inputs);
+        const { triggered, } = await rule.execute(inputs, context);
 
         return { severity, triggered, };
       })

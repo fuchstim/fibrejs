@@ -4,7 +4,7 @@ import { TSerializedNode, TSerializedNodeOption, TSerializedNodeInputOutput, TSe
 import { TType, EPrimitive } from './types';
 
 class Serializer {
-  serializeNode(node: BaseNode<any, any, any>, context: TNodeContext): TSerializedNode {
+  serializeNode(node: BaseNode<any, any, any>, context: TNodeContext<any>): TSerializedNode {
     const { options, inputs, outputs, } = node.getMetadata(context);
 
     return {

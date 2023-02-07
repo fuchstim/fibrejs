@@ -1,13 +1,13 @@
-import { TNodeConfig, TNodeContext, TNodeMetadata, TNodeOptions } from '../types/node';
+import { TBaseNodeOptions, TNodeConfig, TNodeContext, TNodeMetadata } from '../types/node';
 
-export abstract class BaseNode<TInputs, TOutputs, TOptions extends TNodeOptions> {
+export abstract class BaseNode<TInputs, TOutputs, TOptions extends TBaseNodeOptions> {
   readonly id: string;
   readonly name: string;
   readonly description?: string;
 
-  private metadata: TNodeMetadata;
+  private metadata: TNodeMetadata<TOptions>;
 
-  constructor(config: TNodeConfig) {
+  constructor(config: TNodeConfig<TOptions>) {
     const { id, name, description, ...metadata } = config;
 
     this.id = id;
@@ -17,9 +17,9 @@ export abstract class BaseNode<TInputs, TOutputs, TOptions extends TNodeOptions>
     this.metadata = metadata;
   }
 
-  abstract execute(inputs: TInputs, options: TOptions): Promise<TOutputs> | TOutputs;
+  abstract execute(inputs: TInputs, context: TNodeContext<TOptions>): Promise<TOutputs> | TOutputs;
 
-  getMetadata(context: TNodeContext) {
+  getMetadata(context: TNodeContext<TOptions>) {
     const { options, inputs, outputs, } = this.metadata;
 
     return {
@@ -29,7 +29,7 @@ export abstract class BaseNode<TInputs, TOutputs, TOptions extends TNodeOptions>
     };
   }
 
-  validateOptions(options: TOptions, context: TNodeContext): boolean {
+  validateOptions(options: TOptions, context: TNodeContext<TOptions>): boolean {
     const { options: optionConfigs, } = this.getMetadata(context);
 
     const isValid = Object
