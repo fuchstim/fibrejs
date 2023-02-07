@@ -1,38 +1,38 @@
-import { ERuleSeverity } from '../constants/rule-severities';
-import Rule from '../rule/rule';
-import RuleSet from '../rule/rule-set';
-import { TBaseNodeOptions } from './node';
-import { ERuleStageType, TRuleStageInput } from './rule-stage';
+import type { ERuleSeverity } from '../constants/rule-severities';
+import type Rule from '../rule';
+import type RuleSet from '../rule/rule-set';
+import type { TNodeOptions } from './node';
+import type { ERuleStageType, TRuleStageInput } from './rule-stage';
 
-export type TConfigRuleStage = {
+export type TEngineConfigRuleStage = {
   id: string,
   type?: ERuleStageType,
   nodeId: string,
   inputs: TRuleStageInput[],
-  nodeOptions: TBaseNodeOptions
+  nodeOptions: TNodeOptions
 };
 
-export type TConfigRule = {
+export type TEngineConfigRule = {
   id: string,
   name: string,
-  stages: TConfigRuleStage[],
+  stages: TEngineConfigRuleStage[],
 };
 
-export type TConfigRuleSetEntry = {
+export type TEngineConfigRuleSetEntry = {
   ruleId: string,
   severity: ERuleSeverity,
 };
 
-export type TConfigRuleSet = {
+export type TEngineConfigRuleSet = {
   id: string,
   name: string,
-  entries: TConfigRuleSetEntry[]
+  entries: TEngineConfigRuleSetEntry[]
 };
 
-export type TConfigEngine = {
+export type TEngineConfig = {
   version: number,
-  rules: TConfigRule[],
-  ruleSets: TConfigRuleSet[]
+  rules: TEngineConfigRule[],
+  ruleSets: TEngineConfigRuleSet[]
 };
 
 export type TParsedEngineConfig = {

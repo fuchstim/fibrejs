@@ -1,6 +1,6 @@
-import Rule from '../rule/rule';
-import RuleStage from '../rule/rule-stage';
-import { TKeyValue } from './common';
+import type Rule from '../rule';
+import type RuleStage from '../rule/rule-stage';
+import type { TKeyValue } from './common';
 
 export type TRuleOptions = {
   id: string,

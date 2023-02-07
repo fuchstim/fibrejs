@@ -1,13 +1,15 @@
-import { BaseNode, Types } from '@tripwire/engine';
+import { BaseNode, WrappedTypes } from '@tripwire/engine';
 
 type TNodeInput = {
-  userId: Types.TStringType,
+  userId: WrappedTypes.TStringType,
+  age: WrappedTypes.TNumberType,
 };
 type TNodeOutput = {
-  userId: Types.TStringType,
+  userId: WrappedTypes.TStringType,
+  age: WrappedTypes.TNumberType,
 };
 
-export default class EntryTestNode extends BaseNode<TNodeInput, TNodeOutput, never> {
+export default class EntryTestNode extends BaseNode<TNodeInput, TNodeOutput, void> {
   constructor() {
     super({
       id: 'entryTest',
@@ -16,7 +18,8 @@ export default class EntryTestNode extends BaseNode<TNodeInput, TNodeOutput, nev
       options: [],
       inputs: [],
       outputs: [
-        { id: 'userId', name: 'User ID', type: Types.CStringType, },
+        { id: 'userId', name: 'User ID', type: WrappedTypes.CStringType, },
+        { id: 'age', name: 'Age', type: WrappedTypes.CNumberType, },
       ],
     });
   }

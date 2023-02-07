@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "clean": "rm -rf ./dist && rm -rf tsconfig.tsbuildinfo",
-    "build": "tsc -p ./tsconfig.json"
+    "build": "tsc -p ./tsconfig.json",
+    "watch": "tsc -b -w"
   },
   "keywords": [],
   "author": "",

@@ -4,10 +4,10 @@ export enum EPrimitive {
   BOOLEAN = 'BOOLEAN',
 }
 
-export type TType<TCustomType, TNativeType> = {
+export type TWrappedType<TNativeType, TCustomType> = {
   id: string,
   name: string,
-  fields: { [key: string]: EPrimitive | TType<any, any> },
+  fields: { [key: string]: EPrimitive | TWrappedType<any, any> },
   toNative: (input: TCustomType) => TNativeType,
   fromNative: (input: TNativeType) => TCustomType
 };
@@ -15,7 +15,7 @@ export type TType<TCustomType, TNativeType> = {
 export type TStringType = {
   value: string,
 };
-export const CStringType: TType<TStringType, string> = {
+export const CStringType: TWrappedType<string, TStringType> = {
   id: EPrimitive.STRING,
   name: 'String',
   fields: {
@@ -28,7 +28,7 @@ export const CStringType: TType<TStringType, string> = {
 export type TNumberType = {
   value: number,
 };
-export const CNumberType: TType<TNumberType, number> = {
+export const CNumberType: TWrappedType<number, TNumberType> = {
   id: EPrimitive.NUMBER,
   name: 'Number',
   fields: {
@@ -41,7 +41,7 @@ export const CNumberType: TType<TNumberType, number> = {
 export type TBooleanType = {
   value: boolean,
 };
-export const CBooleanType: TType<TBooleanType, boolean> = {
+export const CBooleanType: TWrappedType<boolean, TBooleanType> = {
   id: EPrimitive.BOOLEAN,
   name: 'Boolean',
   fields: {
@@ -61,7 +61,7 @@ export type TDateType = {
   years: number,
   timestamp: string,
 };
-export const CDateType: TType<TDateType, Date> = {
+export const CDateType: TWrappedType<Date, TDateType> = {
   id: 'DATE',
   name: 'Date',
   fields: {

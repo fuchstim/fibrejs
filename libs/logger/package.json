@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc -b"
+    "clean": "rm -rf ./dist && rm -rf tsconfig.tsbuildinfo",
+    "build": "tsc -p ./tsconfig.json",
+    "watch": "tsc -b -w"
   },
   "keywords": [],
   "author": "",

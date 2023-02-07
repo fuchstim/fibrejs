@@ -1,6 +1,6 @@
-import { TBaseNodeOptions, TNodeConfig, TNodeContext, TNodeMetadata } from '../types/node';
+import { TNodeOptions, TNodeConfig, TNodeContext, TNodeMetadata } from '../types/node';
 
-export abstract class BaseNode<TInputs, TOutputs, TOptions extends TBaseNodeOptions> {
+export abstract class BaseNode<TInputs, TOutputs, TOptions extends TNodeOptions> {
   readonly id: string;
   readonly name: string;
   readonly description?: string;

@@ -1,5 +1,5 @@
 import { BaseNode } from '../common/base-node';
-import { CBooleanType, CNumberType, CStringType, TBooleanType, TNumberType, TStringType } from '../common/types';
+import { CBooleanType, CNumberType, CStringType, TBooleanType, TNumberType, TStringType } from '../common/wrapped-types';
 import { ENodeMetadataOptionType, TNodeContext } from '../types/node';
 
 type TNodeOutput = {

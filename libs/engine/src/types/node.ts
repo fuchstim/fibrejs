@@ -1,6 +1,6 @@
-import { TType } from '../common/types';
-import { TKeyValue, TOptionalGetter } from './common';
-import { TRuleContext } from './rule';
+import type { TWrappedType } from '../common/wrapped-types';
+import type { TKeyValue, TOptionalGetter } from './common';
+import type { TRuleContext } from './rule';
 
 export enum ENodeMetadataOptionType {
   DROP_DOWN = 'DROP_DOWN',
@@ -18,22 +18,22 @@ export type TNodeMetadataOption = {
 export type TNodeMetadataInputOutput = {
   id: string,
   name: string,
-  type: TType<any, any>,
+  type: TWrappedType<any, any>,
 };
 
-export type TBaseNodeOptions = TKeyValue<string, any> | void;
+export type TNodeOptions = TKeyValue<string, any> | void;
 
-export type TNodeContext<TNodeOptions extends TBaseNodeOptions> = TRuleContext & {
-  nodeOptions: TNodeOptions
+export type TNodeContext<T extends TNodeOptions> = TRuleContext & {
+  nodeOptions: T
 };
 
-export type TNodeMetadata<TNodeOptions extends TBaseNodeOptions> = {
-  options: TOptionalGetter<TNodeContext<TNodeOptions>, TNodeMetadataOption[]>,
-  inputs: TOptionalGetter<TNodeContext<TNodeOptions>, TNodeMetadataInputOutput[]>,
-  outputs: TOptionalGetter<TNodeContext<TNodeOptions>, TNodeMetadataInputOutput[]>,
+export type TNodeMetadata<T extends TNodeOptions> = {
+  options: TOptionalGetter<TNodeContext<T>, TNodeMetadataOption[]>,
+  inputs: TOptionalGetter<TNodeContext<T>, TNodeMetadataInputOutput[]>,
+  outputs: TOptionalGetter<TNodeContext<T>, TNodeMetadataInputOutput[]>,
 };
 
-export type TNodeConfig<TNodeOptions extends TBaseNodeOptions> = TNodeMetadata<TNodeOptions> & {
+export type TNodeConfig<T extends TNodeOptions> = TNodeMetadata<T> & {
   id: string,
   name: string,
   description?: string,

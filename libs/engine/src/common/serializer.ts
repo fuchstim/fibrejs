@@ -1,7 +1,7 @@
 import { BaseNode } from '../common/base-node';
 import { TNodeContext, TNodeMetadataOption, TNodeMetadataInputOutput } from '../types/node';
 import { TSerializedNode, TSerializedNodeOption, TSerializedNodeInputOutput, TSerializedType } from '../types/serializer';
-import { TType, EPrimitive } from './types';
+import { TWrappedType, EPrimitive } from './wrapped-types';
 
 class Serializer {
   serializeNode(node: BaseNode<any, any, any>, context: TNodeContext<any>): TSerializedNode {
@@ -43,7 +43,7 @@ class Serializer {
     };
   }
 
-  private serializeType(type: TType<any, any>): TSerializedType {
+  private serializeType(type: TWrappedType<any, any>): TSerializedType {
     return {
       id: type.id,
       name: type.name,
@@ -55,7 +55,7 @@ class Serializer {
 
             return {
               ...acc,
-              [fieldKey]: isPrimitive ? fieldType as EPrimitive : this.serializeType(fieldType as TType<any, any>),
+              [fieldKey]: isPrimitive ? fieldType as EPrimitive : this.serializeType(fieldType as TWrappedType<any, any>),
             };
           },
           {}

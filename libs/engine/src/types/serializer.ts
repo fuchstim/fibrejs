@@ -1,5 +1,5 @@
-import { EPrimitive } from '../common/types';
-import { ENodeMetadataOptionType } from './node';
+import type { EPrimitive } from '../common/wrapped-types';
+import type { ENodeMetadataOptionType } from './node';
 
 export type TSerializedType = {
   id: string,

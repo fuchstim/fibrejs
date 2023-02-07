@@ -1,5 +1,5 @@
 import { BaseNode } from '../common/base-node';
-import { CBooleanType, TBooleanType } from '../common/types';
+import { CBooleanType, TBooleanType } from '../common/wrapped-types';
 
 type TNodeInput = {
   result: TBooleanType,

@@ -1,4 +1,4 @@
-import { ERuleSeverity } from '../constants/rule-severities';
+import type { ERuleSeverity } from '../constants/rule-severities';
 
 export type TRuleSetEntry = {
   ruleId: string,

@@ -1,15 +1,16 @@
 import { BaseNode } from '../common/base-node';
-import Rule from '../rule/rule';
+import Rule from '../rule';
 import RuleSet from '../rule/rule-set';
 import RuleStage from '../rule/rule-stage';
-import { TConfigEngine, TConfigRule, TConfigRuleSet, TConfigRuleStage, TParsedEngineConfig } from '../types/config';
 
-class Config {
-  validate(config: TConfigEngine): boolean {
+import { TEngineConfig, TEngineConfigRule, TEngineConfigRuleSet, TEngineConfigRuleStage, TParsedEngineConfig } from '../types/config';
+
+class ConfigParser {
+  validate(config: TEngineConfig): boolean {
     return true; // TODO: Actually validate config. Detect e.g. circular references, invalid options, invalid nodeIds etc
   }
 
-  parse(config: TConfigEngine, availableNodes: BaseNode<any, any, any>[]): TParsedEngineConfig {
+  parse(config: TEngineConfig, availableNodes: BaseNode<any, any, any>[]): TParsedEngineConfig {
     if (!this.validate(config)) {
       throw new Error('Failed to parse invalid config');
     }
@@ -29,7 +30,7 @@ class Config {
     };
   }
 
-  export(version: number, rules: Rule[], ruleSets: RuleSet[]): TConfigEngine {
+  export(version: number, rules: Rule[], ruleSets: RuleSet[]): TEngineConfig {
     const ruleConfigs = rules.map(
       rule => this.exportRule(rule)
     );
@@ -45,7 +46,7 @@ class Config {
     };
   }
 
-  private parseRule(ruleConfig: TConfigRule, availableNodes: BaseNode<any, any, any>[]): Rule {
+  private parseRule(ruleConfig: TEngineConfigRule, availableNodes: BaseNode<any, any, any>[]): Rule {
     const { id, name, stages, } = ruleConfig;
 
     return new Rule({
@@ -57,7 +58,7 @@ class Config {
     });
   }
 
-  private exportRule(rule: Rule): TConfigRule {
+  private exportRule(rule: Rule): TEngineConfigRule {
     const { id, name, stages, } = rule;
 
     return {
@@ -69,7 +70,7 @@ class Config {
     };
   }
 
-  private parseRuleStage(ruleStageConfig: TConfigRuleStage, availableNodes: BaseNode<any, any, any>[]): RuleStage {
+  private parseRuleStage(ruleStageConfig: TEngineConfigRuleStage, availableNodes: BaseNode<any, any, any>[]): RuleStage {
     const { id, type, inputs, nodeId, nodeOptions, } = ruleStageConfig;
 
     const node = availableNodes.find(
@@ -86,7 +87,7 @@ class Config {
     });
   }
 
-  private exportRuleStage(ruleStage: RuleStage): TConfigRuleStage {
+  private exportRuleStage(ruleStage: RuleStage): TEngineConfigRuleStage {
     const { id, type, node, inputs, nodeOptions, } = ruleStage;
 
     return {
@@ -98,7 +99,7 @@ class Config {
     };
   }
 
-  private parseRuleSet(ruleSetConfig: TConfigRuleSet): RuleSet {
+  private parseRuleSet(ruleSetConfig: TEngineConfigRuleSet): RuleSet {
     const { id, name, entries, } = ruleSetConfig;
 
     return new RuleSet({
@@ -108,7 +109,7 @@ class Config {
     });
   }
 
-  private exportRuleSet(ruleSet: RuleSet): TConfigRuleSet {
+  private exportRuleSet(ruleSet: RuleSet): TEngineConfigRuleSet {
     const { id, name, entries, } = ruleSet;
 
     return {
@@ -119,4 +120,4 @@ class Config {
   }
 }
 
-export default new Config();
+export default new ConfigParser();

@@ -1,20 +1,36 @@
-import { Types } from '@tripwire/engine';
+import { WrappedTypes } from '@tripwire/engine';
 
 export type TUserType = {
   id: string,
   username: string,
   age: number,
-  createdAt: Types.TDateType,
+  createdAt: Date,
 };
-export const CUserType: Types.TType<TUserType, TUserType> = {
+export type TWrappedUserType = {
+  id: WrappedTypes.TStringType,
+  username: WrappedTypes.TStringType,
+  age: WrappedTypes.TNumberType,
+  createdAt: WrappedTypes.TDateType,
+};
+export const CUserType: WrappedTypes.TWrappedType<TUserType, TWrappedUserType> = {
   id: 'USER',
   name: 'User',
   fields: {
-    id: Types.EPrimitive.STRING,
-    username: Types.EPrimitive.STRING,
-    age: Types.EPrimitive.NUMBER,
-    createdAt: Types.CDateType,
+    id: WrappedTypes.CStringType,
+    username: WrappedTypes.CStringType,
+    age: WrappedTypes.CNumberType,
+    createdAt: WrappedTypes.CDateType,
   },
-  toNative: user => user,
-  fromNative: user => user,
+  toNative: user => ({
+    id: user.id.value,
+    username: user.username.value,
+    age: user.age.value,
+    createdAt: WrappedTypes.CDateType.toNative(user.createdAt),
+  }),
+  fromNative: user => ({
+    id: WrappedTypes.CStringType.fromNative(user.id),
+    username: WrappedTypes.CStringType.fromNative(user.username),
+    age: WrappedTypes.CNumberType.fromNative(user.age),
+    createdAt: WrappedTypes.CDateType.fromNative(user.createdAt),
+  }),
 };
