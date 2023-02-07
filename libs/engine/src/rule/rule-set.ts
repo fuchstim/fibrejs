@@ -24,7 +24,12 @@ export default class RuleSet {
     ];
 
     const ruleResults = await Promise.all(
-      this.entries.map(async ({ rule, severity, }) => {
+      this.entries.map(async ({ ruleId, severity, }) => {
+        const rule = context.rules.find(
+          rule => rule.id === ruleId
+        );
+        if (!rule) { throw new Error(`Failed to find rule for id ${ruleId}`); }
+
         const { triggered, } = await rule.execute(inputs, context);
 
         return { severity, triggered, };

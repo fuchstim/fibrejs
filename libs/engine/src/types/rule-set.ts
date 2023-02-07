@@ -1,8 +1,7 @@
 import { ERuleSeverity } from '../constants/rule-severities';
-import Rule from '../rule/rule';
 
 export type TRuleSetEntry = {
-  rule: Rule,
+  ruleId: string,
   severity: ERuleSeverity,
 };
 

@@ -2,8 +2,7 @@ import { BaseNode } from '../common/base-node';
 import Rule from '../rule/rule';
 import RuleSet from '../rule/rule-set';
 import RuleStage from '../rule/rule-stage';
-import { TConfigEngine, TConfigRule, TConfigRuleSet, TConfigRuleSetEntry, TConfigRuleStage, TParsedEngineConfig } from '../types/config';
-import { TRuleSetEntry } from '../types/rule-set';
+import { TConfigEngine, TConfigRule, TConfigRuleSet, TConfigRuleStage, TParsedEngineConfig } from '../types/config';
 
 class Config {
   validate(config: TConfigEngine): boolean {
@@ -20,7 +19,7 @@ class Config {
     );
 
     const ruleSets = config.ruleSets.map(
-      ruleSetConfig => this.parseRuleSet(ruleSetConfig, rules)
+      ruleSetConfig => this.parseRuleSet(ruleSetConfig)
     );
 
     return {
@@ -99,15 +98,13 @@ class Config {
     };
   }
 
-  private parseRuleSet(ruleSetConfig: TConfigRuleSet, rules: Rule[]): RuleSet {
+  private parseRuleSet(ruleSetConfig: TConfigRuleSet): RuleSet {
     const { id, name, entries, } = ruleSetConfig;
 
     return new RuleSet({
       id,
       name,
-      entries: entries.map(
-        entry => this.parseRuleSetEntry(entry, rules)
-      ),
+      entries,
     });
   }
 
@@ -117,31 +114,7 @@ class Config {
     return {
       id,
       name,
-      entries: entries.map(
-        entry => this.exportRuleSetEntry(entry)
-      ),
-    };
-  }
-
-  private parseRuleSetEntry(ruleSetEntryConfig: TConfigRuleSetEntry, rules: Rule[]): TRuleSetEntry {
-    const { ruleId, severity, } = ruleSetEntryConfig;
-
-    const rule = rules.find(
-      rule => rule.id === ruleId
-    );
-    if (!rule) {
-      throw new Error(`Failed to find rule with id ${ruleId}`);
-    }
-
-    return { rule, severity, };
-  }
-
-  private exportRuleSetEntry(ruleSetEntry: TRuleSetEntry): TConfigRuleSetEntry {
-    const { rule, severity, } = ruleSetEntry;
-
-    return {
-      ruleId: rule.id,
-      severity,
+      entries,
     };
   }
 }

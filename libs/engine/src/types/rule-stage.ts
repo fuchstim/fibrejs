@@ -1,6 +1,6 @@
 import { BaseNode } from '../common/base-node';
 import { TKeyValue } from './common';
-import { TNodeOptions } from './node';
+import { TBaseNodeOptions } from './node';
 
 export enum ERuleStageType {
   ENTRY = 'ENTRY',
@@ -18,7 +18,7 @@ export type TRuleStageOptions = {
   type?: ERuleStageType,
   node: BaseNode<any, any, any>,
   inputs: TRuleStageInput[],
-  nodeOptions: TNodeOptions,
+  nodeOptions: TBaseNodeOptions,
 };
 
 export type TRuleStagePreviousOutputs = TKeyValue<string, any>;
