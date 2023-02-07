@@ -1,10 +1,8 @@
 {
-  "name": "@tripwire/poc",
+  "name": "@tripwire/editor",
   "version": "1.0.0",
-  "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "start": "node ./dist",
     "clean": "rm -rf ./dist && rm -rf tsconfig.tsbuildinfo",
     "build": "tsc -p ./tsconfig.json",
     "rebuild": "npm run clean && npm run build",
@@ -14,12 +12,18 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@tripwire/editor": "^1.0.0",
+    "@projectstorm/react-canvas-core": "^7.0.0",
+    "@projectstorm/react-diagrams": "^7.0.1",
     "@tripwire/engine": "^1.0.0",
-    "express": "^4.18.2"
+    "@tripwire/logger": "^1.0.0",
+    "express": "^4.18.2",
+    "next": "^13.1.6",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.17",
-    "tsc-watch": "^6.0.0"
+    "@types/react": "^18.0.27",
+    "eslint-plugin-react": "^7.32.2"
   }
 }

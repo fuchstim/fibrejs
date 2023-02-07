@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "rebuild": "npm run clean && npm run build",
+    "rebuild": "npm run --workspaces --if-present rebuild",
     "clean": "npm run --workspaces --if-present clean",
     "build": "npm run --workspaces --if-present build",
     "test": "echo \"Error: no test specified\" && exit 1"

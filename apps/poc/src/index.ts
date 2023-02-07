@@ -1,5 +1,8 @@
 import fs from 'fs';
+import express from 'express';
+
 import Engine, { BaseConfigProvider, TEngineConfig } from '@tripwire/engine';
+import createMiddleware from '@tripwire/editor';
 
 import GetUserNode from './nodes/get-user';
 import EntryTestNode from './nodes/entry-test';
@@ -35,16 +38,17 @@ const engine = new Engine({
   ],
 });
 
-(async () => {
+async function run() {
   await engine.loadConfig();
 
-  const result = await engine.executeRuleSet(
-    'testRuleSet',
-    {
-      userId: { value: 'test', },
-      age: { value: 49, },
-    }
-  );
+  const hostname = 'localhost';
+  const port = 3030;
 
-  console.log({ result, });
-})();
+  const app = express();
+  app.use(await createMiddleware({ hostname, port, engine, }));
+  app.listen(port, hostname);
+
+  return app;
+}
+
+run();
