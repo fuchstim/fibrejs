@@ -1,23 +1,15 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "./dist",
-    "lib": [
-      "dom",
-      "esnext"
-    ],
-    "allowJs": true,
-    "esModuleInterop": true,
-    "jsx": "react",
-    "module": "esnext",
-    "moduleResolution": "node",
-    "strict": true,
-    "sourceMap": true,
-    "target": "esnext",
+    "rootDir": "./src",
+    "outDir": "./dist"
   },
+  "include": [
+    "src/**/*"
+  ],
   "references": [
     {
       "path": "../engine"
-    }
+    },
   ]
 }

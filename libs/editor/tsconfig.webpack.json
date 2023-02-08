@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "lib": [
+      "dom",
+      "esnext"
+    ],
+    "allowJs": true,
+    "esModuleInterop": true,
+    "jsx": "react",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "strict": true,
+    "sourceMap": true,
+    "target": "esnext",
+  },
+  "references": [
+    {
+      "path": "../engine"
+    }
+  ]
+}

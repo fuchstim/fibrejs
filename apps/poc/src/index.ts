@@ -45,7 +45,7 @@ async function run() {
   const port = 3030;
 
   const app = express();
-  app.use(await createMiddleware({ hostname, port, engine, }));
+  app.use('/dashboard', createMiddleware(engine));
   app.listen(port, hostname);
 
   return app;

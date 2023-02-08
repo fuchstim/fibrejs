@@ -1,14 +1,16 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const prod = process.env.NODE_ENV === 'production';
 
+const path = require('path');
+
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
   mode: prod ? 'production' : 'development',
-  entry: './src/index.tsx',
+  entry: './frontend/index.tsx',
   output: {
-    path: __dirname + '/dist/',
+    path: path.resolve(__dirname, 'dist/html'),
   },
   module: {
     rules: [
@@ -18,7 +20,12 @@ module.exports = {
         resolve: {
           extensions: [ '.ts', '.tsx', '.js', '.json', ],
         },
-        use: 'ts-loader',
+        use: [ {
+          loader: 'ts-loader',
+          options: {
+            configFile: '../tsconfig.webpack.json',
+          },
+        }, ],
       },
       {
         test: /\.css$/,
@@ -29,7 +36,7 @@ module.exports = {
   devtool: prod ? undefined : 'source-map',
   plugins: [
     new HtmlWebpackPlugin({
-      template: './src/public/template.html',
+      template: './frontend/public/template.html',
     }),
     new MiniCssExtractPlugin(),
   ],
