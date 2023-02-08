@@ -8,7 +8,8 @@
       "dom.iterable",
       "esnext"
     ],
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "allowJs": true
   },
   "references": [
     {
