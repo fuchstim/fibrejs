@@ -8,7 +8,7 @@ import EditorPortModel from './model';
 
 export default class EditorPortFactory extends AbstractModelFactory<EditorPortModel, DiagramEngine> {
   constructor() {
-    super('default');
+    super('editor-port');
   }
 
   generateModel(event: GenerateModelEvent): EditorPortModel {

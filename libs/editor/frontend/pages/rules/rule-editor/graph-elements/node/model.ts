@@ -26,7 +26,7 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
   constructor({ ruleStage, onOptionsChange, }: EditorNodeModelOptions) {
     super({
       id: ruleStage.id,
-      type: 'default',
+      type: 'editor-node',
       ruleStage,
       onOptionsChange,
     });
@@ -37,13 +37,13 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
 
     ruleStage.node.inputs.forEach(
       input => this.addPort(
-        new EditorPortModel({ id: this.prefixPortId(input.id), type: EPortType.INPUT, config: input, })
+        new EditorPortModel({ id: this.prefixPortId(input.id), portType: EPortType.INPUT, config: input, })
       )
     );
 
     ruleStage.node.outputs.forEach(
       output => this.addPort(
-        new EditorPortModel({ id: this.prefixPortId(output.id), type: EPortType.OUTPUT, config: output, })
+        new EditorPortModel({ id: this.prefixPortId(output.id), portType: EPortType.OUTPUT, config: output, })
       )
     );
   }

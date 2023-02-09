@@ -16,7 +16,7 @@ export enum EPortType {
 
 interface EditorPortModelOptions {
   id: string,
-  type: EPortType,
+  portType: EPortType,
   config: Types.Serializer.TSerializedNodeInputOutput
 }
 
@@ -25,18 +25,19 @@ interface EditorPortModelGenerics extends PortModelGenerics {
 }
 
 export default class EditorPortModel extends PortModel<EditorPortModelGenerics> {
-  constructor({ id, type, config, }: EditorPortModelOptions) {
+  constructor({ id, portType, config, }: EditorPortModelOptions) {
     super({
       id,
       name: config.name,
-      alignment: type === EPortType.INPUT ? PortModelAlignment.LEFT : PortModelAlignment.RIGHT,
-      type,
+      alignment: portType === EPortType.INPUT ? PortModelAlignment.LEFT : PortModelAlignment.RIGHT,
+      type: 'editor-port',
+      portType,
       config,
     });
   }
 
   get isInput() {
-    return this.options.type === EPortType.INPUT;
+    return this.options.portType === EPortType.INPUT;
   }
 
   get hasLink() {
@@ -44,13 +45,13 @@ export default class EditorPortModel extends PortModel<EditorPortModelGenerics> 
   }
 
   canLinkToPort(port: EditorPortModel): boolean {
-    const { type, config, } = port.getOptions();
+    const { portType: type, config, } = port.getOptions();
 
     if (this.options.config.type.id !== config.type.id) {
       return false;
     }
 
-    switch (this.options.type) {
+    switch (this.options.portType) {
       case EPortType.INPUT: return type === EPortType.OUTPUT;
       case EPortType.OUTPUT: return type === EPortType.INPUT;
       default: return false;
@@ -59,14 +60,14 @@ export default class EditorPortModel extends PortModel<EditorPortModelGenerics> 
 
   deserialize(event: DeserializeEvent<this>) {
     super.deserialize(event);
-    this.options.type = event.data.type as EPortType;
+    this.options.portType = event.data.type as EPortType;
     this.options.config = event.data.config;
   }
 
   serialize() {
     return {
       ...super.serialize(),
-      type: this.options.type,
+      type: this.options.portType,
       config: this.options.config,
     };
   }

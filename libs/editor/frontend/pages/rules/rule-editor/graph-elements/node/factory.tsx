@@ -6,7 +6,7 @@ import EditorNodeWidget from './widget';
 
 export default class EditorNodeFactory extends AbstractReactFactory<EditorNodeModel, DiagramEngine> {
   constructor() {
-    super('default');
+    super('editor-node');
   }
 
   generateReactWidget(event: GenerateWidgetEvent<EditorNodeModel>): JSX.Element {
