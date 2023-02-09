@@ -1,6 +1,7 @@
 import {
   AbstractModelFactory,
-  DiagramEngine
+  DiagramEngine,
+  GenerateModelEvent
 } from '@projectstorm/react-diagrams';
 
 import EditorPortModel from './model';
@@ -10,9 +11,7 @@ export default class EditorPortFactory extends AbstractModelFactory<EditorPortMo
     super('default');
   }
 
-  generateModel(): EditorPortModel {
-    return new EditorPortModel({
-      name: 'unknown',
-    });
+  generateModel(event: GenerateModelEvent): EditorPortModel {
+    return new EditorPortModel(event.initialConfig);
   }
 }

@@ -5,71 +5,108 @@ import {
   DeserializeEvent
 } from '@projectstorm/react-diagrams';
 
-import EditorPortModel from '../port/model';
+import EditorPortModel, { EPortType } from '../port/model';
+import { TRuleStageWithNode } from '../../_types';
 
-interface EditorNodeModelOptions extends BasePositionModelOptions {
-  name?: string;
-  color?: string;
+interface EditorNodeModelOptions {
+  ruleStage: TRuleStageWithNode;
 }
 
 interface EditorNodeModelGenerics extends NodeModelGenerics {
-  OPTIONS: EditorNodeModelOptions;
+  OPTIONS: EditorNodeModelOptions & BasePositionModelOptions;
 }
 
 export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> {
-  protected portsIn: EditorPortModel[];
-  protected portsOut: EditorPortModel[];
+  protected ruleStage: TRuleStageWithNode;
+  protected inputPorts: EditorPortModel[];
+  protected outputPorts: EditorPortModel[];
 
-  constructor(options: EditorNodeModelOptions) {
+  constructor({ ruleStage, }: EditorNodeModelOptions) {
     super({
+      id: ruleStage.id,
       type: 'default',
-      name: 'Untitled',
-      color: 'rgb(0,192,255)',
-      ...options,
+      ruleStage,
     });
-    this.portsOut = [];
-    this.portsIn = [];
+
+    this.ruleStage = ruleStage;
+    this.inputPorts = [];
+    this.outputPorts = [];
+
+    ruleStage.node.inputs.forEach(
+      input => this.addPort(
+        new EditorPortModel({ id: this.prefixPortId(input.id), type: EPortType.INPUT, config: input, })
+      )
+    );
+
+    ruleStage.node.outputs.forEach(
+      output => this.addPort(
+        new EditorPortModel({ id: this.prefixPortId(output.id), type: EPortType.OUTPUT, config: output, })
+      )
+    );
   }
 
-  doClone(lookupTable: object, clone: EditorNodeModel): void {
-    clone.portsIn = [];
-    clone.portsOut = [];
-    super.doClone(lookupTable, clone);
+  private prefixPortId(portId: string) {
+    return `${this.options.ruleStage.id}-${portId}`;
   }
 
   removePort(port: EditorPortModel): void {
     super.removePort(port);
 
-    if (port.getOptions().in) {
-      this.portsIn.splice(this.portsIn.indexOf(port), 1);
+    if (port.isInput) {
+      this.inputPorts.splice(this.inputPorts.indexOf(port), 1);
     } else {
-      this.portsOut.splice(this.portsOut.indexOf(port), 1);
+      this.outputPorts.splice(this.outputPorts.indexOf(port), 1);
     }
   }
 
-  addPort<T extends EditorPortModel>(port: T): T {
+  addPort(port: EditorPortModel): EditorPortModel {
     super.addPort(port);
 
-    if (port.getOptions().in) {
-      if (this.portsIn.indexOf(port) === -1) {
-        this.portsIn.push(port);
+    if (port.isInput) {
+      if (this.inputPorts.indexOf(port) === -1) {
+        this.inputPorts.push(port);
       }
     } else {
-      if (this.portsOut.indexOf(port) === -1) {
-        this.portsOut.push(port);
+      if (this.outputPorts.indexOf(port) === -1) {
+        this.outputPorts.push(port);
       }
     }
     return port;
   }
 
+  getInputPort(portId: string) {
+    return this.inputPorts.find(
+      port => port.getID() === this.prefixPortId(portId)
+    );
+  }
+
+  getInputPorts(): EditorPortModel[] {
+    return this.inputPorts;
+  }
+
+  getOutputPort(portId: string) {
+    return this.outputPorts.find(
+      port => port.getID() === this.prefixPortId(portId)
+    );
+  }
+
+  getOutputPorts(): EditorPortModel[] {
+    return this.outputPorts;
+  }
+
+  doClone(lookupTable: object, clone: EditorNodeModel): void {
+    clone.inputPorts = [];
+    clone.outputPorts = [];
+    super.doClone(lookupTable, clone);
+  }
+
   deserialize(event: DeserializeEvent<this>) {
     super.deserialize(event);
-    this.options.name = event.data.name;
-    this.options.color = event.data.color;
-    this.portsIn = event.data.portsInOrder.map(
+    this.options.ruleStage = event.data.ruleStage;
+    this.inputPorts = event.data.portsInOrder.map(
       (id: string) => this.getPortFromID(id) as EditorPortModel
     );
-    this.portsOut = event.data.portsOutOrder.map(
+    this.outputPorts = event.data.portsOutOrder.map(
       (id: string) => this.getPortFromID(id) as EditorPortModel
     );
   }
@@ -77,18 +114,9 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
   serialize() {
     return {
       ...super.serialize(),
-      name: this.options.name,
-      color: this.options.color,
-      portsInOrder: this.portsIn.map(p => p.getID()),
-      portsOutOrder: this.portsOut.map(p => p.getID()),
+      ruleStage: this.options.ruleStage,
+      portsInOrder: this.inputPorts.map(p => p.getID()),
+      portsOutOrder: this.outputPorts.map(p => p.getID()),
     };
-  }
-
-  getInPorts(): EditorPortModel[] {
-    return this.portsIn;
-  }
-
-  getOutPorts(): EditorPortModel[] {
-    return this.portsOut;
   }
 }

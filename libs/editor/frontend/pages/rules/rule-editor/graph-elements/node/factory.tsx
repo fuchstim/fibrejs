@@ -14,6 +14,6 @@ export default class EditorNodeFactory extends AbstractReactFactory<EditorNodeMo
   }
 
   generateModel(event: GenerateModelEvent): EditorNodeModel {
-    return new EditorNodeModel({});
+    return new EditorNodeModel(event.initialConfig);
   }
 }

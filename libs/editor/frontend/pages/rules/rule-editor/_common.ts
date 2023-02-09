@@ -1,9 +1,8 @@
-import { DefaultLinkModel, LinkModel, NodeModel } from '@projectstorm/react-diagrams';
+import { LinkModel, NodeModel } from '@projectstorm/react-diagrams';
 import { TRuleStageWithNode } from './_types';
 import client from '../../../common/client';
 
 import EditorNodeModel from './graph-elements/node/model';
-import EditorPortModel from './graph-elements/port/model';
 
 export async function fetchStages(ruleId: string): Promise<TRuleStageWithNode[]> {
   const stages = await Promise.all([
@@ -20,35 +19,7 @@ export async function fetchStages(ruleId: string): Promise<TRuleStageWithNode[]>
 }
 
 export function parseStages(stages: TRuleStageWithNode[]): { nodes: NodeModel[], links: LinkModel[] } {
-  const nodes = stages.map(stage => {
-    const node = new EditorNodeModel({
-      id: stage.id,
-      name: stage.node.name,
-      color: 'rgb(0,192,255)',
-    });
-
-    stage.node.inputs.forEach(
-      input => node.addPort<EditorPortModel>(
-        new EditorPortModel({
-          id: `${stage.id}-${input.id}`,
-          in: true,
-          name: input.name,
-        })
-      )
-    );
-
-    stage.node.outputs.forEach(
-      output => node.addPort<EditorPortModel>(
-        new EditorPortModel({
-          id: `${stage.id}-${output.id}`,
-          in: false,
-          name: output.name,
-        })
-      )
-    );
-
-    return node;
-  });
+  const nodes = stages.map(stage => new EditorNodeModel({ ruleStage: stage, }));
 
   const links: LinkModel[] = stages.flatMap(stage => {
     const target = nodes.find(n => n.getID() === stage.id);
@@ -59,14 +30,11 @@ export function parseStages(stages: TRuleStageWithNode[]): { nodes: NodeModel[],
         const source = nodes.find(n => n.getID() === input.ruleStageId);
         if (!source) { return []; }
 
-        const sourcePortId = `${source.getID()}-${input.outputId.split('.')[0]}`;
-        const targetPortId = `${target.getID()}-${input.inputId.split('.')[0]}`;
-
-        const sourcePort = source.getOutPorts().find(p => p.getID() === sourcePortId);
-        const targetPort = target.getInPorts().find(p => p.getID() === targetPortId);
+        const sourcePort = source.getOutputPort(input.outputId.split('.')[0]);
+        const targetPort = target.getInputPort(input.inputId.split('.')[0]);
         if (!sourcePort || !targetPort) { return []; }
 
-        const link = sourcePort.link<DefaultLinkModel>(targetPort);
+        const link = sourcePort.link(targetPort);
 
         return [ link, ];
       });

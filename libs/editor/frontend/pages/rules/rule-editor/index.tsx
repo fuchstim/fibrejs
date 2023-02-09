@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { notification } from 'antd';
+import { Spin, notification } from 'antd';
 
 import createEngine, {
   DiagramModel,
@@ -60,7 +60,7 @@ function rerouteLinks(model: DiagramModel) {
 }
 
 export default function RuleEditor() {
-  const [ _, setLoading, ] = useState(false);
+  const [ loading, setLoading, ] = useState(false);
   const [ nodes, setNodes, ] = useState<NodeModel[]>([]);
   const [ links, setLinks, ] = useState<LinkModel[]>([]);
 
@@ -102,12 +102,14 @@ export default function RuleEditor() {
     [ nodes, links, ]
   );
 
+  if (loading) {
+    return (<Spin spinning={loading} style={{ display: 'block', }} />);
+  }
+
   return (
-    <>
-      <CanvasWidget
-        className="editor-canvas"
-        engine={diagramEngine}
-      />
-    </>
+    <CanvasWidget
+      className="editor-canvas"
+      engine={diagramEngine}
+    />
   );
 }

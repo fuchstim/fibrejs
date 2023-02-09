@@ -1,67 +1,82 @@
 import {
-  LinkModel,
   PortModel,
   PortModelAlignment,
   PortModelGenerics,
   PortModelOptions,
   DefaultLinkModel,
-  AbstractModelFactory,
-  DeserializeEvent
+  DeserializeEvent,
+  LinkModel
 } from '@projectstorm/react-diagrams';
+import { Types } from '@tripwire/engine';
 
-interface EditorPortModelOptions extends PortModelOptions {
-  label?: string;
-  in?: boolean;
-  type?: string;
+export enum EPortType {
+  INPUT = 'INPUT',
+  OUTPUT = 'OUTPUT'
+}
+
+interface EditorPortModelOptions {
+  id: string,
+  type: EPortType,
+  config: Types.Serializer.TSerializedNodeInputOutput
 }
 
 interface EditorPortModelGenerics extends PortModelGenerics {
-  OPTIONS: EditorPortModelOptions;
+  OPTIONS: EditorPortModelOptions & PortModelOptions;
 }
 
 export default class EditorPortModel extends PortModel<EditorPortModelGenerics> {
-  constructor(options: EditorPortModelOptions) {
+  constructor({ id, type, config, }: EditorPortModelOptions) {
     super({
-      label: options.label || options.name,
-      alignment: options.in ? PortModelAlignment.LEFT : PortModelAlignment.RIGHT,
-      type: 'default',
-      ...options,
+      id,
+      name: config.name,
+      alignment: type === EPortType.INPUT ? PortModelAlignment.LEFT : PortModelAlignment.RIGHT,
+      type,
+      config,
     });
+  }
+
+  get isInput() {
+    return this.options.type === EPortType.INPUT;
+  }
+
+  canLinkToPort(port: EditorPortModel): boolean {
+    const { type, config, } = port.getOptions();
+
+    if (this.options.config.type.id !== config.type.id) {
+      return false;
+    }
+
+    switch (this.options.type) {
+      case EPortType.INPUT: return type === EPortType.OUTPUT;
+      case EPortType.OUTPUT: return type === EPortType.INPUT;
+      default: return false;
+    }
   }
 
   deserialize(event: DeserializeEvent<this>) {
     super.deserialize(event);
-    this.options.in = event.data.in;
-    this.options.label = event.data.label;
+    this.options.type = event.data.type as EPortType;
+    this.options.config = event.data.config;
   }
 
   serialize() {
     return {
       ...super.serialize(),
-      in: this.options.in,
-      label: this.options.label,
+      type: this.options.type,
+      config: this.options.config,
     };
   }
 
-  link<T extends LinkModel>(port: PortModel, factory?: AbstractModelFactory<T>): T {
-    const link = this.createLinkModel(factory);
+  link(port: PortModel): LinkModel {
+    const link = this.createLinkModel();
+
     link.setSourcePort(this);
     link.setTargetPort(port);
-    return link as T;
+
+    return link;
   }
 
-  canLinkToPort(port: PortModel): boolean {
-    if (port instanceof EditorPortModel) {
-      return this.options.in !== port.getOptions().in;
-    }
-    return true;
-  }
-
-  createLinkModel(factory?: AbstractModelFactory<LinkModel>): LinkModel {
-    const link = super.createLinkModel();
-    if (!link && factory) {
-      return factory.generateModel({});
-    }
-    return link || new DefaultLinkModel();
+  createLinkModel(): LinkModel {
+    return super.createLinkModel() || new DefaultLinkModel();
   }
 }

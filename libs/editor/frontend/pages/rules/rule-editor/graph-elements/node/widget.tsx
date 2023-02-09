@@ -1,9 +1,11 @@
 import * as React from 'react';
-import { DefaultPortLabel, DefaultPortModel, DiagramEngine } from '@projectstorm/react-diagrams';
+import { DiagramEngine } from '@projectstorm/react-diagrams';
 import styled from '@emotion/styled';
 
 import EditorNodeModel from './model';
 import EditorPortModel from '../port/model';
+import EditorPortLabel from '../port/widget';
+import { Types } from '@tripwire/engine';
 
 const SNode = styled.div<{ background: string; selected: boolean }>`
   background-color: ${(p) => p.background};
@@ -26,6 +28,11 @@ const STitle = styled.div`
 const STitleName = styled.div`
   flex-grow: 1;
   padding: 5px 5px;
+`;
+
+const SOptions = styled.div`
+  display: flex;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2));
 `;
 
 const SPorts = styled.div`
@@ -52,26 +59,35 @@ interface EditorNodeProps {
   engine: DiagramEngine;
 }
 
-export default class EditorNodeWidget extends React.Component<EditorNodeProps> {
-  generatePort = (port: EditorPortModel) => {
-    return <DefaultPortLabel engine={this.props.engine} port={port as DefaultPortModel} key={port.getID()} />;
+export default function EditorNodeWidget(props: EditorNodeProps) {
+  const generatePort = (port: EditorPortModel) => {
+    return <EditorPortLabel engine={props.engine} port={port} key={port.getID()} />;
   };
 
-  render() {
-    return (
-      <SNode
-        data-default-node-name={this.props.node.getOptions().name}
-        selected={this.props.node.isSelected()}
-        background={this.props.node.getOptions().color ?? 'white'}
-      >
-        <STitle>
-          <STitleName>{this.props.node.getOptions().name}</STitleName>
-        </STitle>
-        <SPorts>
-          <SPortsContainer>{this.props.node.getInPorts().map(port => this.generatePort(port))}</SPortsContainer>
-          <SPortsContainer>{this.props.node.getOutPorts().map(port => this.generatePort(port))}</SPortsContainer>
-        </SPorts>
-      </SNode>
-    );
-  }
+  const generateOption = (nodeOption: Types.Serializer.TSerializedNodeOption) => {
+
+    return <></>;
+  };
+
+  const ruleStage = props.node.getOptions().ruleStage;
+
+  return (
+    <SNode
+      selected={props.node.isSelected()}
+      background={'rgb(0,192,255)'}
+    >
+      <STitle>
+        <STitleName>{ruleStage.node.name}</STitleName>
+      </STitle>
+
+      <SOptions>
+        {ruleStage.node.options.map(option => generateOption(option))}
+      </SOptions>
+
+      <SPorts>
+        <SPortsContainer>{props.node.getInputPorts().map(port => generatePort(port))}</SPortsContainer>
+        <SPortsContainer>{props.node.getOutputPorts().map(port => generatePort(port))}</SPortsContainer>
+      </SPorts>
+    </SNode>
+  );
 }
