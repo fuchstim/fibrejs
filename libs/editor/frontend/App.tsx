@@ -14,7 +14,7 @@ import {
   OrderedListOutlined
 } from '@ant-design/icons';
 
-import type { MenuProps } from 'antd';
+import { MenuProps, Typography } from 'antd';
 import { Layout, Menu, theme } from 'antd';
 
 const { Header, Content, Sider, } = Layout;
@@ -52,7 +52,7 @@ export default function App() {
   );
 
   const {
-    token: { colorBgContainer, },
+    token: { colorBgContainer, boxShadow, },
   } = theme.useToken();
 
   return (
@@ -71,16 +71,19 @@ export default function App() {
 
       <Layout className="site-layout" >
         <Header style={{ padding: 0, background: colorBgContainer, }}>
-          {/* <Title level={2} style={{ margin: '12px 0', lineHeight: '100%', }}>Ttitl</Title> */}
+          <Layout style={{ height: '100%', padding: '16px', alignItems: 'start', justifyContent: 'center', background: 'transparent', }}>
+            <Typography.Title level={4} style={{ margin: 0, }}>Title</Typography.Title>
+            <Typography.Text type='secondary'>Subtitle</Typography.Text>
+          </Layout>
         </Header>
 
         <Content
           style={{
-            margin: '16px',
-            padding: 24,
+            margin: '24px',
             background: colorBgContainer,
             maxHeight: 'calc(100vh - 100px)',
             borderRadius: '6px',
+            boxShadow,
           }}
           >
           <Routes>
