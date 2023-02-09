@@ -1,7 +1,9 @@
 import * as React from 'react';
 import { DefaultPortLabel, DefaultPortModel, DiagramEngine } from '@projectstorm/react-diagrams';
 import styled from '@emotion/styled';
-import DefaultNodeModel from './model';
+
+import EditorNodeModel from './model';
+import EditorPortModel from '../port/model';
 
 const SNode = styled.div<{ background: string; selected: boolean }>`
   background-color: ${(p) => p.background};
@@ -46,13 +48,13 @@ const SPortsContainer = styled.div`
 `;
 
 interface EditorNodeProps {
-  node: DefaultNodeModel;
+  node: EditorNodeModel;
   engine: DiagramEngine;
 }
 
 export default class EditorNodeWidget extends React.Component<EditorNodeProps> {
-  generatePort = (port: DefaultPortModel) => {
-    return <DefaultPortLabel engine={this.props.engine} port={port} key={port.getID()} />;
+  generatePort = (port: EditorPortModel) => {
+    return <DefaultPortLabel engine={this.props.engine} port={port as DefaultPortModel} key={port.getID()} />;
   };
 
   render() {

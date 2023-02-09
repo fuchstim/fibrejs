@@ -1,10 +1,11 @@
 import {
   NodeModel,
   NodeModelGenerics,
-  DefaultPortModel,
   BasePositionModelOptions,
   DeserializeEvent
 } from '@projectstorm/react-diagrams';
+
+import EditorPortModel from '../port/model';
 
 interface EditorNodeModelOptions extends BasePositionModelOptions {
   name?: string;
@@ -16,8 +17,8 @@ interface EditorNodeModelGenerics extends NodeModelGenerics {
 }
 
 export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> {
-  protected portsIn: DefaultPortModel[];
-  protected portsOut: DefaultPortModel[];
+  protected portsIn: EditorPortModel[];
+  protected portsOut: EditorPortModel[];
 
   constructor(options: EditorNodeModelOptions) {
     super({
@@ -36,7 +37,7 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
     super.doClone(lookupTable, clone);
   }
 
-  removePort(port: DefaultPortModel): void {
+  removePort(port: EditorPortModel): void {
     super.removePort(port);
 
     if (port.getOptions().in) {
@@ -46,7 +47,7 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
     }
   }
 
-  addPort<T extends DefaultPortModel>(port: T): T {
+  addPort<T extends EditorPortModel>(port: T): T {
     super.addPort(port);
 
     if (port.getOptions().in) {
@@ -66,10 +67,10 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
     this.options.name = event.data.name;
     this.options.color = event.data.color;
     this.portsIn = event.data.portsInOrder.map(
-      (id: string) => this.getPortFromID(id) as DefaultPortModel
+      (id: string) => this.getPortFromID(id) as EditorPortModel
     );
     this.portsOut = event.data.portsOutOrder.map(
-      (id: string) => this.getPortFromID(id) as DefaultPortModel
+      (id: string) => this.getPortFromID(id) as EditorPortModel
     );
   }
 
@@ -83,11 +84,11 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
     };
   }
 
-  getInPorts(): DefaultPortModel[] {
+  getInPorts(): EditorPortModel[] {
     return this.portsIn;
   }
 
-  getOutPorts(): DefaultPortModel[] {
+  getOutPorts(): EditorPortModel[] {
     return this.portsOut;
   }
 }

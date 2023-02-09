@@ -1,8 +1,9 @@
-import { DefaultLinkModel, DefaultPortModel, LinkModel, NodeModel } from '@projectstorm/react-diagrams';
+import { DefaultLinkModel, LinkModel, NodeModel } from '@projectstorm/react-diagrams';
 import { TRuleStageWithNode } from './_types';
 import client from '../../../common/client';
 
 import EditorNodeModel from './graph-elements/node/model';
+import EditorPortModel from './graph-elements/port/model';
 
 export async function fetchStages(ruleId: string): Promise<TRuleStageWithNode[]> {
   const stages = await Promise.all([
@@ -27,8 +28,8 @@ export function parseStages(stages: TRuleStageWithNode[]): { nodes: NodeModel[],
     });
 
     stage.node.inputs.forEach(
-      input => node.addPort(
-        new DefaultPortModel({
+      input => node.addPort<EditorPortModel>(
+        new EditorPortModel({
           id: `${stage.id}-${input.id}`,
           in: true,
           name: input.name,
@@ -37,8 +38,8 @@ export function parseStages(stages: TRuleStageWithNode[]): { nodes: NodeModel[],
     );
 
     stage.node.outputs.forEach(
-      output => node.addPort(
-        new DefaultPortModel({
+      output => node.addPort<EditorPortModel>(
+        new EditorPortModel({
           id: `${stage.id}-${output.id}`,
           in: false,
           name: output.name,

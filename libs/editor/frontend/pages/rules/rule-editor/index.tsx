@@ -19,11 +19,15 @@ import './_style.css';
 import { fetchStages, parseStages } from './_common';
 
 import EditorNodeFactory from './graph-elements/node/factory';
+import EditorPortFactory from './graph-elements/port/factory';
 
 const diagramEngine = createEngine();
 diagramEngine
   .getNodeFactories()
   .registerFactory(new EditorNodeFactory());
+diagramEngine
+  .getPortFactories()
+  .registerFactory(new EditorPortFactory());
 diagramEngine.setModel(new DiagramModel());
 
 const dagreEngine = new DagreEngine({
