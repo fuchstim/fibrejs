@@ -1,7 +1,7 @@
 import fs from 'fs';
 import express from 'express';
 
-import Engine, { BaseConfigProvider, TEngineConfig } from '@tripwire/engine';
+import Engine, { BaseConfigProvider, Types } from '@tripwire/engine';
 import createMiddleware from '@tripwire/editor';
 
 import GetUserNode from './nodes/get-user';
@@ -15,12 +15,12 @@ class ConfigProvider extends BaseConfigProvider {
   loadConfig(version: number) {
     const config = JSON.parse(
       fs.readFileSync('./example-config.json').toString()
-    ) as TEngineConfig;
+    ) as Types.Config.TEngineConfig;
 
     return config;
   }
 
-  saveConfig(config: TEngineConfig) {
+  saveConfig(config: Types.Config.TEngineConfig) {
     fs.writeFileSync(
       './example-config.json',
       JSON.stringify(config)
@@ -41,12 +41,23 @@ const engine = new Engine({
 async function run() {
   await engine.loadConfig();
 
+  fs.writeFileSync(
+    'nodes.json',
+    JSON.stringify(
+      await engine.exportSerializedNodes()
+    )
+  );
+
   const hostname = 'localhost';
   const port = 3030;
 
   const app = express();
-  app.use('/dashboard', createMiddleware(engine));
-  app.listen(port, hostname);
+  app.use(createMiddleware(engine));
+  app.listen(
+    port,
+    hostname,
+    () => console.log(`Server listening on http://${hostname}:${port}`)
+  );
 
   return app;
 }

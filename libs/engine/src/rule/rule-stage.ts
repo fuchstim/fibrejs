@@ -1,18 +1,16 @@
 import { BaseNode } from '../common/base-node';
 import { TNodeOptions } from '../types/node';
 import { TRuleContext } from '../types/rule';
-import { ERuleStageType, TRuleStageInput, TRuleStageOptions, TRuleStagePreviousOutputs } from '../types/rule-stage';
+import { TRuleStageInput, TRuleStageOptions, TRuleStagePreviousOutputs } from '../types/rule-stage';
 
 export default class RuleStage {
   readonly id: string;
-  readonly type?: ERuleStageType;
   readonly node: BaseNode<any, any, any>;
   readonly inputs: TRuleStageInput[];
   readonly nodeOptions: TNodeOptions;
 
   constructor(options: TRuleStageOptions) {
     this.id = options.id;
-    this.type = options.type;
     this.node = options.node;
     this.inputs = options.inputs;
     this.nodeOptions = options.nodeOptions;

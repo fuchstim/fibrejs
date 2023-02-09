@@ -10,6 +10,7 @@ class Serializer {
     return {
       id: node.id,
       name: node.name,
+      type: node.type,
       description: node.description,
 
       options: options.map(

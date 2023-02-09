@@ -7,6 +7,11 @@ export enum ENodeMetadataOptionType {
   INPUT = 'INPUT',
 }
 
+export enum ENodeType {
+  ENTRY = 'ENTRY',
+  EXIT = 'EXIT',
+}
+
 export type TNodeMetadataOption = {
   id: string,
   name: string,
@@ -36,5 +41,6 @@ export type TNodeMetadata<T extends TNodeOptions> = {
 export type TNodeConfig<T extends TNodeOptions> = TNodeMetadata<T> & {
   id: string,
   name: string,
+  type?: ENodeType,
   description?: string,
 };

@@ -1,4 +1,4 @@
-import { BaseNode, WrappedTypes } from '@tripwire/engine';
+import { BaseNode, Types, WrappedTypes } from '@tripwire/engine';
 
 type TNodeInput = {
   userId: WrappedTypes.TStringType,
@@ -14,6 +14,7 @@ export default class EntryTestNode extends BaseNode<TNodeInput, TNodeOutput, voi
     super({
       id: 'entryTest',
       name: 'Test Entry Node',
+      type: Types.Node.ENodeType.ENTRY,
 
       options: [],
       inputs: [],

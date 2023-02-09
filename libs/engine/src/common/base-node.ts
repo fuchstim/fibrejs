@@ -1,17 +1,19 @@
-import { TNodeOptions, TNodeConfig, TNodeContext, TNodeMetadata } from '../types/node';
+import { TNodeOptions, TNodeConfig, TNodeContext, TNodeMetadata, ENodeType } from '../types/node';
 
 export abstract class BaseNode<TInputs, TOutputs, TOptions extends TNodeOptions> {
   readonly id: string;
   readonly name: string;
+  readonly type?: ENodeType;
   readonly description?: string;
 
   private metadata: TNodeMetadata<TOptions>;
 
   constructor(config: TNodeConfig<TOptions>) {
-    const { id, name, description, ...metadata } = config;
+    const { id, name, description, type, ...metadata } = config;
 
     this.id = id;
     this.name = name;
+    this.type = type;
     this.description = description;
 
     this.metadata = metadata;

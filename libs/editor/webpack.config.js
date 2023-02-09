@@ -11,6 +11,7 @@ module.exports = {
   entry: './frontend/index.tsx',
   output: {
     path: path.resolve(__dirname, 'dist/html'),
+    publicPath: '/',
   },
   module: {
     rules: [
@@ -40,4 +41,10 @@ module.exports = {
     }),
     new MiniCssExtractPlugin(),
   ],
+  devServer: {
+    historyApiFallback: true,
+    proxy: {
+      '/api': 'http://localhost:3030',
+    },
+  },
 };

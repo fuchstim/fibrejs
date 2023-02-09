@@ -7,7 +7,6 @@
       "stages": [
         {
           "id": "stage-1",
-          "type": "ENTRY",
           "nodeId": "entryTest",
           "inputs": [],
           "nodeOptions": {}
@@ -59,7 +58,6 @@
         },
         {
           "id": "stage-5",
-          "type": "EXIT",
           "nodeId": "exit",
           "inputs": [
             {

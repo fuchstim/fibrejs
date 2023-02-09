@@ -1,5 +1,5 @@
+import { ENodeType } from '../types/node';
 import { TRuleOptions, TRuleInputs, TRuleOutput, TStageOutputs, TRuleContext } from '../types/rule';
-import { ERuleStageType } from '../types/rule-stage';
 import RuleStage from './rule-stage';
 
 export default class Rule {
@@ -13,10 +13,10 @@ export default class Rule {
     this.stages = this._sortStages(options.stages);
 
     const entryStages = this.stages.filter(
-      stage => stage.type === ERuleStageType.ENTRY
+      stage => stage.node.type === ENodeType.ENTRY
     );
     const exitStages = this.stages.filter(
-      stage => stage.type === ERuleStageType.EXIT
+      stage => stage.node.type === ENodeType.EXIT
     );
 
     if (entryStages.length !== 1 || exitStages.length !== 1) {
@@ -26,7 +26,7 @@ export default class Rule {
 
   get entryStage() {
     const entryStage = this.stages.find(
-      stage => stage.type === ERuleStageType.ENTRY
+      stage => stage.node.type === ENodeType.ENTRY
     );
     if (!entryStage) { throw new Error(`Failed to find entry stage for rule ${this.id}`); }
 
@@ -35,7 +35,7 @@ export default class Rule {
 
   get exitStage() {
     const exitStage = this.stages.find(
-      stage => stage.type === ERuleStageType.EXIT
+      stage => stage.node.type === ENodeType.EXIT
     );
     if (!exitStage) { throw new Error(`Failed to find exit stage for rule ${this.id}`); }
 
@@ -48,7 +48,7 @@ export default class Rule {
     for (const stage of this.stages) {
       stageOutputs[stage.id] = await stage.execute(
         stageOutputs,
-        stage.type === ERuleStageType.ENTRY ? inputs : {},
+        stage.node.type === ENodeType.ENTRY ? inputs : {},
         context
       );
     }

@@ -2,7 +2,7 @@
 export * as WrappedTypes from './common/wrapped-types';
 export { BaseNode } from './common/base-node';
 export { BaseConfigProvider } from './config/base-provider';
-export { TEngineConfig } from './types/config';
+export * as Types from './types';
 
 import ConfigParser from './config/parser';
 import { BaseConfigProvider } from './config/base-provider';
@@ -17,6 +17,7 @@ import Rule from './rule';
 import RuleSet from './rule/rule-set';
 import { TRuleSetExecutionResult, TRuleSetInputs } from './types/rule-set';
 import { TSerializedNode } from './types/serializer';
+import { TEngineConfig } from './types/config';
 
 export type TEngineOptions = {
   configProvider: BaseConfigProvider,
@@ -25,6 +26,7 @@ export type TEngineOptions = {
 
 export default class Engine {
   private configProvider: BaseConfigProvider;
+  private activeConfigVersion = 0;
   private nodes: BaseNode<any, any, any>[];
   private rules: Rule[] = [];
   private ruleSets: RuleSet[] = [];
@@ -55,14 +57,25 @@ export default class Engine {
     return result;
   }
 
+  getActiveConfig(): TEngineConfig {
+    const activeConfig = ConfigParser.export(
+      this.activeConfigVersion,
+      this.rules,
+      this.ruleSets
+    );
+
+    return activeConfig;
+  }
+
   async loadConfig(configVersion?: number): Promise<void> {
     if (!configVersion) {
       configVersion = await this.configProvider.getLatestConfigVersion();
     }
 
     const config = await this.configProvider.loadConfig(configVersion);
-    const { rules, ruleSets, } = ConfigParser.parse(config, this.nodes);
+    const { version, rules, ruleSets, } = ConfigParser.parse(config, this.nodes);
 
+    this.activeConfigVersion = version;
     this.rules = rules;
     this.ruleSets = ruleSets;
   }
@@ -71,7 +84,7 @@ export default class Engine {
     const configVersion = await this.configProvider.getLatestConfigVersion();
 
     const config = ConfigParser.export(
-      configVersion,
+      configVersion + 1,
       this.rules,
       this.ruleSets
     );

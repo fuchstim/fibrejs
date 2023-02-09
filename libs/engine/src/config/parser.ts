@@ -3,7 +3,7 @@ import Rule from '../rule';
 import RuleSet from '../rule/rule-set';
 import RuleStage from '../rule/rule-stage';
 
-import { TEngineConfig, TEngineConfigRule, TEngineConfigRuleSet, TEngineConfigRuleStage, TParsedEngineConfig } from '../types/config';
+import { TEngineConfig, TRuleConfig, TRuleSetConfig, TRuleStageConfig, TParsedEngineConfig } from '../types/config';
 
 class ConfigParser {
   validate(config: TEngineConfig): boolean {
@@ -46,7 +46,7 @@ class ConfigParser {
     };
   }
 
-  private parseRule(ruleConfig: TEngineConfigRule, availableNodes: BaseNode<any, any, any>[]): Rule {
+  private parseRule(ruleConfig: TRuleConfig, availableNodes: BaseNode<any, any, any>[]): Rule {
     const { id, name, stages, } = ruleConfig;
 
     return new Rule({
@@ -58,7 +58,7 @@ class ConfigParser {
     });
   }
 
-  private exportRule(rule: Rule): TEngineConfigRule {
+  private exportRule(rule: Rule): TRuleConfig {
     const { id, name, stages, } = rule;
 
     return {
@@ -70,8 +70,8 @@ class ConfigParser {
     };
   }
 
-  private parseRuleStage(ruleStageConfig: TEngineConfigRuleStage, availableNodes: BaseNode<any, any, any>[]): RuleStage {
-    const { id, type, inputs, nodeId, nodeOptions, } = ruleStageConfig;
+  private parseRuleStage(ruleStageConfig: TRuleStageConfig, availableNodes: BaseNode<any, any, any>[]): RuleStage {
+    const { id, inputs, nodeId, nodeOptions, } = ruleStageConfig;
 
     const node = availableNodes.find(
       node => node.id === nodeId
@@ -80,26 +80,24 @@ class ConfigParser {
 
     return new RuleStage({
       id,
-      type,
       node,
       inputs,
       nodeOptions,
     });
   }
 
-  private exportRuleStage(ruleStage: RuleStage): TEngineConfigRuleStage {
-    const { id, type, node, inputs, nodeOptions, } = ruleStage;
+  private exportRuleStage(ruleStage: RuleStage): TRuleStageConfig {
+    const { id, node, inputs, nodeOptions, } = ruleStage;
 
     return {
       id,
-      type,
       nodeId: node.id,
       inputs,
       nodeOptions,
     };
   }
 
-  private parseRuleSet(ruleSetConfig: TEngineConfigRuleSet): RuleSet {
+  private parseRuleSet(ruleSetConfig: TRuleSetConfig): RuleSet {
     const { id, name, entries, } = ruleSetConfig;
 
     return new RuleSet({
@@ -109,7 +107,7 @@ class ConfigParser {
     });
   }
 
-  private exportRuleSet(ruleSet: RuleSet): TEngineConfigRuleSet {
+  private exportRuleSet(ruleSet: RuleSet): TRuleSetConfig {
     const { id, name, entries, } = ruleSet;
 
     return {
