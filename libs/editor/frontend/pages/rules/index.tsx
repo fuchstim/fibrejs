@@ -7,7 +7,7 @@ import { Route, Routes, useNavigate } from 'react-router-dom';
 import { Types } from '@tripwire/engine';
 
 import client from '../../common/client';
-import RuleEditor from './_RuleEditor';
+import RuleEditor from './rule-editor';
 
 export default function Rules() {
   const [ loading, setLoading, ] = useState(false);
