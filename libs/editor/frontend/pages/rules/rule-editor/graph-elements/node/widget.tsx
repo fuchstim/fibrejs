@@ -35,8 +35,9 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
 
     return (
       <Form.Item
+        key={id}
         name={id}
-        label={name}
+        style={{ marginBottom: 6, }}
       >
         { input }
       </Form.Item>
