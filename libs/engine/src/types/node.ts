@@ -12,11 +12,16 @@ export enum ENodeType {
   EXIT = 'EXIT',
 }
 
+export type TNodeMetadataDropDownOption = {
+  id: string,
+  name: string
+};
+
 export type TNodeMetadataOption = {
   id: string,
   name: string,
   type: ENodeMetadataOptionType,
-  dropDownOptions?: { id: string, name: string }[],
+  dropDownOptions?: TNodeMetadataDropDownOption[],
   validate: (optionValue: any) => boolean,
 };
 
@@ -26,7 +31,8 @@ export type TNodeMetadataInputOutput = {
   type: TWrappedType<any, any>,
 };
 
-export type TNodeOptions = TKeyValue<string, any> | void;
+export type TNodeOption = string | number | boolean;
+export type TNodeOptions = TKeyValue<string, TNodeOption> | void;
 
 export type TNodeContext<T extends TNodeOptions> = TRuleContext & {
   nodeOptions: T

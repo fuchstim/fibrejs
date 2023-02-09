@@ -80,6 +80,7 @@ export default function App() {
             padding: 24,
             background: colorBgContainer,
             maxHeight: 'calc(100vh - 100px)',
+            borderRadius: '6px',
           }}
           >
           <Routes>

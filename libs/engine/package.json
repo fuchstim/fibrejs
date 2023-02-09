@@ -16,7 +16,6 @@
     "@tripwire/logger": "^1.0.0"
   },
   "devDependencies": {
-    "@emotion/styled": "^11.10.5",
     "@projectstorm/geometry": "^7.0.0"
   }
 }
