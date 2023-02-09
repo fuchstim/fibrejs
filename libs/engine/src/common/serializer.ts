@@ -45,18 +45,33 @@ class Serializer {
   }
 
   private serializeType(type: TWrappedType<any, any>): TSerializedType {
+    const isPrimitive = Object.values(EPrimitive).includes(type.id as EPrimitive);
+
+    if (isPrimitive) {
+      return {
+        id: type.id,
+        name: type.name,
+        isComplex: false,
+        fields: Object
+          .entries(type.fields)
+          .reduce(
+            (acc, [ key, type, ]) => ({ ...acc, [key]: type as EPrimitive, }),
+            {}
+          ),
+      };
+    }
+
     return {
       id: type.id,
       name: type.name,
+      isComplex: true,
       fields: Object
         .entries(type.fields)
         .reduce(
           (acc, [ fieldKey, fieldType, ]) => {
-            const isPrimitive = Object.values(EPrimitive).includes(fieldType as EPrimitive);
-
             return {
               ...acc,
-              [fieldKey]: isPrimitive ? fieldType as EPrimitive : this.serializeType(fieldType as TWrappedType<any, any>),
+              [fieldKey]: this.serializeType(fieldType as TWrappedType<any, any>),
             };
           },
           {}

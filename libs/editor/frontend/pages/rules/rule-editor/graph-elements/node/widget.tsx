@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { Card, Col, Divider, Form, Input, Row, Select } from 'antd';
+import { Card, Col, Divider, Form, Input, Row, Select, theme } from 'antd';
 
 import EditorNodeModel from './model';
 import EditorPortModel from '../port/model';
@@ -15,6 +15,11 @@ interface EditorNodeProps {
 export default function EditorNodeWidget(props: EditorNodeProps) {
   const ruleStage = props.node.getOptions().ruleStage;
   const onOptionsChange = props.node.getOptions().onOptionsChange;
+  const isSelected = props.node.isSelected();
+
+  const {
+    token: { colorPrimary, },
+  } = theme.useToken();
 
   const createPort = (port: EditorPortModel) => {
     return <EditorPortLabel engine={props.engine} port={port} key={port.getID()} />;
@@ -64,12 +69,15 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
     </div>
   );
 
+  const activeShadow = `${colorPrimary} 0px 0px 4px`;
+
   return (
     <Card
       title={ruleStage.node.name}
       bordered={false}
       bodyStyle={{ padding: 0, }}
       hoverable={true}
+      style={isSelected ? { boxShadow: activeShadow, } : {}}
     >
       <Row justify="space-between" gutter={16} style={{ padding: '6px 0', }}>
         <Col span="12">{props.node.getInputPorts().map(port => createPort(port))}</Col>

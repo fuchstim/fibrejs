@@ -4,6 +4,7 @@ import type { ENodeMetadataOptionType, ENodeType } from './node';
 export type TSerializedType = {
   id: string,
   name: string,
+  isComplex: boolean,
   fields: { [key: string]: EPrimitive | TSerializedType, },
 };
 
