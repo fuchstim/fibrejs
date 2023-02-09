@@ -30,7 +30,11 @@ export default function EditorPortLabel({ port, engine, }: EditorPortLabelProps)
   );
 
   return (
-    <Row justify={port.isInput ? 'start' : 'end'} wrap={false}>
+    <Row
+      justify={port.isInput ? 'start' : 'end'}
+      wrap={false}
+      style={{ margin: '10px 0', }}
+    >
       <Col>
         {port.isInput ? portWidget : labelWidget}
       </Col>

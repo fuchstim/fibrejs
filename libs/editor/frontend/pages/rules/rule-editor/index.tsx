@@ -94,7 +94,7 @@ export default function RuleEditor() {
           distributeNodes(model);
           rerouteLinks(model);
 
-          diagramEngine.zoomToFitNodes({ margin: 200, });
+          diagramEngine.zoomToFitNodes({ margin: 100, });
         },
         100
       );

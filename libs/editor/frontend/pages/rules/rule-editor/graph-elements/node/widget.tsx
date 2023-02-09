@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { Card, Col, Collapse, Input, Row, Select } from 'antd';
+import { Card, Col, Divider, Form, Input, Row, Select } from 'antd';
 
 import EditorNodeModel from './model';
 import EditorPortModel from '../port/model';
@@ -15,60 +15,50 @@ interface EditorNodeProps {
 export default function EditorNodeWidget(props: EditorNodeProps) {
   const ruleStage = props.node.getOptions().ruleStage;
 
-  const generatePort = (port: EditorPortModel) => {
+  const createPort = (port: EditorPortModel) => {
     return <EditorPortLabel engine={props.engine} port={port} key={port.getID()} />;
   };
 
-  const generateInputOption = ({ id, name, }: Types.Serializer.TSerializedNodeOption) => {
-    const value = ruleStage.nodeOptions?.[id];
+  const createFormItem = (nodeOption: Types.Serializer.TSerializedNodeOption) => {
+    const { id, type, name, dropDownOptions = [], } = nodeOption;
 
-    return (
-      <Input
-        key={id}
-        placeholder={name}
-        size="small"
-        value={String(value)}
-      />
-    );
-  };
-
-  const generateDropDownOption = ({ id, name, dropDownOptions = [], }: Types.Serializer.TSerializedNodeOption) => {
     const options = dropDownOptions.map(
       ({ id, name, }) => (<Select.Option key={id} value={id}>{name}</Select.Option>)
     );
 
-    const value = ruleStage.nodeOptions?.[id];
+    const input = {
+      [Types.Node.ENodeMetadataOptionType.INPUT]: (<Input />),
+      [Types.Node.ENodeMetadataOptionType.DROP_DOWN]: (<Select>{options}</Select>),
+    }[type];
+
+    if (!input) { return; }
 
     return (
-      <Select
-        key={id}
-        size='small'
-        placeholder={name}
-        style={{ width: '100%', }}
-        value={value}
+      <Form.Item
+        name={id}
+        label={name}
       >
-        {options}
-      </Select>
+        { input }
+      </Form.Item>
     );
   };
 
-  const generateOption = (nodeOption: Types.Serializer.TSerializedNodeOption) => {
-    const { type, } = nodeOption;
-
-    const createElement = {
-      [Types.Node.ENodeMetadataOptionType.INPUT]: generateInputOption,
-      [Types.Node.ENodeMetadataOptionType.DROP_DOWN]: generateDropDownOption,
-    }[type];
-
-    return createElement?.(nodeOption);
-  };
-
   const options = (
-    <Collapse size="small">
-      <Collapse.Panel header="Options" key="options" style={{ minWidth: '150px', }}>
-        {ruleStage.node.options.map(option => generateOption(option))}
-      </Collapse.Panel>
-    </Collapse>
+    <div>
+      <Divider orientation='left' plain>
+        Options
+      </Divider>
+
+      <Form
+        size='small'
+        layout='vertical'
+        initialValues={ruleStage.nodeOptions ?? {}}
+        style={{ paddingLeft: 24, paddingRight: 24, }}
+      >
+        {ruleStage.node.options.map(option => createFormItem(option))}
+      </Form>
+
+    </div>
   );
 
   return (
@@ -78,8 +68,8 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
       bodyStyle={{ paddingRight: 0, paddingLeft: 0, }}
     >
       <Row justify="space-between" gutter={16}>
-        <Col span="12">{props.node.getInputPorts().map(port => generatePort(port))}</Col>
-        <Col span="12">{props.node.getOutputPorts().map(port => generatePort(port))}</Col>
+        <Col span="12">{props.node.getInputPorts().map(port => createPort(port))}</Col>
+        <Col span="12">{props.node.getOutputPorts().map(port => createPort(port))}</Col>
       </Row>
 
       { ruleStage.node.options.length ? options : (<></>) }
