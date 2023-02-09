@@ -8,6 +8,7 @@ import {
   LinkModel
 } from '@projectstorm/react-diagrams';
 import { Types } from '@tripwire/engine';
+import { notification } from 'antd';
 
 export enum EPortType {
   INPUT = 'INPUT',
@@ -44,17 +45,31 @@ export default class EditorPortModel extends PortModel<EditorPortModelGenerics> 
     return Object.values(this.links).length > 0;
   }
 
-  canLinkToPort(port: EditorPortModel): boolean {
-    const { portType: type, config, } = port.getOptions();
+  canLinkToPort(targetPort: EditorPortModel): boolean {
+    const { config: sourceConfig, } = this.getOptions();
+    const { config: targetConfig, portType: targetPortType, } = targetPort.getOptions();
 
-    if (this.options.config.type.id !== config.type.id) {
+    if (targetPort.hasLink) {
+      return false;
+    }
+
+    if (sourceConfig.type.id !== targetConfig.type.id) {
+      notification.error({
+        message: `Cannot connect ${sourceConfig.type.name} type to ${targetConfig.type.name} type`,
+      });
+
       return false;
     }
 
     switch (this.options.portType) {
-      case EPortType.INPUT: return type === EPortType.OUTPUT;
-      case EPortType.OUTPUT: return type === EPortType.INPUT;
-      default: return false;
+      case EPortType.INPUT: return targetPortType === EPortType.OUTPUT;
+      case EPortType.OUTPUT: return targetPortType === EPortType.INPUT;
+      default:
+        notification.error({
+          message: `Cannot connect ${targetPortType === EPortType.OUTPUT ? 'output to output' : 'input to input'}`,
+        });
+
+        return false;
     }
   }
 

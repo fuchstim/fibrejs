@@ -6,7 +6,7 @@ import {
 } from '@ant-design/icons';
 
 import EditorPortModel from './model';
-import { Col, Row, Tag } from 'antd';
+import { Col, Row, Tag, Tooltip } from 'antd';
 
 interface EditorPortLabelProps {
   port: EditorPortModel;
@@ -24,9 +24,14 @@ export default function EditorPortLabel({ port, engine, }: EditorPortLabelProps)
   );
 
   const labelWidget = (
-    <Tag closable={false} style={{ margin: 0, }}>
-      {port.getOptions().name}
-    </Tag>
+    <Tooltip
+      placement={port.isInput ? 'right' : 'left'}
+      title={port.getOptions().config.type.name}
+    >
+      <Tag closable={false} style={{ margin: 0, }}>
+        {port.getOptions().name}
+      </Tag>
+    </Tooltip>
   );
 
   return (
