@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Button, notification } from 'antd';
+import { notification } from 'antd';
 
 import createEngine, {
   DefaultLinkModel,
@@ -10,7 +10,7 @@ import createEngine, {
   NodeModel,
   DagreEngine,
   PathFindingLinkFactory,
-  DiagramEngine
+  DefaultPortModel
 } from '@projectstorm/react-diagrams';
 
 import {
@@ -23,7 +23,7 @@ import client from '../../common/client';
 
 import { TRuleStageWithNode } from './_types';
 
-async function fetchData(ruleId: string): Promise<{ nodes: NodeModel[], links: LinkModel[] }> {
+async function fetchStages(ruleId: string): Promise<TRuleStageWithNode[]> {
   const stages = await Promise.all([
     client.getRule(ruleId),
     client.findNodes(),
@@ -34,8 +34,66 @@ async function fetchData(ruleId: string): Promise<{ nodes: NodeModel[], links: L
       )
     );
 
-  const nodes: NodeModel[] = [];
-  const links: LinkModel[] = [];
+  return stages;
+}
+
+function parseStages(stages: TRuleStageWithNode[]): { nodes: NodeModel[], links: LinkModel[] } {
+  const nodes = stages.map(stage => {
+    const node = new DefaultNodeModel({
+      id: stage.id,
+      name: stage.node.name,
+      color: 'rgb(0,192,255)',
+    });
+
+    stage.node.inputs.forEach(
+      input => node.addPort(
+        new DefaultPortModel({
+          id: `${stage.id}-${input.id}`,
+          in: true,
+          name: input.name,
+        })
+      )
+    );
+
+    stage.node.outputs.forEach(
+      output => node.addPort(
+        new DefaultPortModel({
+          id: `${stage.id}-${output.id}`,
+          in: false,
+          name: output.name,
+        })
+      )
+    );
+
+    return node;
+  });
+
+  const links: LinkModel[] = stages.flatMap(stage => {
+    const target = nodes.find(n => n.getID() === stage.id);
+    if (!target) { return []; }
+
+    const links = stage.inputs
+      .flatMap(input => {
+        const source = nodes.find(n => n.getID() === input.ruleStageId);
+        if (!source) { return []; }
+
+        const sourcePortId = `${source.getID()}-${input.outputId.split('.')[0]}`;
+        const targetPortId = `${target.getID()}-${input.inputId.split('.')[0]}`;
+
+        const sourcePort = source.getOutPorts().find(p => p.getID() === sourcePortId);
+        const targetPort = target.getInPorts().find(p => p.getID() === targetPortId);
+
+        console.log({ stage, target, source, sourcePort, targetPort, });
+
+        if (!sourcePort || !targetPort) { return []; }
+
+        const link = sourcePort.link<DefaultLinkModel>(targetPort);
+
+        return [ link, ];
+      });
+
+    return links;
+  });
 
   return {
     nodes,
@@ -50,11 +108,12 @@ const dagreEngine = new DagreEngine({
   graph: {
     rankdir: 'LR',
     ranker: 'longest-path',
+    align: 'DR',
     marginx: 100,
     marginy: 100,
   },
   includeLinks: true,
-  nodeMargin: 500,
+  nodeMargin: 100,
 });
 
 function distributeNodes(model: DiagramModel) {
@@ -87,11 +146,9 @@ export default function RuleEditor() {
 
       setLoading(true);
 
-      fetchData(ruleId)
-        .then(data => {
-          setNodes(data.nodes);
-          setLinks(data.links);
-        })
+      fetchStages(ruleId)
+        .then(stages => parseStages(stages))
+        .then(data => { setNodes(data.nodes); setLinks(data.links); })
         .catch(e => notification.error({ message: e.message, }))
         .finally(() => setLoading(false));
     },
@@ -106,8 +163,15 @@ export default function RuleEditor() {
 
       diagramEngine.setModel(model);
 
-      distributeNodes(model);
-      rerouteLinks(model);
+      setTimeout(
+        () => {
+          distributeNodes(model);
+          rerouteLinks(model);
+
+          diagramEngine.zoomToFitNodes({ margin: 200, });
+        },
+        1000
+      );
     },
     [ nodes, links, ]
   );

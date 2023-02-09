@@ -1,3 +1,3 @@
-import type { Config, Serializer } from '@tripwire/engine';
+import type { Types } from '@tripwire/engine';
 
-export type TRuleStageWithNode = Config.TRuleStageConfig & { node: Serializer.TSerializedNode };
+export type TRuleStageWithNode = Types.Config.TRuleStageConfig & { node: Types.Serializer.TSerializedNode };
