@@ -7,9 +7,11 @@ import {
 
 import EditorPortModel, { EPortType } from '../port/model';
 import { TRuleStageWithNode } from '../../_types';
+import { Types } from '@tripwire/engine';
 
 interface EditorNodeModelOptions {
   ruleStage: TRuleStageWithNode;
+  onOptionsChange?: (updatedOptions: Types.Node.TNodeOptions) => void,
 }
 
 interface EditorNodeModelGenerics extends NodeModelGenerics {
@@ -21,11 +23,12 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
   protected inputPorts: EditorPortModel[];
   protected outputPorts: EditorPortModel[];
 
-  constructor({ ruleStage, }: EditorNodeModelOptions) {
+  constructor({ ruleStage, onOptionsChange, }: EditorNodeModelOptions) {
     super({
       id: ruleStage.id,
       type: 'default',
       ruleStage,
+      onOptionsChange,
     });
 
     this.ruleStage = ruleStage;

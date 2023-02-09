@@ -14,6 +14,7 @@ interface EditorNodeProps {
 
 export default function EditorNodeWidget(props: EditorNodeProps) {
   const ruleStage = props.node.getOptions().ruleStage;
+  const onOptionsChange = props.node.getOptions().onOptionsChange;
 
   const createPort = (port: EditorPortModel) => {
     return <EditorPortLabel engine={props.engine} port={port} key={port.getID()} />;
@@ -27,8 +28,8 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
     );
 
     const input = {
-      [Types.Node.ENodeMetadataOptionType.INPUT]: (<Input />),
-      [Types.Node.ENodeMetadataOptionType.DROP_DOWN]: (<Select>{options}</Select>),
+      [Types.Node.ENodeMetadataOptionType.INPUT]: (<Input placeholder={name} />),
+      [Types.Node.ENodeMetadataOptionType.DROP_DOWN]: (<Select placeholder={name} >{options}</Select>),
     }[type];
 
     if (!input) { return; }
@@ -55,6 +56,7 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
         layout='vertical'
         initialValues={ruleStage.nodeOptions ?? {}}
         style={{ padding: '0 24px 24px 24px', }}
+        onValuesChange={(_, updatedValues) => onOptionsChange?.(updatedValues)}
       >
         {ruleStage.node.options.map(option => createFormItem(option))}
       </Form>
@@ -67,6 +69,7 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
       title={ruleStage.node.name}
       bordered={false}
       bodyStyle={{ padding: 0, }}
+      hoverable={true}
     >
       <Row justify="space-between" gutter={16} style={{ padding: '6px 0', }}>
         <Col span="12">{props.node.getInputPorts().map(port => createPort(port))}</Col>

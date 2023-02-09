@@ -1,4 +1,4 @@
-import { LinkModel, NodeModel } from '@projectstorm/react-diagrams';
+import { LinkModel } from '@projectstorm/react-diagrams';
 import { TRuleStageWithNode } from './_types';
 import client from '../../../common/client';
 
@@ -18,32 +18,22 @@ export async function fetchStages(ruleId: string): Promise<TRuleStageWithNode[]>
   return stages;
 }
 
-export function parseStages(stages: TRuleStageWithNode[]): { nodes: NodeModel[], links: LinkModel[] } {
-  const nodes = stages.map(stage => new EditorNodeModel({ ruleStage: stage, }));
-
-  const links: LinkModel[] = stages.flatMap(stage => {
-    const target = nodes.find(n => n.getID() === stage.id);
-    if (!target) { return []; }
-
-    const links = stage.inputs
+export function createNodeLinks(nodes: EditorNodeModel[]): LinkModel[] {
+  const links: LinkModel[] = nodes.flatMap(
+    node => node.getOptions().ruleStage.inputs
       .flatMap(input => {
         const source = nodes.find(n => n.getID() === input.ruleStageId);
         if (!source) { return []; }
 
         const sourcePort = source.getOutputPort(input.outputId.split('.')[0]);
-        const targetPort = target.getInputPort(input.inputId.split('.')[0]);
+        const targetPort = node.getInputPort(input.inputId.split('.')[0]);
         if (!sourcePort || !targetPort) { return []; }
 
         const link = sourcePort.link(targetPort);
 
         return [ link, ];
-      });
+      })
+  );
 
-    return links;
-  });
-
-  return {
-    nodes,
-    links,
-  };
+  return links;
 }

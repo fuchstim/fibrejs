@@ -4,8 +4,6 @@ import { Spin, notification } from 'antd';
 
 import createEngine, {
   DiagramModel,
-  LinkModel,
-  NodeModel,
   DagreEngine,
   PathFindingLinkFactory
 } from '@projectstorm/react-diagrams';
@@ -16,10 +14,12 @@ import {
 
 import './_style.css';
 
-import { fetchStages, parseStages } from './_common';
+import { fetchStages, createNodeLinks } from './_common';
 
 import EditorNodeFactory from './graph-elements/node/factory';
 import EditorPortFactory from './graph-elements/port/factory';
+import EditorNodeModel from './graph-elements/node/model';
+import { Types } from '@tripwire/engine';
 
 const diagramEngine = createEngine();
 diagramEngine
@@ -61,8 +61,11 @@ function rerouteLinks(model: DiagramModel) {
 
 export default function RuleEditor() {
   const [ loading, setLoading, ] = useState(false);
-  const [ nodes, setNodes, ] = useState<NodeModel[]>([]);
-  const [ links, setLinks, ] = useState<LinkModel[]>([]);
+  const [ nodes, setNodes, ] = useState<EditorNodeModel[]>([]);
+
+  const nodeConfigChangeHandler = (stageId: string, updatedConfig: Types.Node.TNodeOptions) => {
+    console.log({ stageId, updatedConfig, });
+  };
 
   const { ruleId, } = useParams();
 
@@ -73,8 +76,15 @@ export default function RuleEditor() {
       setLoading(true);
 
       fetchStages(ruleId)
-        .then(stages => parseStages(stages))
-        .then(data => { setNodes(data.nodes); setLinks(data.links); })
+        .then(
+          stages => stages.map(
+            ruleStage => new EditorNodeModel({
+              ruleStage,
+              onOptionsChange: options => nodeConfigChangeHandler(ruleStage.id, options),
+            })
+          )
+        )
+        .then(nodes => setNodes(nodes))
         .catch(e => notification.error({ message: e.message, }))
         .finally(() => setLoading(false));
     },
@@ -85,7 +95,7 @@ export default function RuleEditor() {
     () => {
       const model = new DiagramModel();
 
-      model.addAll(...nodes, ...links);
+      model.addAll(...nodes, ...createNodeLinks(nodes));
 
       diagramEngine.setModel(model);
 
@@ -99,7 +109,7 @@ export default function RuleEditor() {
         100
       );
     },
-    [ nodes, links, ]
+    [ nodes, ]
   );
 
   if (loading) {
