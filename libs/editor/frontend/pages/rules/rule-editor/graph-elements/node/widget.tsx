@@ -46,7 +46,7 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
 
   const options = (
     <div>
-      <Divider orientation='left' plain>
+      <Divider orientation='left' plain style={{ marginTop: 0, }}>
         Options
       </Divider>
 
@@ -54,7 +54,7 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
         size='small'
         layout='vertical'
         initialValues={ruleStage.nodeOptions ?? {}}
-        style={{ paddingLeft: 24, paddingRight: 24, }}
+        style={{ padding: '0 24px 24px 24px', }}
       >
         {ruleStage.node.options.map(option => createFormItem(option))}
       </Form>
@@ -66,9 +66,9 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
     <Card
       title={ruleStage.node.name}
       bordered={false}
-      bodyStyle={{ paddingRight: 0, paddingLeft: 0, }}
+      bodyStyle={{ padding: 0, }}
     >
-      <Row justify="space-between" gutter={16}>
+      <Row justify="space-between" gutter={16} style={{ padding: '6px 0', }}>
         <Col span="12">{props.node.getInputPorts().map(port => createPort(port))}</Col>
         <Col span="12">{props.node.getOutputPorts().map(port => createPort(port))}</Col>
       </Row>
