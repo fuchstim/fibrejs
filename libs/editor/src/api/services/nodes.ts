@@ -13,13 +13,9 @@ export default class NodesService implements IService {
   get(nodeId: string, context: TContext) {
     const nodeOptions = this.parseNodeOptions(context.req.query);
 
-    const nodes = this.engine.exportSerializedNodes({
-      [nodeId]: nodeOptions as Types.Node.TNodeOptions,
-    });
+    const node = this.engine.exportSerializedNode(nodeId, nodeOptions as Types.Node.TNodeOptions);
 
-    return nodes.find(
-      node => node.id === nodeId
-    );
+    return node;
   }
 
   find(context: TContext) {
