@@ -53,7 +53,7 @@ export default class EventEmitter<T extends TEventTypeMap> extends BaseEventEmit
     return super.prependOnceListener(eventName, listener);
   }
 
-  eventNames(): (string | symbol)[] {
-    return super.eventNames();
+  eventNames() {
+    return super.eventNames() as unknown as TEventName<T>[];
   }
 }
