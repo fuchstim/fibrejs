@@ -1,5 +1,5 @@
 import type { EPrimitive } from '../common/wrapped-types';
-import type { ENodeMetadataOptionType, ENodeType } from './node';
+import type { ENodeMetadataOptionType, ENodeType, TNodeMetadataDropDownOption, TNodeMetadataInputOptions } from './node';
 
 export type TSerializedType = {
   id: string,
@@ -12,7 +12,8 @@ export type TSerializedNodeOption = {
   id: string,
   name: string,
   type: ENodeMetadataOptionType,
-  dropDownOptions?: { id: string, name: string }[],
+  inputOptions?: TNodeMetadataInputOptions,
+  dropDownOptions?: TNodeMetadataDropDownOption[],
 };
 
 export type TSerializedNodeInputOutput = {

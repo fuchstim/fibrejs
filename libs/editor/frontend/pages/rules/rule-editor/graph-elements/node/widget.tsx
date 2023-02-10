@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { Card, Col, Divider, Form, Input, Row, Select, theme } from 'antd';
+import { Card, Checkbox, Col, Divider, Form, Input, InputNumber, Row, Select, theme } from 'antd';
 
 import EditorNodeModel from './model';
 import EditorPortModel from '../port/model';
 import EditorPortLabel from '../port/widget';
-import { Types } from '@tripwire/engine';
+import { Types, WrappedTypes } from '@tripwire/engine';
 
 interface EditorNodeProps {
   node: EditorNodeModel;
@@ -25,16 +25,34 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
     return <EditorPortLabel engine={props.engine} port={port} key={port.getID()} />;
   };
 
-  const createFormItem = (nodeOption: Types.Serializer.TSerializedNodeOption) => {
-    const { id, type, name, dropDownOptions = [], } = nodeOption;
+  const createInput = (name: string, inputOptions?: Types.Node.TNodeMetadataInputOptions) => {
+    const type = inputOptions?.type ?? WrappedTypes.EPrimitive.STRING;
 
+    switch (type) {
+      case WrappedTypes.EPrimitive.NUMBER:
+        return (<InputNumber placeholder={name} />);
+      case WrappedTypes.EPrimitive.BOOLEAN:
+        return (<Checkbox>{name}</Checkbox>);
+      case WrappedTypes.EPrimitive.STRING:
+      default:
+        return (<Input placeholder={name} />);
+    }
+  };
+
+  const createDropDownInput = (name: string, dropDownOptions: Types.Node.TNodeMetadataDropDownOption[] = []) => {
     const options = dropDownOptions.map(
       ({ id, name, }) => (<Select.Option key={id} value={id}>{name}</Select.Option>)
     );
 
+    return (<Select placeholder={name}>{options}</Select>);
+  };
+
+  const createFormItem = (nodeOption: Types.Serializer.TSerializedNodeOption) => {
+    const { id, type, name, dropDownOptions, inputOptions, } = nodeOption;
+
     const input = {
-      [Types.Node.ENodeMetadataOptionType.INPUT]: (<Input placeholder={name} />),
-      [Types.Node.ENodeMetadataOptionType.DROP_DOWN]: (<Select placeholder={name} >{options}</Select>),
+      [Types.Node.ENodeMetadataOptionType.INPUT]: createInput(name, inputOptions),
+      [Types.Node.ENodeMetadataOptionType.DROP_DOWN]: createDropDownInput(name, dropDownOptions),
     }[type];
 
     if (!input) { return; }

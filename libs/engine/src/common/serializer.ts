@@ -26,12 +26,13 @@ class Serializer {
   }
 
   private serializeOption(option: TNodeMetadataOption): TSerializedNodeOption {
-    const { id, name, type, dropDownOptions, } = option;
+    const { id, name, type, inputOptions, dropDownOptions, } = option;
 
     return {
       id,
       name,
       type,
+      inputOptions,
       dropDownOptions,
     };
   }
