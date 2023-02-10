@@ -8,10 +8,11 @@ import {
 import EditorPortModel, { EPortType } from '../port/model';
 import { TRuleStageWithNode } from '../../_types';
 import { Types } from '@tripwire/engine';
+import client from '../../../../../common/client';
 
 interface EditorNodeModelOptions {
   ruleStage: TRuleStageWithNode;
-  onOptionsChange?: (updatedOptions: Types.Node.TNodeOptions) => void,
+  onOptionsChange?: (updatedOptions: Types.Node.TNodeOptions) => void | Promise<void>,
 }
 
 interface EditorNodeModelGenerics extends NodeModelGenerics {
@@ -24,11 +25,16 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
   protected outputPorts: EditorPortModel[];
 
   constructor({ ruleStage, onOptionsChange, }: EditorNodeModelOptions) {
+    const wrappedOnOptionsChange = async (updatedOptions: Types.Node.TNodeOptions) => {
+      await this.updateWithOptions(updatedOptions);
+      onOptionsChange?.(updatedOptions);
+    };
+
     super({
       id: ruleStage.id,
       type: 'editor-node',
       ruleStage,
-      onOptionsChange,
+      onOptionsChange: wrappedOnOptionsChange,
     });
 
     this.ruleStage = ruleStage;
@@ -122,5 +128,12 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
       portsInOrder: this.inputPorts.map(p => p.getID()),
       portsOutOrder: this.outputPorts.map(p => p.getID()),
     };
+  }
+
+  async updateWithOptions(nodeOptions: Types.Node.TNodeOptions) {
+    const updatedNode = await client.getNode(this.ruleStage.nodeId, nodeOptions);
+
+    this.ruleStage.nodeOptions = nodeOptions;
+    this.ruleStage.node = updatedNode;
   }
 }

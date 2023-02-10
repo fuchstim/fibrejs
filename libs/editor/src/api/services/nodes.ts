@@ -11,9 +11,11 @@ export default class NodesService implements IService {
   }
 
   get(nodeId: string, context: TContext) {
-    const nodes = this.engine.exportSerializedNodes(
-      this.parseNodeOptions(context.req.query)
-    );
+    const nodeOptions = this.parseNodeOptions(context.req.query);
+
+    const nodes = this.engine.exportSerializedNodes({
+      [nodeId]: nodeOptions as Types.Node.TNodeOptions,
+    });
 
     return nodes.find(
       node => node.id === nodeId
@@ -21,9 +23,9 @@ export default class NodesService implements IService {
   }
 
   find(context: TContext) {
-    const nodes = this.engine.exportSerializedNodes(
-      this.parseNodeOptions(context.req.query)
-    );
+    const nodeOptions = this.parseNodeOptions(context.req.query);
+
+    const nodes = this.engine.exportSerializedNodes(nodeOptions);
 
     return nodes;
   }

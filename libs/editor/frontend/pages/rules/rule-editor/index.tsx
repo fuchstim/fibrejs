@@ -19,7 +19,6 @@ import { fetchStages, createNodeLinks } from './_common';
 import EditorNodeFactory from './graph-elements/node/factory';
 import EditorPortFactory from './graph-elements/port/factory';
 import EditorNodeModel from './graph-elements/node/model';
-import { Types } from '@tripwire/engine';
 
 const diagramEngine = createEngine();
 diagramEngine
@@ -63,10 +62,6 @@ export default function RuleEditor() {
   const [ loading, setLoading, ] = useState(false);
   const [ nodes, setNodes, ] = useState<EditorNodeModel[]>([]);
 
-  const nodeConfigChangeHandler = (stageId: string, updatedConfig: Types.Node.TNodeOptions) => {
-    console.log({ stageId, updatedConfig, });
-  };
-
   const { ruleId, } = useParams();
 
   useEffect(
@@ -77,12 +72,7 @@ export default function RuleEditor() {
 
       fetchStages(ruleId)
         .then(
-          stages => stages.map(
-            ruleStage => new EditorNodeModel({
-              ruleStage,
-              onOptionsChange: options => nodeConfigChangeHandler(ruleStage.id, options),
-            })
-          )
+          stages => stages.map(ruleStage => new EditorNodeModel({ ruleStage, }))
         )
         .then(nodes => setNodes(nodes))
         .catch(e => notification.error({ message: e.message, }))
