@@ -20,6 +20,7 @@ interface OptionsUpdatedEvent extends BaseEvent {
 interface EditorNodeModelListener {
   nodeReloaded?: (event: BaseEvent) => void;
   optionsUpdated?: (event: OptionsUpdatedEvent) => void;
+  dimensionsChanged?: (event: BaseEvent) => void;
 }
 
 interface EditorNodeModelOptions {

@@ -38,10 +38,14 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
     const { level, portType, } = port.getOptions();
     const portFoldLevel = portFoldLevels[portType];
 
-    const toggleFold = () => setPortFoldLevels({
-      ...portFoldLevels,
-      [portType]: portFoldLevel > level ? level : (level + 1),
-    });
+    const toggleFold = () => {
+      setPortFoldLevels({
+        ...portFoldLevels,
+        [portType]: portFoldLevel > level ? level : (level + 1),
+      });
+
+      props.editorNode.fireEvent({}, 'dimensionsChanged');
+    };
 
     return (
       <EditorPortWidget
