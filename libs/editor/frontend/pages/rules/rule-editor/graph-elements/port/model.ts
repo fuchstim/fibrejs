@@ -18,7 +18,8 @@ export enum EPortType {
 interface EditorPortModelOptions {
   id: string,
   portType: EPortType,
-  config: Types.Serializer.TSerializedNodeInputOutput
+  config: Types.Serializer.TSerializedNodeInputOutput,
+  level: number,
 }
 
 interface EditorPortModelGenerics extends PortModelGenerics {
@@ -26,7 +27,7 @@ interface EditorPortModelGenerics extends PortModelGenerics {
 }
 
 export default class EditorPortModel extends PortModel<EditorPortModelGenerics> {
-  constructor({ id, portType, config, }: EditorPortModelOptions) {
+  constructor({ id, portType, config, level, }: EditorPortModelOptions) {
     super({
       id,
       name: config.name,
@@ -34,6 +35,7 @@ export default class EditorPortModel extends PortModel<EditorPortModelGenerics> 
       type: 'editor-port',
       portType,
       config,
+      level,
     });
   }
 

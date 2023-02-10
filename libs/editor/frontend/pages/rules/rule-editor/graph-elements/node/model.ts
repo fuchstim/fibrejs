@@ -4,21 +4,26 @@ import {
   BasePositionModelOptions,
   DeserializeEvent,
   NodeModelListener,
-  BaseEntityEvent
+  BaseEvent
 } from '@projectstorm/react-diagrams';
 
 import EditorPortModel, { EPortType } from '../port/model';
 import { TRuleStageWithNode } from '../../_types';
 import { Types } from '@tripwire/engine';
+
 import client from '../../../../../common/client';
 
+interface OptionsUpdatedEvent extends BaseEvent {
+  updatedOptions?: Types.Node.TNodeOptions
+}
+
 interface EditorNodeModelListener {
-  onChange?: (event: BaseEntityEvent<EditorNodeModel>) => void;
+  nodeReloaded?: (event: BaseEvent) => void;
+  optionsUpdated?: (event: OptionsUpdatedEvent) => void;
 }
 
 interface EditorNodeModelOptions {
   ruleStage: TRuleStageWithNode;
-  onOptionsChange?: (updatedOptions: Types.Node.TNodeOptions) => void | Promise<void>,
 }
 
 interface EditorNodeModelGenerics extends NodeModelGenerics {
@@ -32,17 +37,11 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
   protected inputPorts: EditorPortModel[];
   protected outputPorts: EditorPortModel[];
 
-  constructor({ ruleStage, onOptionsChange, }: EditorNodeModelOptions) {
-    const wrappedOnOptionsChange = async (updatedOptions: Types.Node.TNodeOptions) => {
-      await this.updateWithOptions(updatedOptions);
-      onOptionsChange?.(updatedOptions);
-    };
-
+  constructor({ ruleStage, }: EditorNodeModelOptions) {
     super({
       id: ruleStage.id,
       type: 'editor-node',
       ruleStage,
-      onOptionsChange: wrappedOnOptionsChange,
     });
 
     this.ruleStage = ruleStage;
@@ -50,6 +49,10 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
     this.outputPorts = [];
 
     this.generatePortsFromNode(ruleStage.node);
+
+    super.registerListener({
+      optionsUpdated: event => this.handleOptionsUpdated(event),
+    });
   }
 
   private generatePortsFromNode(node: Types.Serializer.TSerializedNode) {
@@ -61,24 +64,53 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
     );
   }
 
-  private generatePortsFromNodeInput(config: Types.Serializer.TSerializedNodeInputOutput): EditorPortModel[] {
+  private generatePortsFromNodeInput(config: Types.Serializer.TSerializedNodeInputOutput, level = 0): EditorPortModel[] {
     const port = new EditorPortModel({
       id: this.prefixPortId(config.id),
       portType: EPortType.INPUT,
       config,
+      level,
     });
 
     return [ port, ];
   }
 
-  private generatePortsFromNodeOutput(config: Types.Serializer.TSerializedNodeInputOutput): EditorPortModel[] {
+  private generatePortsFromNodeOutput(config: Types.Serializer.TSerializedNodeInputOutput, level = 0): EditorPortModel[] {
     const port = new EditorPortModel({
       id: this.prefixPortId(config.id),
       portType: EPortType.OUTPUT,
       config,
+      level,
     });
 
-    return [ port, ];
+    if (!config.type.isComplex) {
+      return [ port, ];
+    }
+
+    const formatKey = (key: string) => {
+      return [ key.slice(0, 1).toUpperCase(), key.slice(1), ]
+        .join('')
+        .replace(/([A-Z])/g, ' $1')
+        .trim();
+    };
+
+    const fieldPorts = Object
+      .entries(config.type.fields)
+      .flatMap(
+        ([ key, type, ]) => this.generatePortsFromNodeOutput(
+          {
+            id: [ config.id, key, ].join('.'),
+            name: [ config.name, formatKey(key), ].join(' → '),
+            type,
+          },
+          level + 1
+        )
+      );
+
+    return [
+      port,
+      ...fieldPorts,
+    ];
   }
 
   private prefixPortId(portId: string) {
@@ -175,14 +207,16 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
     };
   }
 
-  async updateWithOptions(nodeOptions: Types.Node.TNodeOptions) {
-    const updatedNode = await client.getNode(this.ruleStage.nodeId, nodeOptions);
+  async handleOptionsUpdated({ updatedOptions, }: OptionsUpdatedEvent) {
+    if (!updatedOptions) { return;}
 
-    this.ruleStage.nodeOptions = nodeOptions;
+    const updatedNode = await client.getNode(this.ruleStage.nodeId, updatedOptions);
+
+    this.ruleStage.nodeOptions = updatedOptions;
     this.ruleStage.node = updatedNode;
 
     this.generatePortsFromNode(updatedNode);
 
-    this.fireEvent({ entity: this, }, 'onChange');
+    this.fireEvent({}, 'nodeReloaded');
   }
 }

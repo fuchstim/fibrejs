@@ -1,11 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { Card, Checkbox, Col, Divider, Form, Input, InputNumber, Row, Select, theme } from 'antd';
 
 import EditorNodeModel from './model';
-import EditorPortModel from '../port/model';
-import EditorPortLabel from '../port/widget';
+import EditorPortModel, { EPortType } from '../port/model';
+import EditorPortWidget from '../port/widget';
 import { Types, WrappedTypes } from '@tripwire/engine';
+import { TKeyValue } from '@tripwire/engine/dist/types/common';
 
 interface EditorNodeProps {
   editorNode: EditorNodeModel;
@@ -13,24 +14,44 @@ interface EditorNodeProps {
 }
 
 export default function EditorNodeWidget(props: EditorNodeProps) {
-  const [ , updateState, ] = React.useState<object | undefined>();
+  const [ , updateState, ] = useState<object | undefined>();
   const forceUpdate = React.useCallback(() => updateState({}), []);
 
-  const ruleStage = props.editorNode.getOptions().ruleStage;
-  const onOptionsChange = props.editorNode.getOptions().onOptionsChange;
-  const isSelected = props.editorNode.isSelected();
+  const [ portFoldLevels, setPortFoldLevels, ] = useState<TKeyValue<EPortType, number>>({
+    [EPortType.INPUT]: 0,
+    [EPortType.OUTPUT]: 0,
+  });
 
   useEffect(
-    () => props.editorNode.registerListener({ onChange: forceUpdate, }).deregister,
+    () => props.editorNode.registerListener({ nodeReloaded: forceUpdate, }).deregister,
     []
   );
+
+  const ruleStage = props.editorNode.getOptions().ruleStage;
+  const isSelected = props.editorNode.isSelected();
 
   const {
     token: { colorPrimary, },
   } = theme.useToken();
 
   const createPort = (port: EditorPortModel) => {
-    return <EditorPortLabel engine={props.engine} port={port} key={port.getID()} />;
+    const { level, portType, } = port.getOptions();
+    const portFoldLevel = portFoldLevels[portType];
+
+    const toggleFold = () => setPortFoldLevels({
+      ...portFoldLevels,
+      [portType]: portFoldLevel > level ? level : (level + 1),
+    });
+
+    return (
+      <EditorPortWidget
+        engine={props.engine}
+        port={port}
+        key={port.getID()}
+        onClick={() => toggleFold()}
+        hideIfUnlinked={level > portFoldLevel}
+      />
+    );
   };
 
   const createInput = (name: string, inputOptions?: Types.Node.TNodeMetadataInputOptions) => {
@@ -66,12 +87,19 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
   };
 
   const createFormItem = (nodeOption: Types.Serializer.TSerializedNodeOption) => {
-    const { id, type, name, dropDownOptions, inputOptions, } = nodeOption;
+    const { id, type, name, } = nodeOption;
 
-    const input = {
-      [Types.Node.ENodeMetadataOptionType.INPUT]: createInput(name, inputOptions),
-      [Types.Node.ENodeMetadataOptionType.DROP_DOWN]: createDropDownInput(name, dropDownOptions),
-    }[type];
+    let input: { valuePropName: string, element: JSX.Element } | undefined;
+
+    switch (type) {
+      case Types.Node.ENodeMetadataOptionType.INPUT:
+        input = createInput(name, nodeOption.inputOptions);
+        break;
+      case Types.Node.ENodeMetadataOptionType.DROP_DOWN:
+        input = createDropDownInput(name, nodeOption.dropDownOptions);
+        break;
+
+    }
 
     if (!input) { return; }
 
@@ -98,7 +126,7 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
         layout='vertical'
         initialValues={ruleStage.nodeOptions ?? {}}
         style={{ padding: '0 24px 24px 24px', width: '190px', }}
-        onValuesChange={(_, updatedValues) => onOptionsChange?.(updatedValues)}
+        onValuesChange={(_, updatedOptions) => props.editorNode.fireEvent({ updatedOptions, }, 'optionsUpdated')}
       >
         {ruleStage.node.options.map(option => createFormItem(option))}
       </Form>
@@ -106,19 +134,17 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
     </div>
   );
 
-  const activeShadow = `${colorPrimary} 0px 0px 4px`;
-
   return (
     <Card
       title={ruleStage.node.name}
       bordered={false}
       bodyStyle={{ padding: 0, }}
       hoverable={true}
-      style={isSelected ? { boxShadow: activeShadow, } : {}}
+      style={isSelected ? { boxShadow: `${colorPrimary} 0px 0px 4px`, } : {}}
     >
       <Row justify="space-between" gutter={16} style={{ padding: '6px 0', }}>
-        <Col span="12">{props.editorNode.getInputPorts().map(port => createPort(port))}</Col>
-        <Col span="12">{props.editorNode.getOutputPorts().map(port => createPort(port))}</Col>
+        <Col>{props.editorNode.getInputPorts().map(port => createPort(port))}</Col>
+        <Col>{props.editorNode.getOutputPorts().map(port => createPort(port))}</Col>
       </Row>
 
       { ruleStage.node.options.length ? options : (<></>) }

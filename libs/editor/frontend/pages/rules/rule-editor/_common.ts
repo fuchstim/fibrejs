@@ -53,21 +53,25 @@ export function createDiagramEngine(stages: TRuleStageWithNode[]): DiagramEngine
 
   const listener = engine.registerListener({
     canvasReady: () => {
-      dagreEngine.redistribute(model);
-      dagreEngine.refreshLinks(model);
-
-      engine
-        .getLinkFactories()
-        .getFactory<PathFindingLinkFactory>(PathFindingLinkFactory.NAME)
-        .calculateRoutingMatrix();
-
-      engine.zoomToFitNodes({ margin: 100, });
+      distributeNodes(engine, model);
 
       listener.deregister();
     },
   });
 
   return engine;
+}
+
+function distributeNodes(engine: DiagramEngine, model: DiagramModel) {
+  dagreEngine.redistribute(model);
+  dagreEngine.refreshLinks(model);
+
+  engine
+    .getLinkFactories()
+    .getFactory<PathFindingLinkFactory>(PathFindingLinkFactory.NAME)
+    .calculateRoutingMatrix();
+
+  engine.zoomToFitNodes({ margin: 100, });
 }
 
 function createDiagramModel(stages: TRuleStageWithNode[]): DiagramModel {
@@ -92,8 +96,8 @@ function createNodeLinks(nodes: EditorNodeModel[]): LinkModel[] {
       const source = nodes.find(n => n.getID() === input.ruleStageId);
       if (!source) { continue; }
 
-      const sourcePort = source.getOutputPort(input.outputId.split('.')[0]);
-      const targetPort = node.getInputPort(input.inputId.split('.')[0]);
+      const sourcePort = source.getOutputPort(input.outputId);
+      const targetPort = node.getInputPort(input.inputId);
       if (!sourcePort || !targetPort) { continue; }
 
       if (!sourcePort.canLinkToPort(targetPort)) { continue; }

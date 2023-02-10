@@ -9,12 +9,14 @@ import {
 import EditorPortModel from './model';
 import { Col, Row, Tag, Tooltip } from 'antd';
 
-interface EditorPortLabelProps {
+interface EditorPortWidgetProps {
   port: EditorPortModel;
   engine: DiagramEngine;
+  hideIfUnlinked: boolean;
+  onClick?: () => void;
 }
 
-export default function EditorPortLabel({ port, engine, }: EditorPortLabelProps) {
+export default function EditorPortWidget({ port, engine, hideIfUnlinked, onClick, }: EditorPortWidgetProps) {
   const Icon = port.hasLink ? RightCircleFilled : RightCircleTwoTone;
   const iconStyle = port.isInput ? { marginRight: 5, marginLeft: -5, } : { marginRight: -5, marginLeft: 5, };
 
@@ -38,17 +40,20 @@ export default function EditorPortLabel({ port, engine, }: EditorPortLabelProps)
         closable={false}
         style={{ margin: 0, }}
         icon={type.isComplex ? <CaretDownOutlined /> : null}
+        onClick={() => onClick?.()}
       >
         {name}
       </Tag>
     </Tooltip>
   );
 
+  const hidden = hideIfUnlinked && !port.hasLink;
+
   return (
     <Row
       justify={port.isInput ? 'start' : 'end'}
       wrap={false}
-      style={{ margin: '10px 0', }}
+      style={{ margin: '10px 0', display: hidden ? 'none' : undefined, }}
     >
       <Col>
         {port.isInput ? portWidget : labelWidget}
