@@ -8,10 +8,6 @@ import GetUserNode from './nodes/get-user';
 import EntryTestNode from './nodes/entry-test';
 
 class ConfigProvider extends BaseConfigProvider {
-  constructor() {
-    super();
-  }
-
   getLatestConfigVersion() {
     return 1;
   }

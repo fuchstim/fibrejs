@@ -4,9 +4,9 @@ export { BaseNode } from './common/base-node';
 export { ConfigProvider } from './storage/config-provider';
 export * as Types from './types';
 
-import ConfigParser from './storage/config-parser';
-import { ConfigProvider } from './storage/config-provider';
 import { BaseNode } from './common/base-node';
+import eventBus from './common/event-bus';
+import EventEmitter from './common/event-emitter';
 import serializer from './common/serializer';
 import ExitNode from './nodes/exit';
 import CompareBooleansNode from './nodes/compare-booleans';
@@ -15,18 +15,21 @@ import CompareStringsNode from './nodes/compare-strings';
 import StaticValueNode from './nodes/static-value';
 import Rule from './rule';
 import RuleSet from './rule/rule-set';
+import ConfigParser from './storage/config-parser';
+import { ConfigProvider } from './storage/config-provider';
 import { TRuleSetExecutionResult, TRuleSetInputs } from './types/rule-set';
 import { TSerializedNode } from './types/serializer';
 import { TEngineConfig } from './types/config';
 import { TKeyValue } from './types/common';
 import { TNodeOptions } from './types/node';
+import { TEventTypes } from './types/events';
 
 export type TEngineOptions = {
   configProvider: ConfigProvider,
   customNodes?: BaseNode<any, any, any>[]
 };
 
-export default class Engine {
+export default class Engine extends EventEmitter<TEventTypes> {
   private configProvider: ConfigProvider;
   private activeConfigVersion = 0;
   private nodes: BaseNode<any, any, any>[];
@@ -34,6 +37,8 @@ export default class Engine {
   private ruleSets: RuleSet[] = [];
 
   constructor(options: TEngineOptions) {
+    super();
+
     this.configProvider = options.configProvider;
 
     this.nodes = [
@@ -44,6 +49,8 @@ export default class Engine {
       new CompareStringsNode(),
       new StaticValueNode(),
     ];
+
+    eventBus.registerProxy(this);
   }
 
   async init() {
@@ -93,7 +100,7 @@ export default class Engine {
     await this.configProvider.saveConfig(config);
   }
 
-  exportSerializedNode(nodeId: string, nodeOptions?: TNodeOptions): TSerializedNode {
+  exportSerializedNode(nodeId: string, nodeOptions: TNodeOptions = {}): TSerializedNode {
     const node = this.nodes.find(
       node => node.id === nodeId
     );

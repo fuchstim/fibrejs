@@ -2,9 +2,16 @@ import BaseEventEmitter from 'events';
 
 type TEventTypeMap = Record<string, object>;
 type TEventName<T extends TEventTypeMap> = string & keyof T;
-type TEventListener<T> = (payload: T) => void | Promise<void>;
+type TEventListener<T> = (payload: T) => any | Promise<any>;
+
+type TProxy<T extends TEventTypeMap> = {
+  target: EventEmitter<T>,
+  eventNames?: TEventName<T>[]
+};
 
 export default class EventEmitter<T extends TEventTypeMap> extends BaseEventEmitter {
+  private proxies: TProxy<T>[] = [];
+
   on<N extends TEventName<T>>(eventName: N, listener: TEventListener<T[N]>) {
     return super.on(eventName, listener);
   }
@@ -14,7 +21,19 @@ export default class EventEmitter<T extends TEventTypeMap> extends BaseEventEmit
   }
 
   emit<N extends TEventName<T>>(eventName: N, payload: T[N]) {
+    this.proxies
+      .filter(p => p.eventNames?.includes(eventName) ?? true)
+      .forEach(p => p.target.emit(eventName, payload));
+
     return super.emit(eventName, payload);
+  }
+
+  registerProxy(target: EventEmitter<T>, eventNames?: TEventName<T>[]) {
+    this.proxies.push({ target, eventNames, });
+  }
+
+  deregisterProxy(target: EventEmitter<T>) {
+    this.proxies = this.proxies.filter(p => p.target !== target);
   }
 
   addListener<N extends TEventName<T>>(eventName: N, listener: TEventListener<T[N]>) {
