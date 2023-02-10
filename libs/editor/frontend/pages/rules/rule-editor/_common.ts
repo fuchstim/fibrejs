@@ -95,9 +95,12 @@ function createNodeLinks(nodes: EditorNodeModel[]): LinkModel[] {
         const targetPort = node.getInputPort(input.inputId.split('.')[0]);
         if (!sourcePort || !targetPort) { return []; }
 
-        const link = sourcePort.link(targetPort);
+        if (sourcePort.canLinkToPort(targetPort)) {
+          const link = sourcePort.link(targetPort);
+          return [ link, ];
+        }
 
-        return [ link, ];
+        return [ ];
       })
   );
 
