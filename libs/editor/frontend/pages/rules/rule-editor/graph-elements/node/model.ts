@@ -70,6 +70,10 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
   }
 
   removePort(port: EditorPortModel): void {
+    Object
+      .values(port.getLinks())
+      .forEach(link => link.remove());
+
     super.removePort(port);
 
     if (port.isInput) {

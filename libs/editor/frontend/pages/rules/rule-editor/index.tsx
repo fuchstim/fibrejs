@@ -3,12 +3,9 @@ import { useParams } from 'react-router-dom';
 import { Spin, notification } from 'antd';
 
 import {
-  DiagramEngine
-} from '@projectstorm/react-diagrams';
-
-import {
+  DiagramEngine,
   CanvasWidget
-} from '@projectstorm/react-canvas-core';
+} from '@projectstorm/react-diagrams';
 
 import './_style.css';
 
@@ -35,24 +32,12 @@ export default function RuleEditor() {
     []
   );
 
-  const cleanupGraph = () => {
-    const model = engine?.getModel();
-    if (!model) { return; }
-
-    const links = Object.values(model.getLinks());
-    links.forEach(link => {
-      if (!link.getSourcePort() || !link.getTargetPort()) {
-        model.removeLink(link);
-      }
-    });
-  };
-
   if (loading || !engine) {
     return (<Spin spinning={loading} style={{ display: 'block', }} />);
   }
 
   return (
-    <div style={{ height: '100%', }} onMouseUp={() => cleanupGraph()}>
+    <div style={{ height: '100%', }}>
       <CanvasWidget
         className="editor-canvas"
         engine={engine}

@@ -41,8 +41,8 @@ export default class EditorPortModel extends PortModel<EditorPortModelGenerics> 
     return this.options.portType === EPortType.INPUT;
   }
 
-  get hasLink() {
-    return Object.values(this.links).length > 0;
+  get hasLink(): boolean {
+    return !!Object.values(this.links).length;
   }
 
   canLinkToPort(targetPort: EditorPortModel): boolean {
