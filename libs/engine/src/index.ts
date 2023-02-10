@@ -46,6 +46,17 @@ export default class Engine {
     ];
   }
 
+  async init() {
+    const configVersion = await this.storageProvider.getLatestConfigVersion();
+
+    const config = await this.storageProvider.loadConfig(configVersion);
+    const { version, rules, ruleSets, } = ConfigParser.parse(config, this.nodes);
+
+    this.activeConfigVersion = version;
+    this.rules = rules;
+    this.ruleSets = ruleSets;
+  }
+
   async executeRuleSet(ruleSetId: string, inputs: TRuleSetInputs): Promise<TRuleSetExecutionResult> {
     const ruleSet = this.ruleSets.find(ruleSet => ruleSet.id === ruleSetId);
     if (!ruleSet) {
@@ -70,20 +81,7 @@ export default class Engine {
     return activeConfig;
   }
 
-  async loadConfig(configVersion?: number): Promise<void> {
-    if (!configVersion) {
-      configVersion = await this.storageProvider.getLatestConfigVersion();
-    }
-
-    const config = await this.storageProvider.loadConfig(configVersion);
-    const { version, rules, ruleSets, } = ConfigParser.parse(config, this.nodes);
-
-    this.activeConfigVersion = version;
-    this.rules = rules;
-    this.ruleSets = ruleSets;
-  }
-
-  async saveConfig(): Promise<void> {
+  async saveActiveConfig(): Promise<void> {
     const configVersion = await this.storageProvider.getLatestConfigVersion();
 
     const config = ConfigParser.export(
@@ -95,16 +93,23 @@ export default class Engine {
     await this.storageProvider.saveConfig(config);
   }
 
+  exportSerializedNode(nodeId: string, nodeOptions?: TNodeOptions): TSerializedNode {
+    const node = this.nodes.find(
+      node => node.id === nodeId
+    );
+    if (!node) { throw new Error(`Invalid Node ID: ${nodeId}`);}
+
+    const context = {
+      rules: this.rules,
+      nodeOptions,
+    };
+
+    return serializer.serializeNode(node, context);
+  }
+
   exportSerializedNodes(nodeOptions?: TKeyValue<string, TNodeOptions>): TSerializedNode[] {
     return this.nodes.map(
-      node => {
-        const context = {
-          rules: this.rules,
-          nodeOptions: nodeOptions?.[node.id] ?? {},
-        };
-
-        return serializer.serializeNode(node, context);
-      }
+      node => this.exportSerializedNode(node.id, nodeOptions?.[node.id])
     );
   }
 }

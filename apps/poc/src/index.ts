@@ -39,7 +39,7 @@ const engine = new Engine({
 });
 
 async function run() {
-  await engine.loadConfig();
+  await engine.init();
 
   fs.writeFileSync(
     'nodes.json',
