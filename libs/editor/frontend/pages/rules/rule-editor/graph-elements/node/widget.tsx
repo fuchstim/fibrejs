@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useEffect } from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { Card, Checkbox, Col, Divider, Form, Input, InputNumber, Row, Select, theme } from 'antd';
 
@@ -8,14 +8,22 @@ import EditorPortLabel from '../port/widget';
 import { Types, WrappedTypes } from '@tripwire/engine';
 
 interface EditorNodeProps {
-  node: EditorNodeModel;
+  editorNode: EditorNodeModel;
   engine: DiagramEngine;
 }
 
 export default function EditorNodeWidget(props: EditorNodeProps) {
-  const ruleStage = props.node.getOptions().ruleStage;
-  const onOptionsChange = props.node.getOptions().onOptionsChange;
-  const isSelected = props.node.isSelected();
+  const [ , updateState, ] = React.useState<object | undefined>();
+  const forceUpdate = React.useCallback(() => updateState({}), []);
+
+  const ruleStage = props.editorNode.getOptions().ruleStage;
+  const onOptionsChange = props.editorNode.getOptions().onOptionsChange;
+  const isSelected = props.editorNode.isSelected();
+
+  useEffect(
+    () => props.editorNode.registerListener({ onChange: forceUpdate, }).deregister,
+    []
+  );
 
   const {
     token: { colorPrimary, },
@@ -28,15 +36,22 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
   const createInput = (name: string, inputOptions?: Types.Node.TNodeMetadataInputOptions) => {
     const type = inputOptions?.type ?? WrappedTypes.EPrimitive.STRING;
 
-    switch (type) {
-      case WrappedTypes.EPrimitive.NUMBER:
-        return (<InputNumber placeholder={name} />);
-      case WrappedTypes.EPrimitive.BOOLEAN:
-        return (<Checkbox>{name}</Checkbox>);
-      case WrappedTypes.EPrimitive.STRING:
-      default:
-        return (<Input placeholder={name} />);
-    }
+    const input = {
+      [WrappedTypes.EPrimitive.NUMBER]: {
+        valuePropName: 'value',
+        element: (<InputNumber placeholder={name} />),
+      },
+      [WrappedTypes.EPrimitive.BOOLEAN]: {
+        valuePropName: 'checked',
+        element: (<Checkbox>{name}</Checkbox>),
+      },
+      [WrappedTypes.EPrimitive.STRING]: {
+        valuePropName: 'value',
+        element: (<Input placeholder={name} />),
+      },
+    };
+
+    return input[type] ?? input[WrappedTypes.EPrimitive.STRING];
   };
 
   const createDropDownInput = (name: string, dropDownOptions: Types.Node.TNodeMetadataDropDownOption[] = []) => {
@@ -44,7 +59,10 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
       ({ id, name, }) => (<Select.Option key={id} value={id}>{name}</Select.Option>)
     );
 
-    return (<Select placeholder={name}>{options}</Select>);
+    return {
+      valuePropName: 'value',
+      element: (<Select placeholder={name}>{options}</Select>),
+    };
   };
 
   const createFormItem = (nodeOption: Types.Serializer.TSerializedNodeOption) => {
@@ -62,8 +80,9 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
         key={id}
         name={id}
         style={{ marginBottom: 6, }}
+        valuePropName={input.valuePropName}
       >
-        { input }
+        { input.element }
       </Form.Item>
     );
   };
@@ -98,8 +117,8 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
       style={isSelected ? { boxShadow: activeShadow, } : {}}
     >
       <Row justify="space-between" gutter={16} style={{ padding: '6px 0', }}>
-        <Col span="12">{props.node.getInputPorts().map(port => createPort(port))}</Col>
-        <Col span="12">{props.node.getOutputPorts().map(port => createPort(port))}</Col>
+        <Col span="12">{props.editorNode.getInputPorts().map(port => createPort(port))}</Col>
+        <Col span="12">{props.editorNode.getOutputPorts().map(port => createPort(port))}</Col>
       </Row>
 
       { ruleStage.node.options.length ? options : (<></>) }

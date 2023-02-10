@@ -2,7 +2,9 @@ import {
   NodeModel,
   NodeModelGenerics,
   BasePositionModelOptions,
-  DeserializeEvent
+  DeserializeEvent,
+  NodeModelListener,
+  BaseEntityEvent
 } from '@projectstorm/react-diagrams';
 
 import EditorPortModel, { EPortType } from '../port/model';
@@ -10,12 +12,17 @@ import { TRuleStageWithNode } from '../../_types';
 import { Types } from '@tripwire/engine';
 import client from '../../../../../common/client';
 
+interface EditorNodeModelListener {
+  onChange?: (event: BaseEntityEvent<EditorNodeModel>) => void;
+}
+
 interface EditorNodeModelOptions {
   ruleStage: TRuleStageWithNode;
   onOptionsChange?: (updatedOptions: Types.Node.TNodeOptions) => void | Promise<void>,
 }
 
 interface EditorNodeModelGenerics extends NodeModelGenerics {
+  LISTENER: EditorNodeModelListener & NodeModelListener;
   OPTIONS: EditorNodeModelOptions & BasePositionModelOptions;
 }
 
@@ -156,5 +163,7 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
     this.ruleStage.node = updatedNode;
 
     this.generatePortsFromNode(updatedNode);
+
+    this.fireEvent({ entity: this, }, 'onChange');
   }
 }

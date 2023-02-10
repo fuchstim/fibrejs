@@ -10,7 +10,7 @@ export default class EditorNodeFactory extends AbstractReactFactory<EditorNodeMo
   }
 
   generateReactWidget(event: GenerateWidgetEvent<EditorNodeModel>): JSX.Element {
-    return <EditorNodeWidget engine={this.engine} node={event.model} />;
+    return <EditorNodeWidget engine={this.engine} editorNode={event.model} />;
   }
 
   generateModel(event: GenerateModelEvent): EditorNodeModel {
