@@ -27,6 +27,7 @@ interface EditorNodeModelGenerics extends NodeModelGenerics {
 }
 
 export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> {
+  protected ports: Types.Common.TKeyValue<string, EditorPortModel> = {};
   protected ruleStage: TRuleStageWithNode;
   protected inputPorts: EditorPortModel[];
   protected outputPorts: EditorPortModel[];
@@ -52,20 +53,32 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
   }
 
   private generatePortsFromNode(node: Types.Serializer.TSerializedNode) {
-    const createPortModel = (portType: EPortType, config: Types.Serializer.TSerializedNodeInputOutput) => (
-      new EditorPortModel({
-        id: this.prefixPortId(config.id),
-        portType,
-        config,
-      })
-    );
-
-    this.removePorts(...Object.values(this.ports) as EditorPortModel[]);
+    this.removePorts(...Object.values(this.ports));
 
     this.addPorts(
-      ...node.inputs.map(config => createPortModel(EPortType.INPUT, config)),
-      ...node.outputs.map(config => createPortModel(EPortType.OUTPUT, config))
+      ...node.inputs.flatMap(config => this.generatePortsFromNodeInput(config)),
+      ...node.outputs.flatMap(config => this.generatePortsFromNodeOutput(config))
     );
+  }
+
+  private generatePortsFromNodeInput(config: Types.Serializer.TSerializedNodeInputOutput): EditorPortModel[] {
+    const port = new EditorPortModel({
+      id: this.prefixPortId(config.id),
+      portType: EPortType.INPUT,
+      config,
+    });
+
+    return [ port, ];
+  }
+
+  private generatePortsFromNodeOutput(config: Types.Serializer.TSerializedNodeInputOutput): EditorPortModel[] {
+    const port = new EditorPortModel({
+      id: this.prefixPortId(config.id),
+      portType: EPortType.OUTPUT,
+      config,
+    });
+
+    return [ port, ];
   }
 
   private prefixPortId(portId: string) {
@@ -111,23 +124,29 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
   }
 
   getInputPort(portId: string) {
-    return this.inputPorts.find(
-      port => port.getID() === this.prefixPortId(portId)
-    );
+    return this.getInputPorts()
+      .find(port => port.getID() === this.prefixPortId(portId));
   }
 
   getInputPorts(): EditorPortModel[] {
-    return this.inputPorts;
+    return Object
+      .values(this.ports)
+      .filter(
+        port => port.getOptions().portType === EPortType.INPUT
+      );
   }
 
   getOutputPort(portId: string) {
-    return this.outputPorts.find(
-      port => port.getID() === this.prefixPortId(portId)
-    );
+    return this.getOutputPorts()
+      .find(port => port.getID() === this.prefixPortId(portId));
   }
 
   getOutputPorts(): EditorPortModel[] {
-    return this.outputPorts;
+    return Object
+      .values(this.ports)
+      .filter(
+        port => port.getOptions().portType === EPortType.OUTPUT
+      );
   }
 
   doClone(lookupTable: object, clone: EditorNodeModel): void {
