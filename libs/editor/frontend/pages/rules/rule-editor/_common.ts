@@ -58,7 +58,7 @@ export function createDiagramEngine(stages: TRuleStageWithNode[]): DiagramEngine
 
   const listener = engine.registerListener({
     canvasReady: () => {
-      distributeNodes(engine, model);
+      distributeNodes(engine);
 
       listener.deregister();
     },
@@ -67,7 +67,9 @@ export function createDiagramEngine(stages: TRuleStageWithNode[]): DiagramEngine
   return engine;
 }
 
-function distributeNodes(engine: DiagramEngine, model: DiagramModel) {
+export function distributeNodes(engine: DiagramEngine) {
+  const model = engine.getModel();
+
   dagreEngine.redistribute(model);
   dagreEngine.refreshLinks(model);
 

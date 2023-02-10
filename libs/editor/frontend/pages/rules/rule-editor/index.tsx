@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Spin, notification } from 'antd';
+import { Button, Col, Row, Spin, notification } from 'antd';
 
 import {
   DiagramEngine,
@@ -11,6 +11,7 @@ import './_style.css';
 
 import { fetchStages, createDiagramEngine } from './_common';
 import { HeaderSetter } from '../../../common/types';
+import { PicCenterOutlined, PlusOutlined, SaveOutlined } from '@ant-design/icons';
 
 type Props = {
   setHeaderConfig: HeaderSetter
@@ -19,6 +20,10 @@ type Props = {
 export default function RuleEditor(props: Props) {
   const [ loading, setLoading, ] = useState(false);
   const [ engine, setEngine, ] = useState<DiagramEngine>();
+  const realign = useCallback(
+    () => console.log({ engine, }),
+    [ engine, ]
+  );
 
   const { ruleId, } = useParams();
   const navigate = useNavigate();
@@ -32,6 +37,35 @@ export default function RuleEditor(props: Props) {
       props.setHeaderConfig({
         title: 'Edit Rule',
         subtitle: 'Add, remove, or change parts of this rule',
+        extra: (
+          <Row gutter={16} wrap={false} justify="end" align="middle">
+            <Col>
+              <Button
+                icon={<PicCenterOutlined />}
+                onClick={() => realign()}
+              />
+            </Col>
+
+            <Col>
+              <Button icon={<PlusOutlined/>} />
+            </Col>
+
+            <Col>
+              <Button>
+                Cancel
+              </Button>
+            </Col>
+
+            <Col>
+              <Button
+                type='primary'
+                icon={<SaveOutlined />}
+              >
+                Save & Return
+              </Button>
+            </Col>
+          </Row>
+        ),
       });
 
       setLoading(true);
@@ -46,7 +80,13 @@ export default function RuleEditor(props: Props) {
   );
 
   if (loading || !engine) {
-    return (<Spin spinning={loading} style={{ display: 'block', }} />);
+    return (
+      <Row style={{ height: '100%', }} justify="center" align="middle">
+        <Col>
+          <Spin spinning={loading} />
+        </Col>
+      </Row>
+    );
   }
 
   return (

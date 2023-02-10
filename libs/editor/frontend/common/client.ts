@@ -40,6 +40,6 @@ export default {
     wrappedGet<Types.Config.TRuleSetConfig>(`rulesets/${ruleId}`)
   ),
   findRuleSets: () => (
-    wrappedGet<Types.Config.TRuleSetConfig>('rulesets')
+    wrappedGet<Types.Config.TRuleSetConfig[]>('rulesets')
   ),
 };

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { HeaderSetter } from '../../../common/types';
+import { HeaderSetter } from '../../common/types';
 import { Types } from '@tripwire/engine';
 import { useNavigate } from 'react-router-dom';
-import client from '../../../common/client';
+import client from '../../common/client';
 import { Button, Col, Row, Table, notification } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';

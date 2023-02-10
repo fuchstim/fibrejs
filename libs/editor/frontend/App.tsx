@@ -22,10 +22,11 @@ const { Header, Content, Sider, } = Layout;
 import Rules from './pages/rules/';
 import NotFound from './pages/NotFound';
 import { HeaderConfig } from './common/types';
+import RuleSets from './pages/rule-sets';
 
 const menuItems = [
   { label: 'Dashboard', key: 'dashboard', icon: <PieChartOutlined />, },
-  { label: 'Rulesets', key: 'rulesets', icon: <OrderedListOutlined />, },
+  { label: 'Rule Sets', key: 'rule-sets', icon: <OrderedListOutlined />, },
   { label: 'Rules', key: 'rules', icon: <AlertOutlined />, },
   { label: 'Users', key: 'users', icon: <TeamOutlined />, },
 ];
@@ -105,6 +106,8 @@ export default function App() {
           >
           <Routes>
             <Route path='/rules/*' element={<Rules setHeaderConfig={setHeaderConfig} />} />
+
+            <Route path='/rule-sets/*' element={<RuleSets setHeaderConfig={setHeaderConfig} />} />
 
             <Route path="*" element={<NotFound setHeaderConfig={setHeaderConfig} />} />
           </Routes>
