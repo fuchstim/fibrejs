@@ -15,7 +15,7 @@ export type TWrappedType<TNativeType, TCustomType> = {
 export type TStringType = {
   value: string,
 };
-export const CStringType: TWrappedType<string, TStringType> = {
+export const WStringType: TWrappedType<string, TStringType> = {
   id: EPrimitive.STRING,
   name: 'String',
   fields: {
@@ -28,7 +28,7 @@ export const CStringType: TWrappedType<string, TStringType> = {
 export type TNumberType = {
   value: number,
 };
-export const CNumberType: TWrappedType<number, TNumberType> = {
+export const WNumberType: TWrappedType<number, TNumberType> = {
   id: EPrimitive.NUMBER,
   name: 'Number',
   fields: {
@@ -41,7 +41,7 @@ export const CNumberType: TWrappedType<number, TNumberType> = {
 export type TBooleanType = {
   value: boolean,
 };
-export const CBooleanType: TWrappedType<boolean, TBooleanType> = {
+export const WBooleanType: TWrappedType<boolean, TBooleanType> = {
   id: EPrimitive.BOOLEAN,
   name: 'Boolean',
   fields: {
@@ -61,28 +61,28 @@ export type TDateType = {
   years: TNumberType,
   timestamp: TStringType,
 };
-export const CDateType: TWrappedType<Date, TDateType> = {
+export const WDateType: TWrappedType<Date, TDateType> = {
   id: 'DATE',
   name: 'Date',
   fields: {
-    milliseconds: CNumberType,
-    seconds: CNumberType,
-    minutes: CNumberType,
-    hours: CNumberType,
-    days: CNumberType,
-    months: CNumberType,
-    years: CNumberType,
-    timestamp: CStringType,
+    milliseconds: WNumberType,
+    seconds: WNumberType,
+    minutes: WNumberType,
+    hours: WNumberType,
+    days: WNumberType,
+    months: WNumberType,
+    years: WNumberType,
+    timestamp: WStringType,
   },
-  toNative: ({ timestamp, }) => new Date(CStringType.toNative(timestamp)),
+  toNative: ({ timestamp, }) => new Date(WStringType.toNative(timestamp)),
   fromNative: date => ({
-    milliseconds: CNumberType.fromNative(date.getMilliseconds()),
-    seconds: CNumberType.fromNative(date.getSeconds()),
-    minutes: CNumberType.fromNative(date.getMinutes()),
-    hours: CNumberType.fromNative(date.getHours()),
-    days: CNumberType.fromNative(date.getDate()),
-    months: CNumberType.fromNative(date.getMonth() + 1),
-    years: CNumberType.fromNative(date.getFullYear()),
-    timestamp: CStringType.fromNative(date.toISOString()),
+    milliseconds: WNumberType.fromNative(date.getMilliseconds()),
+    seconds: WNumberType.fromNative(date.getSeconds()),
+    minutes: WNumberType.fromNative(date.getMinutes()),
+    hours: WNumberType.fromNative(date.getHours()),
+    days: WNumberType.fromNative(date.getDate()),
+    months: WNumberType.fromNative(date.getMonth() + 1),
+    years: WNumberType.fromNative(date.getFullYear()),
+    timestamp: WStringType.fromNative(date.toISOString()),
   }),
 };

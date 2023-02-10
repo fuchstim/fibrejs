@@ -1,6 +1,6 @@
 import { BaseNode, WrappedTypes } from '@tripwire/engine';
 
-import { CUserType, TWrappedUserType } from '../input-output-types/user';
+import { WUserType, TWrappedUserType } from '../input-output-types/user';
 
 type TNodeInput = {
   userId: WrappedTypes.TStringType,
@@ -19,18 +19,18 @@ export default class GetUserNode extends BaseNode<TNodeInput, TNodeOutput, void>
 
       options: [],
       inputs: [
-        { id: 'userId', name: 'User ID', type: WrappedTypes.CStringType, },
-        { id: 'age', name: 'Age', type: WrappedTypes.CNumberType, },
+        { id: 'userId', name: 'User ID', type: WrappedTypes.WStringType, },
+        { id: 'age', name: 'Age', type: WrappedTypes.WNumberType, },
       ],
       outputs: [
-        { id: 'user', name: 'User', type: CUserType, },
+        { id: 'user', name: 'User', type: WUserType, },
       ],
     });
   }
 
   execute(input: TNodeInput): TNodeOutput {
     return {
-      user: CUserType.fromNative({
+      user: WUserType.fromNative({
         id: input.userId.value,
         username: 'username',
         age: input.age.value,

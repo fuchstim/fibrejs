@@ -1,5 +1,5 @@
 import { BaseNode } from '../common/base-node';
-import { CBooleanType, TBooleanType } from '../common/wrapped-types';
+import { WBooleanType, TBooleanType } from '../common/wrapped-types';
 import { ENodeMetadataOptionType, TNodeContext } from '../types/node';
 
 type TNodeInput = {
@@ -40,11 +40,11 @@ export default class CompareBooleans extends BaseNode<TNodeInput, TNodeOutput, T
         },
       ],
       inputs: [
-        { id: 'inputA', name: 'Input A', type: CBooleanType, },
-        { id: 'inputB', name: 'Input B', type: CBooleanType, },
+        { id: 'inputA', name: 'Input A', type: WBooleanType, },
+        { id: 'inputB', name: 'Input B', type: WBooleanType, },
       ],
       outputs: [
-        { id: 'result', name: 'Result', type: CBooleanType, },
+        { id: 'result', name: 'Result', type: WBooleanType, },
       ],
     });
   }

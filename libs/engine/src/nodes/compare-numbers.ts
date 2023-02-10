@@ -1,5 +1,5 @@
 import { BaseNode } from '../common/base-node';
-import { CBooleanType, CNumberType, TBooleanType, TNumberType } from '../common/wrapped-types';
+import { WBooleanType, WNumberType, TBooleanType, TNumberType } from '../common/wrapped-types';
 import { ENodeMetadataOptionType, TNodeContext } from '../types/node';
 
 type TNodeInput = {
@@ -46,11 +46,11 @@ export default class CompareNumbersNode extends BaseNode<TNodeInput, TNodeOutput
         },
       ],
       inputs: [
-        { id: 'inputA', name: 'Input A', type: CNumberType, },
-        { id: 'inputB', name: 'Input B', type: CNumberType, },
+        { id: 'inputA', name: 'Input A', type: WNumberType, },
+        { id: 'inputB', name: 'Input B', type: WNumberType, },
       ],
       outputs: [
-        { id: 'result', name: 'Result', type: CBooleanType, },
+        { id: 'result', name: 'Result', type: WBooleanType, },
       ],
     });
   }

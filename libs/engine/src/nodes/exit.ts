@@ -1,5 +1,5 @@
 import { BaseNode } from '../common/base-node';
-import { CBooleanType, TBooleanType } from '../common/wrapped-types';
+import { WBooleanType, TBooleanType } from '../common/wrapped-types';
 import { ENodeType } from '../types/node';
 
 type TNodeInput = {
@@ -15,7 +15,7 @@ export default class ExitNode extends BaseNode<TNodeInput, TNodeInput, void> {
 
       options: [],
       inputs: [
-        { id: 'result', name: 'Rule Result', type: CBooleanType, },
+        { id: 'result', name: 'Rule Result', type: WBooleanType, },
       ],
       outputs: [],
     });

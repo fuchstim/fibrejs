@@ -1,4 +1,4 @@
-import type { TWrappedType } from '../common/wrapped-types';
+import type { EPrimitive, TWrappedType } from '../common/wrapped-types';
 import type { TKeyValue, TOptionalGetter } from './common';
 import type { TRuleContext } from './rule';
 
@@ -12,6 +12,10 @@ export enum ENodeType {
   EXIT = 'EXIT',
 }
 
+export type TNodeMetadataInputOptions = {
+  type: EPrimitive
+};
+
 export type TNodeMetadataDropDownOption = {
   id: string,
   name: string
@@ -21,6 +25,7 @@ export type TNodeMetadataOption = {
   id: string,
   name: string,
   type: ENodeMetadataOptionType,
+  inputOptions?: TNodeMetadataInputOptions,
   dropDownOptions?: TNodeMetadataDropDownOption[],
   validate: (optionValue: any) => boolean,
 };

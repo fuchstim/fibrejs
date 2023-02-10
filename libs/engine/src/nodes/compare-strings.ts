@@ -1,5 +1,5 @@
 import { BaseNode } from '../common/base-node';
-import { CBooleanType, CStringType, TBooleanType, TStringType } from '../common/wrapped-types';
+import { WBooleanType, WStringType, TBooleanType, TStringType } from '../common/wrapped-types';
 import { ENodeMetadataOptionType, TNodeContext } from '../types/node';
 
 type TNodeInput = {
@@ -38,11 +38,11 @@ export default class CompareStringsNode extends BaseNode<TNodeInput, TNodeOutput
         },
       ],
       inputs: [
-        { id: 'inputA', name: 'Input A', type: CStringType, },
-        { id: 'inputB', name: 'Input B', type: CStringType, },
+        { id: 'inputA', name: 'Input A', type: WStringType, },
+        { id: 'inputB', name: 'Input B', type: WStringType, },
       ],
       outputs: [
-        { id: 'result', name: 'Result', type: CBooleanType, },
+        { id: 'result', name: 'Result', type: WBooleanType, },
       ],
     });
   }

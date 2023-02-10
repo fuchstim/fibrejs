@@ -19,8 +19,8 @@ export default class EntryTestNode extends BaseNode<TNodeInput, TNodeOutput, voi
       options: [],
       inputs: [],
       outputs: [
-        { id: 'userId', name: 'User ID', type: WrappedTypes.CStringType, },
-        { id: 'age', name: 'Age', type: WrappedTypes.CNumberType, },
+        { id: 'userId', name: 'User ID', type: WrappedTypes.WStringType, },
+        { id: 'age', name: 'Age', type: WrappedTypes.WNumberType, },
       ],
     });
   }

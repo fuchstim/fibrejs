@@ -12,25 +12,25 @@ export type TWrappedUserType = {
   age: WrappedTypes.TNumberType,
   createdAt: WrappedTypes.TDateType,
 };
-export const CUserType: WrappedTypes.TWrappedType<TUserType, TWrappedUserType> = {
+export const WUserType: WrappedTypes.TWrappedType<TUserType, TWrappedUserType> = {
   id: 'USER',
   name: 'User',
   fields: {
-    id: WrappedTypes.CStringType,
-    username: WrappedTypes.CStringType,
-    age: WrappedTypes.CNumberType,
-    createdAt: WrappedTypes.CDateType,
+    id: WrappedTypes.WStringType,
+    username: WrappedTypes.WStringType,
+    age: WrappedTypes.WNumberType,
+    createdAt: WrappedTypes.WDateType,
   },
   toNative: user => ({
     id: user.id.value,
     username: user.username.value,
     age: user.age.value,
-    createdAt: WrappedTypes.CDateType.toNative(user.createdAt),
+    createdAt: WrappedTypes.WDateType.toNative(user.createdAt),
   }),
   fromNative: user => ({
-    id: WrappedTypes.CStringType.fromNative(user.id),
-    username: WrappedTypes.CStringType.fromNative(user.username),
-    age: WrappedTypes.CNumberType.fromNative(user.age),
-    createdAt: WrappedTypes.CDateType.fromNative(user.createdAt),
+    id: WrappedTypes.WStringType.fromNative(user.id),
+    username: WrappedTypes.WStringType.fromNative(user.username),
+    age: WrappedTypes.WNumberType.fromNative(user.age),
+    createdAt: WrappedTypes.WDateType.fromNative(user.createdAt),
   }),
 };
