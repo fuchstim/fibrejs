@@ -1,11 +1,11 @@
 // Re-Exports
 export * as WrappedTypes from './common/wrapped-types';
 export { BaseNode } from './common/base-node';
-export { BaseStorageProvider } from './storage/base-provider';
+export { ConfigProvider } from './storage/config-provider';
 export * as Types from './types';
 
 import ConfigParser from './storage/config-parser';
-import { BaseStorageProvider } from './storage/base-provider';
+import { ConfigProvider } from './storage/config-provider';
 import { BaseNode } from './common/base-node';
 import serializer from './common/serializer';
 import ExitNode from './nodes/exit';
@@ -22,19 +22,19 @@ import { TKeyValue } from './types/common';
 import { TNodeOptions } from './types/node';
 
 export type TEngineOptions = {
-  storageProvider: BaseStorageProvider,
+  configProvider: ConfigProvider,
   customNodes?: BaseNode<any, any, any>[]
 };
 
 export default class Engine {
-  private storageProvider: BaseStorageProvider;
+  private configProvider: ConfigProvider;
   private activeConfigVersion = 0;
   private nodes: BaseNode<any, any, any>[];
   private rules: Rule[] = [];
   private ruleSets: RuleSet[] = [];
 
   constructor(options: TEngineOptions) {
-    this.storageProvider = options.storageProvider;
+    this.configProvider = options.configProvider;
 
     this.nodes = [
       ...options.customNodes ?? [],
@@ -47,9 +47,9 @@ export default class Engine {
   }
 
   async init() {
-    const configVersion = await this.storageProvider.getLatestConfigVersion();
+    const configVersion = await this.configProvider.getLatestConfigVersion();
 
-    const config = await this.storageProvider.loadConfig(configVersion);
+    const config = await this.configProvider.loadConfig(configVersion);
     const { version, rules, ruleSets, } = ConfigParser.parse(config, this.nodes);
 
     this.activeConfigVersion = version;
@@ -82,7 +82,7 @@ export default class Engine {
   }
 
   async saveActiveConfig(): Promise<void> {
-    const configVersion = await this.storageProvider.getLatestConfigVersion();
+    const configVersion = await this.configProvider.getLatestConfigVersion();
 
     const config = ConfigParser.export(
       configVersion + 1,
@@ -90,7 +90,7 @@ export default class Engine {
       this.ruleSets
     );
 
-    await this.storageProvider.saveConfig(config);
+    await this.configProvider.saveConfig(config);
   }
 
   exportSerializedNode(nodeId: string, nodeOptions?: TNodeOptions): TSerializedNode {
