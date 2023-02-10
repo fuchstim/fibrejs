@@ -41,21 +41,32 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
     this.inputPorts = [];
     this.outputPorts = [];
 
-    ruleStage.node.inputs.forEach(
-      input => this.addPort(
-        new EditorPortModel({ id: this.prefixPortId(input.id), portType: EPortType.INPUT, config: input, })
-      )
+    this.generatePortsFromNode(ruleStage.node);
+  }
+
+  private generatePortsFromNode(node: Types.Serializer.TSerializedNode) {
+    const createPortModel = (portType: EPortType, config: Types.Serializer.TSerializedNodeInputOutput) => (
+      new EditorPortModel({
+        id: this.prefixPortId(config.id),
+        portType,
+        config,
+      })
     );
 
-    ruleStage.node.outputs.forEach(
-      output => this.addPort(
-        new EditorPortModel({ id: this.prefixPortId(output.id), portType: EPortType.OUTPUT, config: output, })
-      )
+    this.removePorts(...Object.values(this.ports) as EditorPortModel[]);
+
+    this.addPorts(
+      ...node.inputs.map(config => createPortModel(EPortType.INPUT, config)),
+      ...node.outputs.map(config => createPortModel(EPortType.OUTPUT, config))
     );
   }
 
   private prefixPortId(portId: string) {
     return `${this.options.ruleStage.id}-${portId}`;
+  }
+
+  removePorts(...ports: EditorPortModel[]): void {
+    ports.map(port => this.removePort(port));
   }
 
   removePort(port: EditorPortModel): void {
@@ -66,6 +77,10 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
     } else {
       this.outputPorts.splice(this.outputPorts.indexOf(port), 1);
     }
+  }
+
+  addPorts(...ports: EditorPortModel[]): EditorPortModel[] {
+    return ports.map(port => this.addPort(port));
   }
 
   addPort(port: EditorPortModel): EditorPortModel {
@@ -135,5 +150,7 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
 
     this.ruleStage.nodeOptions = nodeOptions;
     this.ruleStage.node = updatedNode;
+
+    this.generatePortsFromNode(updatedNode);
   }
 }

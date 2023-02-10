@@ -1,9 +1,23 @@
-import { LinkModel } from '@projectstorm/react-diagrams';
+import createEngine, { DagreEngine, DefaultDiagramState, DiagramEngine, DiagramModel, LinkModel, PathFindingLinkFactory } from '@projectstorm/react-diagrams';
 import { TRuleStageWithNode } from './_types';
 import client from '../../../common/client';
 
 import EditorNodeModel from './graph-elements/node/model';
 import { Types } from '@tripwire/engine';
+import EditorNodeFactory from './graph-elements/node/factory';
+import EditorPortFactory from './graph-elements/port/factory';
+
+const dagreEngine = new DagreEngine({
+  graph: {
+    rankdir: 'LR',
+    ranker: 'longest-path',
+    align: 'DR',
+    marginx: 100,
+    marginy: 100,
+  },
+  includeLinks: true,
+  nodeMargin: 100,
+});
 
 export async function fetchStages(ruleId: string): Promise<TRuleStageWithNode[]> {
   const rule = await client.getRule(ruleId);
@@ -20,7 +34,57 @@ export async function fetchStages(ruleId: string): Promise<TRuleStageWithNode[]>
   );
 }
 
-export function createNodeLinks(nodes: EditorNodeModel[]): LinkModel[] {
+export function createDiagramEngine(stages: TRuleStageWithNode[]): DiagramEngine {
+  const engine = createEngine();
+  const state = engine.getStateMachine().getCurrentState();
+  if (state instanceof DefaultDiagramState) {
+    state.dragNewLink.config.allowLooseLinks = false;
+  }
+
+  engine
+    .getNodeFactories()
+    .registerFactory(new EditorNodeFactory());
+  engine
+    .getPortFactories()
+    .registerFactory(new EditorPortFactory());
+
+  const model = createDiagramModel(stages);
+  engine.setModel(model);
+
+  const listener = engine.registerListener({
+    canvasReady: () => {
+      dagreEngine.redistribute(model);
+      dagreEngine.refreshLinks(model);
+
+      engine
+        .getLinkFactories()
+        .getFactory<PathFindingLinkFactory>(PathFindingLinkFactory.NAME)
+        .calculateRoutingMatrix();
+
+      engine.zoomToFitNodes({ margin: 100, });
+
+      listener.deregister();
+    },
+  });
+
+  return engine;
+}
+
+function createDiagramModel(stages: TRuleStageWithNode[]): DiagramModel {
+  const nodes = stages.map(
+    ruleStage => new EditorNodeModel({ ruleStage, })
+  );
+
+  const links = createNodeLinks(nodes);
+
+  const diagramModel = new DiagramModel();
+
+  diagramModel.addAll(...nodes, ...links);
+
+  return diagramModel;
+}
+
+function createNodeLinks(nodes: EditorNodeModel[]): LinkModel[] {
   const links: LinkModel[] = nodes.flatMap(
     node => node.getOptions().ruleStage.inputs
       .flatMap(input => {

@@ -2,10 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Spin, notification } from 'antd';
 
-import createEngine, {
-  DiagramModel,
-  DagreEngine,
-  PathFindingLinkFactory
+import {
+  DiagramEngine
 } from '@projectstorm/react-diagrams';
 
 import {
@@ -14,53 +12,11 @@ import {
 
 import './_style.css';
 
-import { fetchStages, createNodeLinks } from './_common';
-
-import EditorNodeFactory from './graph-elements/node/factory';
-import EditorPortFactory from './graph-elements/port/factory';
-import EditorNodeModel from './graph-elements/node/model';
-
-const diagramEngine = createEngine();
-diagramEngine
-  .getNodeFactories()
-  .registerFactory(new EditorNodeFactory());
-diagramEngine
-  .getPortFactories()
-  .registerFactory(new EditorPortFactory());
-diagramEngine.setModel(new DiagramModel());
-
-const dagreEngine = new DagreEngine({
-  graph: {
-    rankdir: 'LR',
-    ranker: 'longest-path',
-    align: 'DR',
-    marginx: 100,
-    marginy: 100,
-  },
-  includeLinks: true,
-  nodeMargin: 100,
-});
-
-function distributeNodes(model: DiagramModel) {
-  dagreEngine.redistribute(model);
-
-  diagramEngine.repaintCanvas();
-}
-
-function rerouteLinks(model: DiagramModel) {
-  dagreEngine.refreshLinks(model);
-
-  diagramEngine
-    .getLinkFactories()
-    .getFactory<PathFindingLinkFactory>(PathFindingLinkFactory.NAME)
-    .calculateRoutingMatrix();
-
-  diagramEngine.repaintCanvas();
-}
+import { fetchStages, createDiagramEngine } from './_common';
 
 export default function RuleEditor() {
   const [ loading, setLoading, ] = useState(false);
-  const [ nodes, setNodes, ] = useState<EditorNodeModel[]>([]);
+  const [ engine, setEngine, ] = useState<DiagramEngine>();
 
   const { ruleId, } = useParams();
 
@@ -71,45 +27,36 @@ export default function RuleEditor() {
       setLoading(true);
 
       fetchStages(ruleId)
-        .then(
-          stages => stages.map(ruleStage => new EditorNodeModel({ ruleStage, }))
-        )
-        .then(nodes => setNodes(nodes))
+        .then(stages => createDiagramEngine(stages))
+        .then(engine => setEngine(engine))
         .catch(e => notification.error({ message: e.message, }))
         .finally(() => setLoading(false));
     },
-    [ ruleId, ]
+    []
   );
 
-  useEffect(
-    () => {
-      const model = new DiagramModel();
+  const cleanupGraph = () => {
+    const model = engine?.getModel();
+    if (!model) { return; }
 
-      model.addAll(...nodes, ...createNodeLinks(nodes));
+    const links = Object.values(model.getLinks());
+    links.forEach(link => {
+      if (!link.getSourcePort() || !link.getTargetPort()) {
+        model.removeLink(link);
+      }
+    });
+  };
 
-      diagramEngine.setModel(model);
-
-      setTimeout(
-        () => {
-          distributeNodes(model);
-          rerouteLinks(model);
-
-          diagramEngine.zoomToFitNodes({ margin: 100, });
-        },
-        100
-      );
-    },
-    [ nodes, ]
-  );
-
-  if (loading) {
+  if (loading || !engine) {
     return (<Spin spinning={loading} style={{ display: 'block', }} />);
   }
 
   return (
-    <CanvasWidget
-      className="editor-canvas"
-      engine={diagramEngine}
-    />
+    <div style={{ height: '100%', }} onMouseUp={() => cleanupGraph()}>
+      <CanvasWidget
+        className="editor-canvas"
+        engine={engine}
+      />
+    </div>
   );
 }
