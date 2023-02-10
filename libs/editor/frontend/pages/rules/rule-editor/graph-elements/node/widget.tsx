@@ -35,24 +35,20 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
   } = theme.useToken();
 
   const createPort = (port: EditorPortModel) => {
-    const { level, portType, } = port.getOptions();
+    const { level, portType, config, } = port.getOptions();
     const portFoldLevel = portFoldLevels[portType];
 
-    const toggleFold = () => {
-      setPortFoldLevels({
-        ...portFoldLevels,
-        [portType]: portFoldLevel > level ? level : (level + 1),
-      });
-
-      props.editorNode.fireEvent({}, 'dimensionsChanged');
-    };
+    const toggleFold = () => setPortFoldLevels({
+      ...portFoldLevels,
+      [portType]: portFoldLevel > level ? level : (level + 1),
+    });
 
     return (
       <EditorPortWidget
         engine={props.engine}
         port={port}
         key={port.getID()}
-        onClick={() => toggleFold()}
+        onClick={config.type.isComplex ? () => toggleFold() : undefined}
         hideIfUnlinked={level > portFoldLevel}
       />
     );

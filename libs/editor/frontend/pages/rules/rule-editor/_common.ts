@@ -48,7 +48,12 @@ export function createDiagramEngine(stages: TRuleStageWithNode[]): DiagramEngine
     .getPortFactories()
     .registerFactory(new EditorPortFactory());
 
-  const model = createDiagramModel(stages);
+  const nodes = createNodes(stages);
+  const links = createNodeLinks(nodes);
+
+  const model = new DiagramModel();
+  model.addAll(...nodes, ...links);
+
   engine.setModel(model);
 
   const listener = engine.registerListener({
@@ -74,18 +79,10 @@ function distributeNodes(engine: DiagramEngine, model: DiagramModel) {
   engine.zoomToFitNodes({ margin: 100, });
 }
 
-function createDiagramModel(stages: TRuleStageWithNode[]): DiagramModel {
-  const nodes = stages.map(
+function createNodes(stages: TRuleStageWithNode[]): EditorNodeModel[] {
+  return stages.map(
     ruleStage => new EditorNodeModel({ ruleStage, })
   );
-
-  const links = createNodeLinks(nodes);
-
-  const diagramModel = new DiagramModel();
-
-  diagramModel.addAll(...nodes, ...links);
-
-  return diagramModel;
 }
 
 function createNodeLinks(nodes: EditorNodeModel[]): LinkModel[] {
