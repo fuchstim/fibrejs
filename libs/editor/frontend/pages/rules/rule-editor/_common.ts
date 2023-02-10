@@ -85,24 +85,22 @@ function createDiagramModel(stages: TRuleStageWithNode[]): DiagramModel {
 }
 
 function createNodeLinks(nodes: EditorNodeModel[]): LinkModel[] {
-  const links: LinkModel[] = nodes.flatMap(
-    node => node.getOptions().ruleStage.inputs
-      .flatMap(input => {
-        const source = nodes.find(n => n.getID() === input.ruleStageId);
-        if (!source) { return []; }
+  const links: LinkModel[] = [];
 
-        const sourcePort = source.getOutputPort(input.outputId.split('.')[0]);
-        const targetPort = node.getInputPort(input.inputId.split('.')[0]);
-        if (!sourcePort || !targetPort) { return []; }
+  for (const node of nodes) {
+    for (const input of node.getOptions().ruleStage.inputs) {
+      const source = nodes.find(n => n.getID() === input.ruleStageId);
+      if (!source) { continue; }
 
-        if (sourcePort.canLinkToPort(targetPort)) {
-          const link = sourcePort.link(targetPort);
-          return [ link, ];
-        }
+      const sourcePort = source.getOutputPort(input.outputId.split('.')[0]);
+      const targetPort = node.getInputPort(input.inputId.split('.')[0]);
+      if (!sourcePort || !targetPort) { continue; }
 
-        return [ ];
-      })
-  );
+      if (!sourcePort.canLinkToPort(targetPort)) { continue; }
+
+      links.push(sourcePort.link(targetPort));
+    }
+  }
 
   return links;
 }
