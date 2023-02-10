@@ -1,13 +1,13 @@
 import fs from 'fs';
 import express from 'express';
 
-import Engine, { BaseConfigProvider, Types } from '@tripwire/engine';
+import Engine, { BaseStorageProvider, Types } from '@tripwire/engine';
 import createMiddleware from '@tripwire/editor';
 
 import GetUserNode from './nodes/get-user';
 import EntryTestNode from './nodes/entry-test';
 
-class ConfigProvider extends BaseConfigProvider {
+class StorageProvider extends BaseStorageProvider {
   getLatestConfigVersion() {
     return 1;
   }
@@ -31,7 +31,7 @@ class ConfigProvider extends BaseConfigProvider {
 }
 
 const engine = new Engine({
-  configProvider: new ConfigProvider(),
+  storageProvider: new StorageProvider(),
   customNodes: [
     new GetUserNode(),
     new EntryTestNode(),

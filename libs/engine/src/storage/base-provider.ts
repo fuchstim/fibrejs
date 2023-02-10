@@ -1,6 +1,9 @@
-import { TEngineConfig } from '../types/config';
+import EventEmitter from '../common/event-emitter';
 
-export abstract class BaseConfigProvider {
+import { TEngineConfig } from '../types/config';
+import { TStorageEventTypes } from '../types/storage';
+
+export abstract class BaseStorageProvider extends EventEmitter<TStorageEventTypes> {
   abstract getLatestConfigVersion(): number | Promise<number>;
 
   abstract loadConfig(version: number): TEngineConfig | Promise<TEngineConfig>;

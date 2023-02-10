@@ -5,3 +5,4 @@ export * as RuleSet from './rule-set';
 export * as RuleStage from './rule-stage';
 export * as Rule from './rule';
 export * as Serializer from './serializer';
+export * as Storage from './storage';
