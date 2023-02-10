@@ -1,5 +1,5 @@
 import { BaseNode } from '../common/base-node';
-import { TNodeContext, TNodeMetadataOption, TNodeMetadataInputOutput } from '../types/node';
+import { TNodeContext, TNodeMetadataOption, TNodeMetadataInputOutput, ENodeMetadataOptionType } from '../types/node';
 import { TSerializedNode, TSerializedNodeOption, TSerializedNodeInputOutput, TSerializedType } from '../types/serializer';
 import { TWrappedType, EPrimitive } from './wrapped-types';
 
@@ -26,14 +26,24 @@ class Serializer {
   }
 
   private serializeOption(option: TNodeMetadataOption): TSerializedNodeOption {
-    const { id, name, type, inputOptions, dropDownOptions, } = option;
+    if (option.type === ENodeMetadataOptionType.DROP_DOWN) {
+      const { id, name, type, dropDownOptions, } = option;
+
+      return {
+        id,
+        name,
+        type,
+        dropDownOptions,
+      };
+    }
+
+    const { id, name, type, inputOptions, } = option;
 
     return {
       id,
       name,
       type,
       inputOptions,
-      dropDownOptions,
     };
   }
 

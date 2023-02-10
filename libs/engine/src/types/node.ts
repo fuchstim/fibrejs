@@ -21,14 +21,23 @@ export type TNodeMetadataDropDownOption = {
   name: string
 };
 
-export type TNodeMetadataOption = {
+interface INodeMetadataOption {
   id: string,
   name: string,
-  type: ENodeMetadataOptionType,
-  inputOptions?: TNodeMetadataInputOptions,
-  dropDownOptions?: TNodeMetadataDropDownOption[],
   validate: (optionValue: any) => boolean,
-};
+}
+
+interface INodeMetadataInputOption extends INodeMetadataOption {
+  type: ENodeMetadataOptionType.INPUT,
+  inputOptions: TNodeMetadataInputOptions,
+}
+
+interface INodeMetadataDropDownOption extends INodeMetadataOption {
+  type: ENodeMetadataOptionType.DROP_DOWN,
+  dropDownOptions: TNodeMetadataDropDownOption[],
+}
+
+export type TNodeMetadataOption = INodeMetadataInputOption | INodeMetadataDropDownOption;
 
 export type TNodeMetadataInputOutput = {
   id: string,

@@ -1,20 +1,40 @@
 import type { EPrimitive } from '../common/wrapped-types';
+import { TKeyValue } from './common';
 import type { ENodeMetadataOptionType, ENodeType, TNodeMetadataDropDownOption, TNodeMetadataInputOptions } from './node';
 
-export type TSerializedType = {
+interface ISerializedType {
   id: string,
   name: string,
-  isComplex: boolean,
-  fields: { [key: string]: EPrimitive | TSerializedType, },
-};
+}
 
-export type TSerializedNodeOption = {
+interface ISerializedPrimitiveType extends ISerializedType {
+  isComplex: false,
+  fields: TKeyValue<string, EPrimitive>
+}
+
+interface ISerializedComplexType extends ISerializedType {
+  isComplex: true,
+  fields: TKeyValue<string, TSerializedType>
+}
+
+export type TSerializedType = ISerializedPrimitiveType | ISerializedComplexType;
+
+interface ISerializedNodeOption {
   id: string,
   name: string,
-  type: ENodeMetadataOptionType,
-  inputOptions?: TNodeMetadataInputOptions,
-  dropDownOptions?: TNodeMetadataDropDownOption[],
-};
+}
+
+interface ISerializedNodeInputOption extends ISerializedNodeOption {
+  type: ENodeMetadataOptionType.INPUT,
+  inputOptions: TNodeMetadataInputOptions,
+}
+
+interface ISerializedNodeDropDownOption extends ISerializedNodeOption {
+  type: ENodeMetadataOptionType.DROP_DOWN,
+  dropDownOptions: TNodeMetadataDropDownOption[],
+}
+
+export type TSerializedNodeOption = ISerializedNodeInputOption | ISerializedNodeDropDownOption;
 
 export type TSerializedNodeInputOutput = {
   id: string,
