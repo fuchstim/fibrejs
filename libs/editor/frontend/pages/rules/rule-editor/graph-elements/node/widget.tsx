@@ -39,15 +39,15 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
     const input = {
       [WrappedTypes.EPrimitive.NUMBER]: {
         valuePropName: 'value',
-        element: (<InputNumber placeholder={name} />),
+        element: (<InputNumber placeholder={name} style={{ width: '100%', }} />),
       },
       [WrappedTypes.EPrimitive.BOOLEAN]: {
         valuePropName: 'checked',
-        element: (<Checkbox>{name}</Checkbox>),
+        element: (<Checkbox style={{ width: '100%', }}>{name}</Checkbox>),
       },
       [WrappedTypes.EPrimitive.STRING]: {
         valuePropName: 'value',
-        element: (<Input placeholder={name} />),
+        element: (<Input placeholder={name} style={{ width: '100%', }} />),
       },
     };
 
@@ -61,7 +61,7 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
 
     return {
       valuePropName: 'value',
-      element: (<Select placeholder={name}>{options}</Select>),
+      element: (<Select placeholder={name} style={{ width: '100%', }}>{options}</Select>),
     };
   };
 
@@ -79,7 +79,7 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
       <Form.Item
         key={id}
         name={id}
-        style={{ marginBottom: 6, }}
+        style={{ marginBottom: 6, width: '100%', }}
         valuePropName={input.valuePropName}
       >
         { input.element }
@@ -97,7 +97,7 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
         size='small'
         layout='vertical'
         initialValues={ruleStage.nodeOptions ?? {}}
-        style={{ padding: '0 24px 24px 24px', }}
+        style={{ padding: '0 24px 24px 24px', width: '190px', }}
         onValuesChange={(_, updatedValues) => onOptionsChange?.(updatedValues)}
       >
         {ruleStage.node.options.map(option => createFormItem(option))}
