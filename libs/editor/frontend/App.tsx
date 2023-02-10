@@ -14,17 +14,16 @@ import {
   OrderedListOutlined
 } from '@ant-design/icons';
 
-import { MenuProps, Typography } from 'antd';
+import { Col, Row, Typography } from 'antd';
 import { Layout, Menu, theme } from 'antd';
 
 const { Header, Content, Sider, } = Layout;
 
-import RuleEditor from './pages/rules/';
+import Rules from './pages/rules/';
 import NotFound from './pages/NotFound';
+import { HeaderConfig } from './common/types';
 
-type MenuItem = Required<MenuProps>['items'][number];
-
-const menuItems: MenuItem[] = [
+const menuItems = [
   { label: 'Dashboard', key: 'dashboard', icon: <PieChartOutlined />, },
   { label: 'Rulesets', key: 'rulesets', icon: <OrderedListOutlined />, },
   { label: 'Rules', key: 'rules', icon: <AlertOutlined />, },
@@ -34,6 +33,10 @@ const menuItems: MenuItem[] = [
 export default function App() {
   const [ collapsed, setCollapsed, ] = useState(false);
   const [ selectedKey, setSelectedKey, ] = useState('dashboard');
+  const [ headerConfig, setHeaderConfig, ] = useState<HeaderConfig>({
+    title: menuItems.find(i => i.key === selectedKey)?.label ?? '',
+    subtitle: '',
+  });
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -71,10 +74,24 @@ export default function App() {
 
       <Layout className="site-layout" >
         <Header style={{ padding: 0, background: colorBgContainer, }}>
-          <Layout style={{ height: '100%', padding: '16px', alignItems: 'start', justifyContent: 'center', background: 'transparent', }}>
-            <Typography.Title level={4} style={{ margin: 0, }}>Title</Typography.Title>
-            <Typography.Text type='secondary'>Subtitle</Typography.Text>
-          </Layout>
+          <Row align="middle" gutter={12} style={{ margin: '0 24px', height: '100%', }} wrap={false}>
+            <Col>
+              <Typography.Title level={3} style={{ margin: 0, padding: 0, }}>
+                { headerConfig.title }
+              </Typography.Title>
+            </Col>
+            <Col style={{ paddingTop: 4, }}>
+              <Typography.Text type='secondary'>
+                { headerConfig.subtitle }
+              </Typography.Text>
+            </Col>
+
+            <Col flex="auto" />
+
+            <Col>
+              { headerConfig.extra }
+            </Col>
+          </Row>
         </Header>
 
         <Content
@@ -87,9 +104,9 @@ export default function App() {
           }}
           >
           <Routes>
-            <Route path='/rules/*' element={<RuleEditor />} />
+            <Route path='/rules/*' element={<Rules setHeaderConfig={setHeaderConfig} />} />
 
-            <Route path="*" element={<NotFound />} />
+            <Route path="*" element={<NotFound setHeaderConfig={setHeaderConfig} />} />
           </Routes>
         </Content>
       </Layout>

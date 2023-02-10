@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Spin, notification } from 'antd';
 
 import {
@@ -10,16 +10,29 @@ import {
 import './_style.css';
 
 import { fetchStages, createDiagramEngine } from './_common';
+import { HeaderSetter } from '../../../common/types';
 
-export default function RuleEditor() {
+type Props = {
+  setHeaderConfig: HeaderSetter
+};
+
+export default function RuleEditor(props: Props) {
   const [ loading, setLoading, ] = useState(false);
   const [ engine, setEngine, ] = useState<DiagramEngine>();
 
   const { ruleId, } = useParams();
+  const navigate = useNavigate();
 
   useEffect(
     () => {
-      if (!ruleId) { return; }
+      if (!ruleId) {
+        return navigate('/rules');
+      }
+
+      props.setHeaderConfig({
+        title: 'Edit Rule',
+        subtitle: 'Add, remove, or change parts of this rule',
+      });
 
       setLoading(true);
 

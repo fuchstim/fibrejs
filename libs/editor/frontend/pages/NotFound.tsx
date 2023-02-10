@@ -1,12 +1,28 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
-import { Empty } from 'antd';
+import { Col, Empty, Row } from 'antd';
+import { HeaderSetter } from '../common/types';
 
-export default function NotFound() {
+type Props = {
+  setHeaderConfig: HeaderSetter
+};
+export default function NotFound(props: Props) {
+  useEffect(
+    () => props.setHeaderConfig({
+      title: 'Not Found',
+      subtitle: 'This page could not be found',
+    }),
+    []
+  );
+
   return (
-    <Empty
-      style={{ height: '100%', }}
-      description="Page Not Found"
-    />
+    <Row align="middle" justify="center" style={{ height: '100%', }}>
+      <Col>
+        <Empty
+          style={{ height: '100%', }}
+          description="Page Not Found"
+        />
+      </Col>
+    </Row>
   );
 }
