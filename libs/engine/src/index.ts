@@ -18,6 +18,8 @@ import RuleSet from './rule/rule-set';
 import { TRuleSetExecutionResult, TRuleSetInputs } from './types/rule-set';
 import { TSerializedNode } from './types/serializer';
 import { TEngineConfig } from './types/config';
+import { TKeyValue } from './types/common';
+import { TNodeOptions } from './types/node';
 
 export type TEngineOptions = {
   configProvider: BaseConfigProvider,
@@ -92,14 +94,16 @@ export default class Engine {
     await this.configProvider.saveConfig(config);
   }
 
-  exportSerializedNodes(): TSerializedNode[] {
-    const context = {
-      rules: this.rules,
-      nodeOptions: {},
-    };
-
+  exportSerializedNodes(nodeOptions?: TKeyValue<string, TNodeOptions>): TSerializedNode[] {
     return this.nodes.map(
-      node => serializer.serializeNode(node, context)
+      node => {
+        const context = {
+          rules: this.rules,
+          nodeOptions: nodeOptions?.[node.id] ?? {},
+        };
+
+        return serializer.serializeNode(node, context);
+      }
     );
   }
 }
