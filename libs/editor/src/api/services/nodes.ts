@@ -1,6 +1,7 @@
 import type Engine from '@tripwire/engine';
+import type { Types } from '@tripwire/engine';
 
-import { IService } from '../../types';
+import { IService, TContext } from '../../types';
 
 export default class NodesService implements IService {
   private engine: Engine;
@@ -9,17 +10,33 @@ export default class NodesService implements IService {
     this.engine = engine;
   }
 
-  get(nodeId: string) {
-    const nodes = this.engine.exportSerializedNodes();
+  get(nodeId: string, context: TContext) {
+    const nodes = this.engine.exportSerializedNodes(
+      this.parseNodeOptions(context.req.query)
+    );
 
     return nodes.find(
       node => node.id === nodeId
     );
   }
 
-  find() {
-    const nodes = this.engine.exportSerializedNodes();
+  find(context: TContext) {
+    const nodes = this.engine.exportSerializedNodes(
+      this.parseNodeOptions(context.req.query)
+    );
 
     return nodes;
+  }
+
+  private parseNodeOptions(query: { nodeOptions?: string }): Types.Common.TKeyValue<string, Types.Node.TNodeOptions> | undefined {
+    if (!query?.nodeOptions) { return; }
+
+    const decoded = decodeURIComponent(query.nodeOptions);
+
+    try {
+      return JSON.parse(decoded);
+    } catch {
+      return;
+    }
   }
 }

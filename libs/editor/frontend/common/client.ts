@@ -5,17 +5,41 @@ const client = axios.create({
   baseURL: '/api',
 });
 
-const wrappedGet = <T>(url: string, config?: AxiosRequestConfig) => client.get(url, config).then(r => r.data as T);
+const wrappedGet = async <T>(url: string, data: object = {}, config?: AxiosRequestConfig) => {
+  const params = Object
+    .entries(data)
+    .filter(([ , value, ]) => value != undefined)
+    .reduce(
+      (acc, [ key, value, ]) => ({ ...acc, [key]: encodeURIComponent(JSON.stringify(value)), }),
+      {}
+    );
+
+  const result = await client.get(url, { params, ...config, });
+
+  return result.data as T;
+};
 
 export default {
   client,
 
-  getNode: (nodeId: string) => wrappedGet<Types.Serializer.TSerializedNode>(`nodes/${nodeId}`),
-  findNodes: () => wrappedGet<Types.Serializer.TSerializedNode[]>('nodes'),
+  getNode: (nodeId: string, nodeOptions?: Types.Node.TNodeOptions) => (
+    wrappedGet<Types.Serializer.TSerializedNode>(`nodes/${nodeId}`, { nodeOptions, })
+  ),
+  findNodes: (nodeOptions?: Types.Common.TKeyValue<string, Types.Node.TNodeOptions>) => (
+    wrappedGet<Types.Serializer.TSerializedNode[]>('nodes', { nodeOptions, })
+  ),
 
-  getRule: (ruleId: string) => wrappedGet<Types.Config.TRuleConfig>(`rules/${ruleId}`),
-  findRules: () => wrappedGet<Types.Config.TRuleConfig[]>('rules'),
+  getRule: (ruleId: string) => (
+    wrappedGet<Types.Config.TRuleConfig>(`rules/${ruleId}`)
+  ),
+  findRules: () => (
+    wrappedGet<Types.Config.TRuleConfig[]>('rules')
+  ),
 
-  getRuleSet: (ruleId: string) => wrappedGet<Types.Config.TRuleSetConfig>(`rulesets/${ruleId}`),
-  findRuleSets: () => wrappedGet<Types.Config.TRuleSetConfig>('rulesets'),
+  getRuleSet: (ruleId: string) => (
+    wrappedGet<Types.Config.TRuleSetConfig>(`rulesets/${ruleId}`)
+  ),
+  findRuleSets: () => (
+    wrappedGet<Types.Config.TRuleSetConfig>('rulesets')
+  ),
 };

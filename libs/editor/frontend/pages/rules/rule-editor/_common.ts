@@ -3,19 +3,21 @@ import { TRuleStageWithNode } from './_types';
 import client from '../../../common/client';
 
 import EditorNodeModel from './graph-elements/node/model';
+import { Types } from '@tripwire/engine';
 
 export async function fetchStages(ruleId: string): Promise<TRuleStageWithNode[]> {
-  const stages = await Promise.all([
-    client.getRule(ruleId),
-    client.findNodes(),
-  ])
-    .then(
-      ([ rule, nodes, ]) => rule.stages.map<TRuleStageWithNode>(
-        stage => ({ ...stage, node: nodes.find(node => node.id === stage.nodeId)!, })
-      )
-    );
+  const rule = await client.getRule(ruleId);
 
-  return stages;
+  const nodeOptions = rule.stages.reduce(
+    (acc, { nodeId, nodeOptions, }) => ({ ...acc, [nodeId]: nodeOptions, }),
+    {} as Types.Common.TKeyValue<string, Types.Node.TNodeOptions>
+  );
+
+  const nodes = await client.findNodes(nodeOptions);
+
+  return rule.stages.map<TRuleStageWithNode>(
+    stage => ({ ...stage, node: nodes.find(node => node.id === stage.nodeId)!, })
+  );
 }
 
 export function createNodeLinks(nodes: EditorNodeModel[]): LinkModel[] {
