@@ -74,6 +74,7 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
         this.outputPorts.push(port);
       }
     }
+
     return port;
   }
 
