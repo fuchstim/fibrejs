@@ -16,9 +16,11 @@ import Page from '../../../components/page';
 import EditorNodeModel from './graph-elements/node/model';
 import type { Types } from '@tripwire/engine';
 import { TRuleStageWithNode } from './_types';
+import client from '../../../common/client';
 
 export default function RuleEditor() {
   const [ loading, setLoading, ] = useState(false);
+  const [ ruleName, setRuleName, ] = useState<string>();
   const [ showAddNodeDrawer, setShowAddNodeDrawer, ] = useState(false);
   const [ engine, setEngine, ] = useState<DiagramEngine>();
 
@@ -33,7 +35,10 @@ export default function RuleEditor() {
 
       setLoading(true);
 
-      fetchStages(ruleId)
+      client
+        .getRule(ruleId)
+        .then(rule => { setRuleName(rule.name); return rule; })
+        .then(rule => fetchStages(rule))
         .then(stages => createDiagramEngine(stages))
         .then(engine => setEngine(engine))
         .catch(e => notification.error({ message: e.message, }))
@@ -104,7 +109,7 @@ export default function RuleEditor() {
 
   return (
     <Page
-      title="Edit Rule"
+      title={ruleName || 'Edit Rule'}
       subtitle="Add, remove, or change parts of this rule"
       headerExtra={(
         <Row gutter={16} wrap={false} justify="end" align="middle">

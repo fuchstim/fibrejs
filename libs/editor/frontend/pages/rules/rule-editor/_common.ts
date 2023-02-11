@@ -19,9 +19,7 @@ const dagreEngine = new DagreEngine({
   nodeMargin: 100,
 });
 
-export async function fetchStages(ruleId: string): Promise<TRuleStageWithNode[]> {
-  const rule = await client.getRule(ruleId);
-
+export async function fetchStages(rule: Types.Config.TRuleConfig): Promise<TRuleStageWithNode[]> {
   const nodeOptions = rule.stages.reduce(
     (acc, { nodeId, nodeOptions, }) => ({ ...acc, [nodeId]: nodeOptions, }),
     {} as Types.Common.TKeyValue<string, Types.Node.TNodeOptions>
