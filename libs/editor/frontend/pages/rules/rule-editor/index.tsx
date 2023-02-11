@@ -37,6 +37,18 @@ export default function RuleEditor() {
     []
   );
 
+  const saveAndReturn = async () => {
+    setLoading(true);
+
+    notification.info({ message: 'TODO: Implement save', });
+
+    await new Promise(
+      resolve => setTimeout(resolve, 1000)
+    );
+
+    navigate('/rules');
+  };
+
   const getContent = () => {
     if (loading || !engine) {
       return (
@@ -48,14 +60,7 @@ export default function RuleEditor() {
       );
     }
 
-    return (
-      <div style={{ height: '100%', }}>
-        <CanvasWidget
-          className="editor-canvas"
-          engine={engine}
-        />
-      </div>
-    );
+    return (<CanvasWidget className="editor-canvas" engine={engine} />);
   };
 
   return (
@@ -93,6 +98,8 @@ export default function RuleEditor() {
             <Button
               type='primary'
               icon={<SaveOutlined />}
+              loading={loading}
+              onClick={() => saveAndReturn()}
             >
               Save & Return
             </Button>
