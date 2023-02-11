@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Button, Col, Row, Spin, notification } from 'antd';
+import { Button, Col, Popconfirm, Row, Spin, notification } from 'antd';
 
 import {
   DiagramEngine,
@@ -76,9 +76,17 @@ export default function RuleEditor() {
           </Col>
 
           <Col>
-            <Button>
-              Cancel
-            </Button>
+            <Popconfirm
+              title="Discard changes"
+              description="Unsaved progress will be lost. Continue?"
+              okText="Yes"
+              cancelText="No"
+              onConfirm={() => navigate('/rules')}
+            >
+              <Button>
+                Cancel
+              </Button>
+            </Popconfirm>
           </Col>
 
           <Col>
