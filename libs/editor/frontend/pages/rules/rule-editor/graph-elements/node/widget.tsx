@@ -2,10 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { Card, Checkbox, Col, Divider, Form, Input, InputNumber, Row, Select, theme } from 'antd';
 
+// TODO: Fix imports without requiring winston
+import * as Types from '@tripwire/engine/dist/types';
+import * as WrappedTypes from '@tripwire/engine/dist/common/wrapped-types';
+
 import EditorNodeModel from './model';
 import EditorPortModel, { EPortType } from '../port/model';
 import EditorPortWidget from '../port/widget';
-import { Types, WrappedTypes } from '@tripwire/engine';
 
 interface EditorNodeProps {
   editorNode: EditorNodeModel;

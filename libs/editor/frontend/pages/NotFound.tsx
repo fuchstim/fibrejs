@@ -1,20 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
 import { Col, Empty, Row } from 'antd';
-import { HeaderSetter } from '../common/types';
 
-type Props = {
-  setHeaderConfig: HeaderSetter
-};
-export default function NotFound(props: Props) {
-  useEffect(
-    () => props.setHeaderConfig({
-      title: 'Not Found',
-      subtitle: 'This page could not be found',
-    }),
-    []
-  );
-
+export default function NotFound() {
   return (
     <Row align="middle" justify="center" style={{ height: '100%', }}>
       <Col>

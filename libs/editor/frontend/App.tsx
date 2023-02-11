@@ -11,17 +11,17 @@ import {
   PieChartOutlined,
   TeamOutlined,
   AlertOutlined,
-  OrderedListOutlined
+  OrderedListOutlined,
+  MenuUnfoldOutlined,
+  MenuFoldOutlined
 } from '@ant-design/icons';
 
-import { Col, Row, Typography } from 'antd';
 import { Layout, Menu, theme } from 'antd';
 
 const { Header, Content, Sider, } = Layout;
 
 import Rules from './pages/rules/';
 import NotFound from './pages/NotFound';
-import { HeaderConfig } from './common/types';
 import RuleSets from './pages/rule-sets';
 
 const menuItems = [
@@ -34,10 +34,6 @@ const menuItems = [
 export default function App() {
   const [ collapsed, setCollapsed, ] = useState(false);
   const [ selectedKey, setSelectedKey, ] = useState('dashboard');
-  const [ headerConfig, setHeaderConfig, ] = useState<HeaderConfig>({
-    title: menuItems.find(i => i.key === selectedKey)?.label ?? '',
-    subtitle: '',
-  });
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -59,10 +55,12 @@ export default function App() {
     token: { colorBgContainer, boxShadow, },
   } = theme.useToken();
 
+  const toggleCollapse = () => setCollapsed(!collapsed);
+
   return (
     <Layout style={{ minHeight: '100vh', }} hasSider={true}>
 
-      <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
+      <Sider trigger={null} collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
         <div style={{ height: 32, margin: 16, background: 'rgba(255, 255, 255, 0.2)', }} />
         <Menu
           theme="dark"
@@ -73,26 +71,11 @@ export default function App() {
         />
       </Sider>
 
-      <Layout className="site-layout" >
-        <Header style={{ padding: 0, background: colorBgContainer, }}>
-          <Row align="middle" gutter={12} style={{ margin: '0 24px', height: '100%', }} wrap={false}>
-            <Col>
-              <Typography.Title level={3} style={{ margin: 0, padding: 0, }}>
-                { headerConfig.title }
-              </Typography.Title>
-            </Col>
-            <Col style={{ paddingTop: 4, }}>
-              <Typography.Text type='secondary'>
-                { headerConfig.subtitle }
-              </Typography.Text>
-            </Col>
-
-            <Col flex="auto" />
-
-            <Col>
-              { headerConfig.extra }
-            </Col>
-          </Row>
+      <Layout>
+        <Header
+          style={{ paddingLeft: '24px', background: colorBgContainer, fontSize: '18px', }}
+        >
+          { collapsed ? (<MenuUnfoldOutlined onClick={toggleCollapse}/>) : (<MenuFoldOutlined onClick={toggleCollapse}/>)}
         </Header>
 
         <Content
@@ -103,13 +86,13 @@ export default function App() {
             borderRadius: '6px',
             boxShadow,
           }}
-          >
+        >
           <Routes>
-            <Route path='/rules/*' element={<Rules setHeaderConfig={setHeaderConfig} />} />
+            <Route path='/rules/*' element={<Rules />} />
 
-            <Route path='/rule-sets/*' element={<RuleSets setHeaderConfig={setHeaderConfig} />} />
+            <Route path='/rule-sets/*' element={<RuleSets />} />
 
-            <Route path="*" element={<NotFound setHeaderConfig={setHeaderConfig} />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Content>
       </Layout>

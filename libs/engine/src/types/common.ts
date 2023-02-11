@@ -1,5 +1,3 @@
-import type { Logger } from '@tripwire/logger';
-
 import type Rule from '../executors/rule';
 
 export type TGetter<TContext, TReturnType> = (context: TContext) => TReturnType;
@@ -14,8 +12,20 @@ export type TExecutorResult<TOutput> = {
   output: TOutput
 };
 
+export interface IExecutorLogger {
+  ns: (...namespaces: string[]) => IExecutorLogger;
+  namespace: (...namespaces: string[]) => IExecutorLogger;
+
+  error: (...args: unknown[]) => void;
+  warn: (...args: unknown[]) => void;
+  info: (...args: unknown[]) => void;
+  verbose: (...args: unknown[]) => void;
+  debug: (...args: unknown[]) => void;
+  silly: (...args: unknown[]) => void;
+}
+
 export type TExecutorContext = {
   executionId: string,
-  logger: Logger,
+  logger: IExecutorLogger,
   rules: Rule[],
 };

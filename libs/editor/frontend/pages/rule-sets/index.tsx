@@ -1,25 +1,19 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 
-import { HeaderSetter } from '../../common/types';
-
 import RuleSetList from './rule-set-list';
 
-type Props = {
-  setHeaderConfig: HeaderSetter
-};
-
-export default function RuleSets(props: Props) {
+export default function RuleSets() {
   return (
     <Routes>
       <Route
         path='/'
-        element={<RuleSetList setHeaderConfig={props.setHeaderConfig}/>}
+        element={<RuleSetList/>}
       />
 
       {/* <Route
         path="/:rulesetId"
-        element={<RuleEditor setHeaderConfig={props.setHeaderConfig} />}
+        element={<RuleEditor  />}
       /> */}
     </Routes>
   );

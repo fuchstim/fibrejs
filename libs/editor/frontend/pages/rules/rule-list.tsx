@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { HeaderSetter } from '../../common/types';
 import type { Types } from '@tripwire/engine';
 import { useNavigate } from 'react-router-dom';
 import client from '../../common/client';
@@ -7,11 +6,9 @@ import { Button, Col, Row, Table, notification } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
 
-type Props = {
-  setHeaderConfig: HeaderSetter
-};
+import Page from '../../components/page';
 
-export default function RuleList(props: Props) {
+export default function RuleList() {
   const [ loading, setLoading, ] = useState(false);
   const [ rules, setRules, ] = useState<Types.Config.TRuleConfig[]>([]);
 
@@ -25,19 +22,6 @@ export default function RuleList(props: Props) {
 
   useEffect(
     () => {
-      props.setHeaderConfig({
-        title: 'Rules',
-        subtitle: 'Create, remove, or edit rules',
-        extra: (
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-          >
-            Create
-          </Button>
-        ),
-      });
-
       setLoading(true);
       getRules()
         .catch(e => notification.error({ message: e.message, }))
@@ -87,11 +71,25 @@ export default function RuleList(props: Props) {
   ];
 
   return (
-    <Table
-      rowKey="id"
-      loading={loading}
-      columns={columns}
-      dataSource={rules}
+    <Page
+      title="Rules"
+      subtitle="Create, remove, or edit rules"
+      headerExtra={
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+        >
+          Create
+        </Button>
+      }
+      content={
+        <Table
+          rowKey="id"
+          loading={loading}
+          columns={columns}
+          dataSource={rules}
+        />
+      }
     />
   );
 }

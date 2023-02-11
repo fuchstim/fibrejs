@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button, Col, Row, Spin, notification } from 'antd';
 
@@ -9,21 +9,13 @@ import {
 
 import './_style.css';
 
-import { fetchStages, createDiagramEngine } from './_common';
-import { HeaderSetter } from '../../../common/types';
+import { fetchStages, createDiagramEngine, distributeNodes } from './_common';
 import { PicCenterOutlined, PlusOutlined, SaveOutlined } from '@ant-design/icons';
+import Page from '../../../components/page';
 
-type Props = {
-  setHeaderConfig: HeaderSetter
-};
-
-export default function RuleEditor(props: Props) {
+export default function RuleEditor() {
   const [ loading, setLoading, ] = useState(false);
   const [ engine, setEngine, ] = useState<DiagramEngine>();
-  const realign = useCallback(
-    () => console.log({ engine, }),
-    [ engine, ]
-  );
 
   const { ruleId, } = useParams();
   const navigate = useNavigate();
@@ -33,40 +25,6 @@ export default function RuleEditor(props: Props) {
       if (!ruleId) {
         return navigate('/rules');
       }
-
-      props.setHeaderConfig({
-        title: 'Edit Rule',
-        subtitle: 'Add, remove, or change parts of this rule',
-        extra: (
-          <Row gutter={16} wrap={false} justify="end" align="middle">
-            <Col>
-              <Button
-                icon={<PicCenterOutlined />}
-                onClick={() => realign()}
-              />
-            </Col>
-
-            <Col>
-              <Button icon={<PlusOutlined/>} />
-            </Col>
-
-            <Col>
-              <Button>
-                Cancel
-              </Button>
-            </Col>
-
-            <Col>
-              <Button
-                type='primary'
-                icon={<SaveOutlined />}
-              >
-                Save & Return
-              </Button>
-            </Col>
-          </Row>
-        ),
-      });
 
       setLoading(true);
 
@@ -79,22 +37,61 @@ export default function RuleEditor(props: Props) {
     []
   );
 
-  if (loading || !engine) {
+  const getContent = () => {
+    if (loading || !engine) {
+      return (
+        <Row style={{ height: '100%', }} justify="center" align="middle">
+          <Col>
+            <Spin spinning={loading} />
+          </Col>
+        </Row>
+      );
+    }
+
     return (
-      <Row style={{ height: '100%', }} justify="center" align="middle">
-        <Col>
-          <Spin spinning={loading} />
-        </Col>
-      </Row>
+      <div style={{ height: '100%', }}>
+        <CanvasWidget
+          className="editor-canvas"
+          engine={engine}
+        />
+      </div>
     );
-  }
+  };
 
   return (
-    <div style={{ height: '100%', }}>
-      <CanvasWidget
-        className="editor-canvas"
-        engine={engine}
-      />
-    </div>
+    <Page
+      title="Edit Rule"
+      subtitle="Add, remove, or change parts of this rule"
+      headerExtra={(
+        <Row gutter={16} wrap={false} justify="end" align="middle">
+          <Col>
+            <Button
+              icon={<PicCenterOutlined />}
+              onClick={() => engine && distributeNodes(engine)}
+            />
+          </Col>
+
+          <Col>
+            <Button icon={<PlusOutlined/>} />
+          </Col>
+
+          <Col>
+            <Button>
+              Cancel
+            </Button>
+          </Col>
+
+          <Col>
+            <Button
+              type='primary'
+              icon={<SaveOutlined />}
+            >
+              Save & Return
+            </Button>
+          </Col>
+        </Row>
+      )}
+      content={getContent()}
+    />
   );
 }
