@@ -1,10 +1,10 @@
 import {
-  NodeModel,
-  NodeModelGenerics,
+  BaseEvent,
   BasePositionModelOptions,
   DeserializeEvent,
-  NodeModelListener,
-  BaseEvent
+  NodeModel,
+  NodeModelGenerics,
+  NodeModelListener
 } from '@projectstorm/react-diagrams';
 
 import EditorPortModel, { EPortType } from '../port/model';
@@ -32,7 +32,7 @@ interface EditorNodeModelGenerics extends NodeModelGenerics {
 }
 
 export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> {
-  protected ports: Types.Common.TKeyValue<string, EditorPortModel> = {};
+  protected override ports: Types.Common.TKeyValue<string, EditorPortModel> = {};
   protected ruleStage: TRuleStageWithNode;
 
   constructor({ ruleStage, }: EditorNodeModelOptions) {
@@ -117,7 +117,7 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
     ports.map(port => this.removePort(port));
   }
 
-  removePort(port: EditorPortModel): void {
+  override removePort(port: EditorPortModel): void {
     Object
       .values(port.getLinks())
       .forEach(link => link.remove());
@@ -157,16 +157,16 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
       );
   }
 
-  doClone(lookupTable: object, clone: EditorNodeModel): void {
+  override doClone(lookupTable: object, clone: EditorNodeModel): void {
     super.doClone(lookupTable, clone);
   }
 
-  deserialize(event: DeserializeEvent<this>) {
+  override deserialize(event: DeserializeEvent<this>) {
     super.deserialize(event);
     this.options.ruleStage = event.data.ruleStage;
   }
 
-  serialize() {
+  override serialize() {
     return {
       ...super.serialize(),
       ruleStage: this.options.ruleStage,

@@ -1,20 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Col, Popconfirm, Row, Spin, notification } from 'antd';
 
 import {
-  DiagramEngine,
-  CanvasWidget
+  CanvasWidget,
+  DiagramEngine
 } from '@projectstorm/react-diagrams';
 
 import './_style.css';
 
-import { fetchStages, createDiagramEngine, distributeNodes } from './_common';
+import { createDiagramEngine, distributeNodes, fetchStages } from './_common';
 import { PicCenterOutlined, PlusOutlined, SaveOutlined } from '@ant-design/icons';
+import AddNodeDrawer from '../../../components/add-node-drawer';
 import Page from '../../../components/page';
+import EditorNodeModel from './graph-elements/node/model';
+import type { Types } from '@tripwire/engine';
+import { TRuleStageWithNode } from './_types';
 
 export default function RuleEditor() {
   const [ loading, setLoading, ] = useState(false);
+  const [ showAddNodeDrawer, setShowAddNodeDrawer, ] = useState(false);
   const [ engine, setEngine, ] = useState<DiagramEngine>();
 
   const { ruleId, } = useParams();
@@ -49,6 +54,31 @@ export default function RuleEditor() {
     navigate('/rules');
   };
 
+  const addNodeToGraph = (node: Types.Serializer.TSerializedNode) => {
+    if (!engine) { return; }
+
+    const highestIdNumber = Math.max(
+      ...engine
+          .getModel()
+          .getNodes()
+          .map(
+            node => Number(node.getOptions().id?.split('stage-')?.[1] ?? '0')
+          )
+    );
+
+    const ruleStage: TRuleStageWithNode = {
+      id: `stage-${highestIdNumber + 1}`,
+      nodeId: node.id,
+      node,
+      inputs: [],
+      nodeOptions: {},
+    };
+
+    const nodeModel = new EditorNodeModel({ ruleStage, });
+
+    engine.getModel().addNode(nodeModel);
+  };
+
   const getContent = () => {
     if (loading || !engine) {
       return (
@@ -60,7 +90,16 @@ export default function RuleEditor() {
       );
     }
 
-    return (<CanvasWidget className="editor-canvas" engine={engine} />);
+    return (
+      <>
+        <CanvasWidget className="editor-canvas" engine={engine} />
+        <AddNodeDrawer
+          open={showAddNodeDrawer}
+          onSelected={node => addNodeToGraph(node)}
+          onClose={() => setShowAddNodeDrawer(false)}
+        />
+      </>
+    );
   };
 
   return (
@@ -72,12 +111,17 @@ export default function RuleEditor() {
           <Col>
             <Button
               icon={<PicCenterOutlined />}
+              disabled={loading}
               onClick={() => engine && distributeNodes(engine)}
             />
           </Col>
 
           <Col>
-            <Button icon={<PlusOutlined/>} />
+            <Button
+              icon={<PlusOutlined/>}
+              disabled={loading}
+              onClick={() => setShowAddNodeDrawer(true)}
+            />
           </Col>
 
           <Col>
@@ -88,7 +132,7 @@ export default function RuleEditor() {
               cancelText="No"
               onConfirm={() => navigate('/rules')}
             >
-              <Button>
+              <Button disabled={loading}>
                 Cancel
               </Button>
             </Popconfirm>
