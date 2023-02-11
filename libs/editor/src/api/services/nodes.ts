@@ -26,7 +26,7 @@ export default class NodesService implements IService {
     return nodes;
   }
 
-  private parseNodeOptions(query: { nodeOptions?: string }): Types.Common.TKeyValue<string, Types.Node.TNodeOptions> | undefined {
+  private parseNodeOptions(query: { nodeOptions?: string }): Record<string, Types.Node.TNodeOptions> | undefined {
     if (!query?.nodeOptions) { return; }
 
     const decoded = decodeURIComponent(query.nodeOptions);

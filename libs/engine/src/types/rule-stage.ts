@@ -1,5 +1,5 @@
 import type { BaseNode } from '../common/base-node';
-import type { TExecutorResult, TKeyValue } from './common';
+import type { TExecutorResult } from './common';
 import type { TNodeOptions } from './node';
 import type { TRuleExecutorContext } from './rule';
 
@@ -18,9 +18,9 @@ export type TRuleStageOptions = {
 
 export type TRuleStageExecutorContext = TRuleExecutorContext;
 
-export type TRuleStageResults = TKeyValue<string, TExecutorResult<any>>;
+export type TRuleStageResults = Record<string, TExecutorResult<any>>;
 
 export type TRuleStageInputs = {
   previousResults: TRuleStageResults,
-  additionalNodeInputs?: TKeyValue<string, any>;
+  additionalNodeInputs?: Record<string, any>;
 };

@@ -1,7 +1,7 @@
 import { BaseNode } from '../common/base-node';
 import { TNodeExecutorContext, TNodeMetadataOption, TNodeMetadataInputOutput, ENodeMetadataOptionType } from '../types/node';
 import { TSerializedNode, TSerializedNodeOption, TSerializedNodeInputOutput, TSerializedType } from '../types/serializer';
-import { TWrappedType, EPrimitive } from './wrapped-types';
+import { TWrappedType, EPrimitive, TWrappedPrimitive } from './wrapped-types';
 
 class Serializer {
   serializeNode(node: BaseNode<any, any, any>, context: TNodeExecutorContext<any>): TSerializedNode {
@@ -55,10 +55,12 @@ class Serializer {
     };
   }
 
-  private serializeType(type: TWrappedType<any, any>): TSerializedType {
-    const isPrimitive = Object.values(EPrimitive).includes(type.id as EPrimitive);
+  private serializeType(type: TWrappedType<any, any> | TWrappedPrimitive<any, any>): TSerializedType {
+    const isPrimitive = (type: TWrappedType<any, any> | TWrappedPrimitive<any, any>): type is TWrappedPrimitive<any, any> => (
+      Object.values(EPrimitive).includes(type.id as EPrimitive)
+    );
 
-    if (isPrimitive) {
+    if (isPrimitive(type)) {
       return {
         id: type.id,
         name: type.name,
@@ -82,7 +84,7 @@ class Serializer {
           (acc, [ fieldKey, fieldType, ]) => {
             return {
               ...acc,
-              [fieldKey]: this.serializeType(fieldType as TWrappedType<any, any>),
+              [fieldKey]: this.serializeType(fieldType),
             };
           },
           {}

@@ -1,5 +1,5 @@
-import type { EPrimitive, TWrappedType } from '../common/wrapped-types';
-import type { TKeyValue, TOptionalGetter } from './common';
+import type { EPrimitive, TWrappedPrimitive, TWrappedType } from '../common/wrapped-types';
+import { TOptionalGetter } from './common';
 import type { TRuleStageExecutorContext } from './rule-stage';
 
 export enum ENodeMetadataOptionType {
@@ -42,11 +42,11 @@ export type TNodeMetadataOption = INodeMetadataInputOption | INodeMetadataDropDo
 export type TNodeMetadataInputOutput = {
   id: string,
   name: string,
-  type: TWrappedType<any, any>,
+  type: TWrappedType<any, any> | TWrappedPrimitive<any, any>,
 };
 
 export type TNodeOption = string | number | boolean;
-export type TNodeOptions = TKeyValue<string, TNodeOption> | void;
+export type TNodeOptions = Record<string, TNodeOption> | void;
 
 export type TNodeExecutorContext<T extends TNodeOptions> = TRuleStageExecutorContext & {
   nodeOptions: T

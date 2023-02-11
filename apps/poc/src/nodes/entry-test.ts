@@ -17,7 +17,10 @@ export default class EntryTestNode extends BaseNode<TNodeInput, TNodeOutput, voi
       type: Types.Node.ENodeType.ENTRY,
 
       options: [],
-      inputs: [],
+      inputs: [
+        { id: 'userId', name: 'User ID', type: WrappedTypes.WStringType, },
+        { id: 'age', name: 'Age', type: WrappedTypes.WNumberType, },
+      ],
       outputs: [
         { id: 'userId', name: 'User ID', type: WrappedTypes.WStringType, },
         { id: 'age', name: 'Age', type: WrappedTypes.WNumberType, },

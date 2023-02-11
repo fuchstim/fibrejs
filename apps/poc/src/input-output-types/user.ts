@@ -21,6 +21,11 @@ export const WUserType: WrappedTypes.TWrappedType<TUserType, TWrappedUserType> =
     age: WrappedTypes.WNumberType,
     createdAt: WrappedTypes.WDateType,
   },
+  validate: wrappedUser => (
+    Object
+      .entries(wrappedUser)
+      .every(([ key, value, ]) => WUserType.fields[key].validate(value))
+  ),
   toNative: user => ({
     id: user.id.value,
     username: user.username.value,

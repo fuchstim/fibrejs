@@ -1,15 +1,18 @@
+import { TWrappedPrimitive, TWrappedType } from '../common/wrapped-types';
 import type Rule from '../executors/rule';
 
 export type TGetter<TContext, TReturnType> = (context: TContext) => TReturnType;
 export type TOptionalGetter<TContext, TReturnType> = TReturnType | TGetter<TContext, TReturnType>;
 
-export type TKeyValue<TKeyType extends string | number | symbol, TValueType> = {
-  [key in TKeyType]: TValueType;
-};
-
 export type TExecutorResult<TOutput> = {
   executionTimeMs: number,
   output: TOutput
+};
+
+export type TExecutorValidationResult<T> = {
+  valid: boolean,
+  actual: T,
+  expected: Record<string, TWrappedType<any, any> | TWrappedPrimitive<any, any>>,
 };
 
 export interface IExecutorLogger {

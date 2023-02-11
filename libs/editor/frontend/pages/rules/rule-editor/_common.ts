@@ -22,7 +22,7 @@ const dagreEngine = new DagreEngine({
 export async function fetchStages(rule: Types.Config.TRuleConfig): Promise<TRuleStageWithNode[]> {
   const nodeOptions = rule.stages.reduce(
     (acc, { nodeId, nodeOptions, }) => ({ ...acc, [nodeId]: nodeOptions, }),
-    {} as Types.Common.TKeyValue<string, Types.Node.TNodeOptions>
+    {} as Record<string, Types.Node.TNodeOptions>
   );
 
   const nodes = await client.findNodes(nodeOptions);

@@ -1,10 +1,9 @@
 import { BaseNode } from '../common/base-node';
-import { TKeyValue } from '../types/common';
 import { ENodeMetadataOptionType, TNodeExecutorContext, TNodeMetadataInputOutput, TNodeMetadataOption } from '../types/node';
 
-type TNodeInput = TKeyValue<string, any>;
+type TNodeInput = Record<string, any>;
 
-type TNodeOutput = TKeyValue<string, any>;
+type TNodeOutput = Record<string, any>;
 
 type TNodeOptions = {
   ruleId: string

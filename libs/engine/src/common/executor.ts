@@ -1,23 +1,42 @@
-import { TExecutorResult, TExecutorContext } from '../types/common';
+import { TExecutorResult, TExecutorContext, TExecutorValidationResult } from '../types/common';
 
 export default abstract class Executor<TInput, TOutput, TContext extends TExecutorContext> {
+  private executorId: string;
   private executorType: string;
 
-  constructor(type: string) {
+  constructor(id: string, type: string) {
+    this.executorId = id;
     this.executorType = type;
   }
 
-  async run(inputs: TInput, context: TContext): Promise<TExecutorResult<TOutput>> {
+  protected abstract execute(input: TInput, context: TContext): Promise<TOutput> | TOutput;
+
+  async run(input: TInput, parentContext: TContext): Promise<TExecutorResult<TOutput>> {
+    const context = {
+      ...parentContext,
+      logger: parentContext.logger.ns(this.executorId),
+    };
+
     context.logger.info(`Executing ${this.executorType}...`);
+
+    const inputValidationResult = this.validateInput(input, context);
+    if (!inputValidationResult.valid) {
+      throw new Error(`Failed to execute ${this.executorType} ${this.executorId} with invalid input`);
+    }
 
     const startTime = process.hrtime.bigint();
 
-    const output = await Promise.resolve(this.execute(inputs, context))
+    const output = await Promise.resolve(this.execute(input, context))
       .catch(error => {
         context.logger.error(`Failed to execute ${this.executorType}: ${error.message}`, error.stack);
 
-        throw new Error(`Failed to execute ${this.executorType}: ${error.message}`);
+        throw new Error(`Failed to execute ${this.executorType} ${this.executorId}: ${error.message}`);
       });
+
+    const outputValidationResult = this.validateOutput(output, context);
+    if (!outputValidationResult.valid) {
+      throw new Error(`${this.executorType} ${this.executorId} produced invalid output`);
+    }
 
     const endTime = process.hrtime.bigint();
 
@@ -31,5 +50,19 @@ export default abstract class Executor<TInput, TOutput, TContext extends TExecut
     };
   }
 
-  protected abstract execute(inputs: TInput, context: TContext): Promise<TOutput> | TOutput;
+  protected validateInput(input: TInput, context: TContext): TExecutorValidationResult<TInput> {
+    return {
+      valid: true,
+      actual: input,
+      expected: {},
+    };
+  }
+
+  protected validateOutput(output: TOutput, context: TContext): TExecutorValidationResult<TOutput> {
+    return {
+      valid: true,
+      actual: output,
+      expected: {},
+    };
+  }
 }

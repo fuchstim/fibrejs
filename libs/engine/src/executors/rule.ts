@@ -10,7 +10,7 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutput, TRuleExecut
   readonly stages: RuleStage[];
 
   constructor(options: TRuleOptions) {
-    super('rule');
+    super(options.id, 'rule');
 
     this.id = options.id;
     this.name = options.name;
@@ -41,20 +41,26 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutput, TRuleExecut
   async execute(inputs: TRuleInputs, context: TRuleExecutorContext): Promise<TRuleOutput> {
     const ruleStageResults: TRuleStageResults = {};
 
+    const entryStageInputs = this.entryStage.node
+      .getMetadata(this.entryStage.createNodeContext(context))
+      .inputs
+      .reduce(
+        (acc, input) => ({
+          ...acc,
+          [input.id]: input.type.fromNative(inputs[input.id]),
+        }),
+        {}
+      );
+
     for (const stage of this.stages) {
       const ruleStageInputs = {
         previousResults: ruleStageResults,
-        additionalNodeInputs: stage.node.type === ENodeType.ENTRY ? inputs : {},
-      };
-
-      const ruleStageExecutorContext = {
-        ...context,
-        logger: context.logger.ns(stage.id),
+        additionalNodeInputs: stage.node.type === ENodeType.ENTRY ? entryStageInputs : {},
       };
 
       ruleStageResults[stage.id] = await stage.run(
         ruleStageInputs,
-        ruleStageExecutorContext
+        context
       );
     }
 

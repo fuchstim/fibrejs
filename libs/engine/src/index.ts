@@ -23,7 +23,6 @@ import { ConfigProvider } from './storage/config-provider';
 import { TRuleSetInputs } from './types/rule-set';
 import { TSerializedNode } from './types/serializer';
 import { TEngineConfig } from './types/config';
-import { TKeyValue } from './types/common';
 import { TNodeOptions } from './types/node';
 import { TEventTypes } from './types/events';
 import { TRuleSetExecutorContext } from './types/rule-set';
@@ -77,7 +76,7 @@ export default class Engine extends EventEmitter<TEventTypes> {
     const executionId = randomUUID();
     const ruleSetExecutorContext: TRuleSetExecutorContext = {
       executionId: randomUUID(),
-      logger: new Logger().ns(executionId, ruleSetId),
+      logger: new Logger().ns(executionId),
       rules: this.rules,
     };
 
@@ -127,7 +126,7 @@ export default class Engine extends EventEmitter<TEventTypes> {
     return serializer.serializeNode(node, context);
   }
 
-  exportSerializedNodes(nodeOptions?: TKeyValue<string, TNodeOptions>): TSerializedNode[] {
+  exportSerializedNodes(nodeOptions?: Record<string, TNodeOptions>): TSerializedNode[] {
     return this.nodes.map(
       node => this.exportSerializedNode(node.id, nodeOptions?.[node.id])
     );

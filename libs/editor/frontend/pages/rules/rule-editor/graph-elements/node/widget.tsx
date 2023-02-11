@@ -19,7 +19,7 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
   const [ , updateState, ] = useState<object | undefined>();
   const forceUpdate = React.useCallback(() => updateState({}), []);
 
-  const [ portFoldLevels, setPortFoldLevels, ] = useState<Types.Common.TKeyValue<EPortType, number>>({
+  const [ portFoldLevels, setPortFoldLevels, ] = useState<Record<EPortType, number>>({
     [EPortType.INPUT]: 0,
     [EPortType.OUTPUT]: 0,
   });

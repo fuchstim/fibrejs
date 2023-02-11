@@ -2,7 +2,7 @@ import { TNodeOptions, TNodeConfig, TNodeExecutorContext, TNodeMetadata, ENodeTy
 import Executor from './executor';
 
 // eslint-disable-next-line max-len
-export abstract class BaseNode<TInputs, TOutputs, TOptions extends TNodeOptions> extends Executor<TInputs, TOutputs, TNodeExecutorContext<TOptions>> {
+export abstract class BaseNode<TInputs extends Record<string, any>, TOutputs extends Record<string, any>, TOptions extends TNodeOptions> extends Executor<TInputs, TOutputs, TNodeExecutorContext<TOptions>> {
   readonly id: string;
   readonly name: string;
   readonly type?: ENodeType;
@@ -11,7 +11,7 @@ export abstract class BaseNode<TInputs, TOutputs, TOptions extends TNodeOptions>
   private metadata: TNodeMetadata<TOptions>;
 
   constructor(config: TNodeConfig<TOptions>) {
-    super('node');
+    super(config.id, 'node');
 
     const { id, name, description, type, ...metadata } = config;
 
@@ -21,6 +21,40 @@ export abstract class BaseNode<TInputs, TOutputs, TOptions extends TNodeOptions>
     this.description = description;
 
     this.metadata = metadata;
+  }
+
+  protected override validateInput(inputValues: TInputs, context: TNodeExecutorContext<TOptions>) {
+    const { inputs, } = this.getMetadata(context);
+
+    const valid = inputs.every(
+      input => input.type.validate(inputValues[input.id])
+    );
+
+    return {
+      valid,
+      actual: inputValues,
+      expected: inputs.reduce(
+        (acc, { id, type, }) => ({ ...acc, [id]: type, }),
+        {}
+      ),
+    };
+  }
+
+  protected override validateOutput(outputValues: TOutputs, context: TNodeExecutorContext<TOptions>) {
+    const { outputs, } = this.getMetadata(context);
+
+    const valid = outputs.every(
+      output => output.type.validate(outputValues[output.id])
+    );
+
+    return {
+      valid,
+      actual: outputValues,
+      expected: outputs.reduce(
+        (acc, { id, type, }) => ({ ...acc, [id]: type, }),
+        {}
+      ),
+    };
   }
 
   getMetadata(context: TNodeExecutorContext<TOptions>) {
@@ -33,18 +67,19 @@ export abstract class BaseNode<TInputs, TOutputs, TOptions extends TNodeOptions>
     };
   }
 
-  validateOptions(options: TOptions, context: TNodeExecutorContext<TOptions>): boolean {
-    const { options: optionConfigs, } = this.getMetadata(context);
+  // TODO: Redesign
+  // validateOptions(options: TOptions, context: TNodeExecutorContext<TOptions>): boolean {
+  //   const { options: optionConfigs, } = this.getMetadata(context);
 
-    const isValid = Object
-      .entries(options ?? {})
-      .every(([ optionId, value, ]) => {
-        const optionConfig = optionConfigs.find(option => option.id === optionId);
-        if (!optionConfig?.validate) { return false; }
+  //   const isValid = Object
+  //     .entries(options ?? {})
+  //     .every(([ optionId, value, ]) => {
+  //       const optionConfig = optionConfigs.find(option => option.id === optionId);
+  //       if (!optionConfig?.validate) { return false; }
 
-        return optionConfig.validate(value);
-      });
+  //       return optionConfig.validate(value);
+  //     });
 
-    return isValid;
-  }
+  //   return isValid;
+  // }
 }

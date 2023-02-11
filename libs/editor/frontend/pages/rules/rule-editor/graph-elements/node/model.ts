@@ -32,7 +32,7 @@ interface EditorNodeModelGenerics extends NodeModelGenerics {
 }
 
 export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> {
-  protected override ports: Types.Common.TKeyValue<string, EditorPortModel> = {};
+  protected override ports: Record<string, EditorPortModel> = {};
   protected ruleStage: TRuleStageWithNode;
 
   constructor({ ruleStage, }: EditorNodeModelOptions) {

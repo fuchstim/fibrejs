@@ -52,6 +52,35 @@ async function run() {
   const port = 3030;
 
   const app = express();
+  app.use(express.json());
+  app.post(
+    '/run',
+    async (req, res) => {
+      const inputs = req.body;
+      if (!inputs) {
+        res.status(400);
+        res.json({ error: 'Invalid inputs', });
+      }
+
+      try {
+        const result = await engine.executeRuleSet(
+          'testRuleSet',
+          inputs
+        );
+
+        res.json(result);
+      } catch (e: unknown) {
+        res.status(500);
+
+        const error = e as Error;
+
+        res.json({
+          message: error.message,
+          stack: error.stack,
+        });
+      }
+    }
+  );
   app.use(createMiddleware(engine));
   app.listen(
     port,

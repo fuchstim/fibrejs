@@ -1,7 +1,7 @@
 import { BaseNode } from '../common/base-node';
 import Executor from '../common/executor';
 import { TExecutorResult } from '../types/common';
-import { TNodeOptions } from '../types/node';
+import { TNodeExecutorContext, TNodeOptions } from '../types/node';
 import { TRuleStageExecutorContext, TRuleStageInput, TRuleStageInputs, TRuleStageOptions } from '../types/rule-stage';
 
 export default class RuleStage extends Executor<TRuleStageInputs, TExecutorResult<any>, TRuleStageExecutorContext> {
@@ -11,7 +11,7 @@ export default class RuleStage extends Executor<TRuleStageInputs, TExecutorResul
   readonly nodeOptions: TNodeOptions;
 
   constructor(options: TRuleStageOptions) {
-    super('rule-stage');
+    super(options.id, 'rule-stage');
 
     this.id = options.id;
     this.node = options.node;
@@ -23,6 +23,13 @@ export default class RuleStage extends Executor<TRuleStageInputs, TExecutorResul
     return this.inputs.map(input => input.ruleStageId);
   }
 
+  createNodeContext(context: TRuleStageExecutorContext): TNodeExecutorContext<TNodeOptions> {
+    return {
+      ...context,
+      nodeOptions: this.nodeOptions,
+    };
+  }
+
   async execute({ previousResults, additionalNodeInputs, }: TRuleStageInputs, context: TRuleStageExecutorContext) {
     const nodeInputs = this.inputs.reduce(
       (acc, { ruleStageId, inputId, outputId, }) => ({
@@ -32,11 +39,10 @@ export default class RuleStage extends Executor<TRuleStageInputs, TExecutorResul
       additionalNodeInputs ?? {}
     );
 
-    const nodeContext = {
-      ...context,
-      nodeOptions: this.nodeOptions,
-    };
-    const result = await this.node.run(nodeInputs, nodeContext);
+    const result = await this.node.run(
+      nodeInputs,
+      this.createNodeContext(context)
+    );
 
     return result.output;
   }

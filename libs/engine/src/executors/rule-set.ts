@@ -18,7 +18,7 @@ export default class RuleSet extends Executor<TRuleSetInputs, TRuleSetExecutorRe
   readonly entries: TRuleSetEntry[];
 
   constructor(options: TRuleSetOptions) {
-    super('rule-set');
+    super(options.id, 'rule-set');
 
     this.id = options.id;
     this.name = options.name;
@@ -46,11 +46,7 @@ export default class RuleSet extends Executor<TRuleSetInputs, TRuleSetExecutorRe
     const rule = context.rules.find(rule => rule.id === ruleId);
     if (!rule) { throw new Error(`Failed to find rule for id ${ruleId}`); }
 
-    const ruleExecutorContext = {
-      ...context,
-      logger: context.logger.ns(ruleId),
-    };
-    const result = await rule.run(inputs, ruleExecutorContext);
+    const result = await rule.run(inputs, context);
 
     return { ruleId, severity, result, };
   }

@@ -25,7 +25,7 @@ export default {
   getNode: (nodeId: string, nodeOptions?: Types.Node.TNodeOptions) => (
     wrappedGet<Types.Serializer.TSerializedNode>(`nodes/${nodeId}`, { nodeOptions, })
   ),
-  findNodes: (nodeOptions?: Types.Common.TKeyValue<string, Types.Node.TNodeOptions>) => (
+  findNodes: (nodeOptions?: Record<string, Types.Node.TNodeOptions>) => (
     wrappedGet<Types.Serializer.TSerializedNode[]>('nodes', { nodeOptions, })
   ),
 

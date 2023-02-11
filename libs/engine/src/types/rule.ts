@@ -1,5 +1,4 @@
 import type RuleStage from '../executors/rule-stage';
-import type { TKeyValue } from './common';
 import type { TRuleSetExecutorContext } from './rule-set';
 import type { TRuleStageResults } from './rule-stage';
 
@@ -9,8 +8,8 @@ export type TRuleOptions = {
   stages: RuleStage[]
 };
 
-export type TRuleInputs = TKeyValue<string, any>;
-export type TStageOutputs = TKeyValue<string, any>;
+export type TRuleInputs = Record<string, any>;
+export type TStageOutputs = Record<string, any>;
 
 export type TRuleExecutorContext = TRuleSetExecutorContext;
 

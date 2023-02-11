@@ -1,5 +1,4 @@
 import type { EPrimitive } from '../common/wrapped-types';
-import type { TKeyValue } from './common';
 import type { ENodeMetadataOptionType, ENodeType, TNodeMetadataDropDownOption, TNodeMetadataInputOptions } from './node';
 
 interface ISerializedType {
@@ -9,12 +8,12 @@ interface ISerializedType {
 
 interface ISerializedPrimitiveType extends ISerializedType {
   isComplex: false,
-  fields: TKeyValue<string, EPrimitive>
+  fields: Record<string, EPrimitive>
 }
 
 interface ISerializedComplexType extends ISerializedType {
   isComplex: true,
-  fields: TKeyValue<string, TSerializedType>
+  fields: Record<string, TSerializedType>
 }
 
 export type TSerializedType = ISerializedPrimitiveType | ISerializedComplexType;

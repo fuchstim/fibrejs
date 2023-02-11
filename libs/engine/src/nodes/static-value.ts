@@ -1,5 +1,5 @@
 import { BaseNode } from '../common/base-node';
-import { WBooleanType, WNumberType, WStringType, EPrimitive, TBooleanType, TNumberType, TStringType, TWrappedType } from '../common/wrapped-types';
+import { WBooleanType, WNumberType, WStringType, EPrimitive, TBooleanType, TNumberType, TStringType, TWrappedPrimitive } from '../common/wrapped-types';
 import { ENodeMetadataOptionType, TNodeExecutorContext } from '../types/node';
 
 type TNodeOutput = {
@@ -58,7 +58,7 @@ export default class StaticValueNode extends BaseNode<never, TNodeOutput, TNodeO
     return nativeValueType ?? 'string';
   }
 
-  private getWrappedValueType(type: EPrimitive): TWrappedType<any, any> {
+  private getWrappedValueType(type: EPrimitive): TWrappedPrimitive<any, any> {
     const wrappedValueType = {
       [EPrimitive.STRING]: WStringType,
       [EPrimitive.NUMBER]: WNumberType,
