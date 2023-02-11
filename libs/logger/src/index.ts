@@ -1,6 +1,6 @@
 import winston from 'winston';
 
-export class Logger {
+class Logger {
   private prefix: string;
   private _winston: winston.Logger;
 
@@ -38,4 +38,4 @@ export class Logger {
   silly(...args: unknown[]) { this._winston.silly([ this.prefix, ...args, ].join(' ')); }
 }
 
-export default new Logger();
+export default Logger;

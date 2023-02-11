@@ -5,7 +5,7 @@ export { ConfigProvider } from './storage/config-provider';
 export * as Types from './types';
 
 import { randomUUID } from 'crypto';
-import logger from '@tripwire/logger';
+import Logger from '@tripwire/logger';
 
 import { BaseNode } from './common/base-node';
 import eventBus from './common/event-bus';
@@ -77,7 +77,7 @@ export default class Engine extends EventEmitter<TEventTypes> {
     const executionId = randomUUID();
     const ruleSetExecutorContext: TRuleSetExecutorContext = {
       executionId: randomUUID(),
-      logger: logger.ns(executionId, ruleSetId),
+      logger: new Logger().ns(executionId, ruleSetId),
       rules: this.rules,
     };
 
@@ -119,7 +119,7 @@ export default class Engine extends EventEmitter<TEventTypes> {
 
     const context = {
       executionId: '',
-      logger: logger.ns('serializer', nodeId),
+      logger: new Logger().ns('serializer', nodeId),
       rules: this.rules,
       nodeOptions,
     };
