@@ -32,7 +32,7 @@ const menuItems = [
 ];
 
 export default function App() {
-  const [ collapsed, setCollapsed, ] = useState(false);
+  const [ collapsed, setCollapsed, ] = useState(true);
   const [ selectedKey, setSelectedKey, ] = useState('dashboard');
 
   const navigate = useNavigate();
