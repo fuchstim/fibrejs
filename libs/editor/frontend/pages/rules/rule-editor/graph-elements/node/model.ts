@@ -9,7 +9,9 @@ import {
 
 import EditorPortModel, { EPortType } from '../port/model';
 import { TRuleStageWithNode } from '../../_types';
-import { Types } from '@tripwire/engine';
+
+// TODO: Fix imports without requiring winston
+import * as Types from '@tripwire/engine/dist/types';
 
 import client from '../../../../../common/client';
 
@@ -54,15 +56,23 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
   private generatePortsFromNode(node: Types.Serializer.TSerializedNode) {
     this.removePorts(...Object.values(this.ports));
 
-    this.addPorts(
-      ...node.inputs.flatMap(config => this.generatePortsFromNodeInput(config)),
-      ...node.outputs.flatMap(config => this.generatePortsFromNodeOutput(config))
-    );
+    if (node.type !== Types.Node.ENodeType.ENTRY) {
+      this.addPorts(
+        ...node.inputs.flatMap(config => this.generatePortsFromNodeInput(config))
+      );
+    }
+
+    if (node.type !== Types.Node.ENodeType.EXIT) {
+      this.addPorts(
+        ...node.outputs.flatMap(config => this.generatePortsFromNodeOutput(config))
+      );
+    }
+
   }
 
   private generatePortsFromNodeInput(config: Types.Serializer.TSerializedNodeInputOutput, level = 0): EditorPortModel[] {
     const port = new EditorPortModel({
-      id: this.prefixPortId(config.id),
+      id: this.prefixPortId(config.id, EPortType.INPUT),
       portType: EPortType.INPUT,
       config,
       level,
@@ -73,7 +83,7 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
 
   private generatePortsFromNodeOutput(config: Types.Serializer.TSerializedNodeInputOutput, level = 0): EditorPortModel[] {
     const port = new EditorPortModel({
-      id: this.prefixPortId(config.id),
+      id: this.prefixPortId(config.id, EPortType.OUTPUT),
       portType: EPortType.OUTPUT,
       config,
       level,
@@ -109,8 +119,8 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
     ];
   }
 
-  private prefixPortId(portId: string) {
-    return `${this.options.ruleStage.id}-${portId}`;
+  private prefixPortId(portId: string, portType: EPortType) {
+    return `${this.options.ruleStage.id}-${portType}-${portId}`;
   }
 
   removePorts(...ports: EditorPortModel[]): void {
@@ -133,7 +143,7 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
 
   getInputPort(portId: string) {
     return this.getInputPorts()
-      .find(port => port.getID() === this.prefixPortId(portId));
+      .find(port => port.getID() === this.prefixPortId(portId, EPortType.INPUT));
   }
 
   getInputPorts(): EditorPortModel[] {
@@ -146,7 +156,7 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
 
   getOutputPort(portId: string) {
     return this.getOutputPorts()
-      .find(port => port.getID() === this.prefixPortId(portId));
+      .find(port => port.getID() === this.prefixPortId(portId, EPortType.OUTPUT));
   }
 
   getOutputPorts(): EditorPortModel[] {

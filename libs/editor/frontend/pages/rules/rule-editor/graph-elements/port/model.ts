@@ -30,7 +30,7 @@ export default class EditorPortModel extends PortModel<EditorPortModelGenerics> 
   constructor({ id, portType, config, level, }: EditorPortModelOptions) {
     super({
       id,
-      name: config.name,
+      name: id,
       alignment: portType === EPortType.INPUT ? PortModelAlignment.LEFT : PortModelAlignment.RIGHT,
       type: 'editor-port',
       portType,

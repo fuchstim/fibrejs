@@ -17,7 +17,9 @@ export default class ExitNode extends BaseNode<TNodeInput, TNodeInput, void> {
       inputs: [
         { id: 'result', name: 'Rule Result', type: WBooleanType, },
       ],
-      outputs: [],
+      outputs: [
+        { id: 'result', name: 'Rule Result', type: WBooleanType, },
+      ],
     });
   }
 

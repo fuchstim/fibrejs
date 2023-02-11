@@ -21,8 +21,7 @@ export default function EditorPortWidget({ port, engine, hideIfUnlinked, onClick
   const iconStyle = port.isInput ? { marginRight: 5, marginLeft: -5, } : { marginRight: -5, marginLeft: 5, };
 
   const {
-    name,
-    config: { type, },
+    config: { name, type, },
   } = port.getOptions();
 
   const portWidget = (
