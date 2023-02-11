@@ -16,7 +16,7 @@ import {
   MenuFoldOutlined
 } from '@ant-design/icons';
 
-import { Layout, Menu, theme } from 'antd';
+import { Layout, Menu, Row, Typography, theme } from 'antd';
 
 const { Header, Content, Sider, } = Layout;
 
@@ -61,7 +61,26 @@ export default function App() {
     <Layout style={{ minHeight: '100vh', }} hasSider={true}>
 
       <Sider trigger={null} collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
-        <div style={{ height: 32, margin: 16, background: 'rgba(255, 255, 255, 0.2)', }} />
+        <Row
+          justify='center'
+          align='middle'
+          style={{
+            height: 32,
+            margin: 16,
+          }}
+        >
+          <Typography.Title
+            level={2}
+            style={{
+              margin: 0,
+              color: 'white',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            { collapsed ? 't_' : 'tripwire_'}
+          </Typography.Title>
+        </Row>
+
         <Menu
           theme="dark"
           items={menuItems}
