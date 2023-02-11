@@ -9,13 +9,14 @@ type TNodeOutput = {
   age: WrappedTypes.TNumberType,
 };
 
-export default class EntryTestNode extends BaseNode<TNodeInput, TNodeOutput, void> {
+export default class EntryTestNode extends BaseNode<TNodeInput, TNodeOutput, Record<string, never>> {
   constructor() {
     super({
       id: 'entryTest',
       name: 'Test Entry Node',
       type: Types.Node.ENodeType.ENTRY,
 
+      defaultOptions: {},
       options: [],
       inputs: [
         { id: 'userId', name: 'User ID', type: WrappedTypes.WStringType, },

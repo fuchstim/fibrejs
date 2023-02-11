@@ -26,6 +26,9 @@ export default class CompareBooleans extends BaseNode<TNodeInput, TNodeOutput, T
       id: 'compareBooleans',
       name: 'Compare Booleans',
 
+      defaultOptions: {
+        operation: EOperation.BOTH,
+      },
       options: [
         {
           id: 'operation',

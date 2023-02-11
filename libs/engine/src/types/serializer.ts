@@ -47,6 +47,7 @@ export type TSerializedNode = {
   type?: ENodeType,
   description?: string,
 
+  defaultOptions: Record<string, any>,
   options: TSerializedNodeOption[],
   inputs: TSerializedNodeInputOutput[],
   outputs: TSerializedNodeInputOutput[],

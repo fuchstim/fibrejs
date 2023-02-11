@@ -57,29 +57,28 @@ export abstract class BaseNode<TInputs extends Record<string, any>, TOutputs ext
     };
   }
 
+  getDefaultOptions() {
+    return this.metadata.defaultOptions;
+  }
+
   getMetadata(context: TNodeExecutorContext<TOptions>) {
-    const { options, inputs, outputs, } = this.metadata;
+    const { defaultOptions, options, inputs, outputs, } = this.metadata;
 
     return {
+      defaultOptions,
       options: typeof options === 'function' ? options(context) : options,
       inputs: typeof inputs === 'function' ? inputs(context) : inputs,
       outputs: typeof outputs === 'function' ? outputs(context) : outputs,
     };
   }
 
-  // TODO: Redesign
-  // validateOptions(options: TOptions, context: TNodeExecutorContext<TOptions>): boolean {
-  //   const { options: optionConfigs, } = this.getMetadata(context);
+  validateContext(context: TNodeExecutorContext<TOptions>): boolean {
+    const { options: optionConfigs, } = this.getMetadata(context);
 
-  //   const isValid = Object
-  //     .entries(options ?? {})
-  //     .every(([ optionId, value, ]) => {
-  //       const optionConfig = optionConfigs.find(option => option.id === optionId);
-  //       if (!optionConfig?.validate) { return false; }
+    const isValid = optionConfigs.every(
+      ({ id, validate, }) => validate(context.nodeOptions[id])
+    );
 
-  //       return optionConfig.validate(value);
-  //     });
-
-  //   return isValid;
-  // }
+    return isValid;
+  }
 }

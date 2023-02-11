@@ -5,7 +5,7 @@ import { TWrappedType, EPrimitive, TWrappedPrimitive } from './wrapped-types';
 
 class Serializer {
   serializeNode(node: BaseNode<any, any, any>, context: TNodeExecutorContext<any>): TSerializedNode {
-    const { options, inputs, outputs, } = node.getMetadata(context);
+    const { defaultOptions, options, inputs, outputs, } = node.getMetadata(context);
 
     return {
       id: node.id,
@@ -13,6 +13,7 @@ class Serializer {
       type: node.type,
       description: node.description,
 
+      defaultOptions,
       options: options.map(
         option => this.serializeOption(option)
       ),

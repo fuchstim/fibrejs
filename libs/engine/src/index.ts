@@ -110,7 +110,7 @@ export default class Engine extends EventEmitter<TEventTypes> {
     await this.configProvider.saveConfig(config);
   }
 
-  exportSerializedNode(nodeId: string, nodeOptions: TNodeOptions = {}): TSerializedNode {
+  exportSerializedNode(nodeId: string, nodeOptions?: TNodeOptions): TSerializedNode {
     const node = this.nodes.find(
       node => node.id === nodeId
     );
@@ -120,7 +120,7 @@ export default class Engine extends EventEmitter<TEventTypes> {
       executionId: '',
       logger: new Logger().ns('serializer', nodeId),
       rules: this.rules,
-      nodeOptions,
+      nodeOptions: nodeOptions ?? node.getDefaultOptions(),
     };
 
     return serializer.serializeNode(node, context);

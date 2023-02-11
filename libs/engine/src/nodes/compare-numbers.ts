@@ -29,6 +29,9 @@ export default class CompareNumbersNode extends BaseNode<TNodeInput, TNodeOutput
       id: 'compareNumbers',
       name: 'Compare Numbers',
 
+      defaultOptions: {
+        operation: EOperation.EQUAL,
+      },
       options: [
         {
           id: 'operation',

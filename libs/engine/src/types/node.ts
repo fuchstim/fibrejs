@@ -46,13 +46,14 @@ export type TNodeMetadataInputOutput = {
 };
 
 export type TNodeOption = string | number | boolean;
-export type TNodeOptions = Record<string, TNodeOption> | void;
+export type TNodeOptions = Record<string, TNodeOption | never>;
 
 export type TNodeExecutorContext<T extends TNodeOptions> = TRuleStageExecutorContext & {
   nodeOptions: T
 };
 
 export type TNodeMetadata<T extends TNodeOptions> = {
+  defaultOptions: T,
   options: TOptionalGetter<TNodeExecutorContext<T>, TNodeMetadataOption[]>,
   inputs: TOptionalGetter<TNodeExecutorContext<T>, TNodeMetadataInputOutput[]>,
   outputs: TOptionalGetter<TNodeExecutorContext<T>, TNodeMetadataInputOutput[]>,

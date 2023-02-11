@@ -6,13 +6,14 @@ type TNodeInput = {
   result: TBooleanType,
 };
 
-export default class ExitNode extends BaseNode<TNodeInput, TNodeInput, void> {
+export default class ExitNode extends BaseNode<TNodeInput, TNodeInput, Record<string, never>> {
   constructor() {
     super({
       id: 'exit',
       name: 'Rule Result',
       type: ENodeType.EXIT,
 
+      defaultOptions: {},
       options: [],
       inputs: [
         { id: 'result', name: 'Rule Result', type: WBooleanType, },

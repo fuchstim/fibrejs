@@ -15,6 +15,9 @@ export default class ExecuteRule extends BaseNode<TNodeInput, TNodeOutput, TNode
       id: 'executeRule',
       name: 'Execute Rule',
 
+      defaultOptions: {
+        ruleId: '', // TODO: Find better solution
+      },
       options: context => this.getOptions(context),
       inputs: context => this.getInputs(context),
       outputs: context => this.getOutputs(context),

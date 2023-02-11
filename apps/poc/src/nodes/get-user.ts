@@ -10,13 +10,14 @@ type TNodeOutput = {
   user: TWrappedUserType,
 };
 
-export default class GetUserNode extends BaseNode<TNodeInput, TNodeOutput, void> {
+export default class GetUserNode extends BaseNode<TNodeInput, TNodeOutput, Record<string, never>> {
   constructor() {
     super({
       id: 'getUser',
       name: 'Get User',
       description: 'Retrieve details for a given user ID',
 
+      defaultOptions: {},
       options: [],
       inputs: [
         { id: 'userId', name: 'User ID', type: WrappedTypes.WStringType, },

@@ -17,6 +17,10 @@ export default class StaticValueNode extends BaseNode<never, TNodeOutput, TNodeO
       id: 'staticValue',
       name: 'Static Value',
 
+      defaultOptions: {
+        valueType: EPrimitive.STRING,
+        value: '',
+      },
       options: context => ([
         {
           id: 'valueType',
@@ -34,7 +38,7 @@ export default class StaticValueNode extends BaseNode<never, TNodeOutput, TNodeO
           name: 'Value',
           type: ENodeMetadataOptionType.INPUT,
           inputOptions: {
-            type: context.nodeOptions.valueType as EPrimitive ?? EPrimitive.STRING,
+            type: context.nodeOptions.valueType as EPrimitive,
           },
           validate: value => (
             typeof value === this.getNativeValueType(context.nodeOptions.valueType as EPrimitive)
@@ -49,23 +53,19 @@ export default class StaticValueNode extends BaseNode<never, TNodeOutput, TNodeO
   }
 
   private getNativeValueType(type: EPrimitive): string {
-    const nativeValueType = {
+    return {
       [EPrimitive.STRING]: 'string',
       [EPrimitive.NUMBER]: 'number',
       [EPrimitive.BOOLEAN]: 'boolean',
     }[type];
-
-    return nativeValueType ?? 'string';
   }
 
   private getWrappedValueType(type: EPrimitive): TWrappedPrimitive<any, any> {
-    const wrappedValueType = {
+    return {
       [EPrimitive.STRING]: WStringType,
       [EPrimitive.NUMBER]: WNumberType,
       [EPrimitive.BOOLEAN]: WBooleanType,
     }[type];
-
-    return wrappedValueType ?? WStringType;
   }
 
   execute(_: never, context: TNodeExecutorContext<TNodeOptions>) {

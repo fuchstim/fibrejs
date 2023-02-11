@@ -26,7 +26,10 @@ export default class RuleStage extends Executor<TRuleStageInputs, TExecutorResul
   createNodeContext(context: TRuleStageExecutorContext): TNodeExecutorContext<TNodeOptions> {
     return {
       ...context,
-      nodeOptions: this.nodeOptions,
+      nodeOptions: {
+        ...this.node.getDefaultOptions(),
+        ...this.nodeOptions,
+      },
     };
   }
 
@@ -39,9 +42,16 @@ export default class RuleStage extends Executor<TRuleStageInputs, TExecutorResul
       additionalNodeInputs ?? {}
     );
 
+    const nodeContext = this.createNodeContext(context);
+
+    const contextValid = this.node.validateContext(nodeContext);
+    if (!contextValid) {
+      throw new Error('Invalid context');
+    }
+
     const result = await this.node.run(
       nodeInputs,
-      this.createNodeContext(context)
+      nodeContext
     );
 
     return result.output;
