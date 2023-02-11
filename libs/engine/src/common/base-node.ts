@@ -1,6 +1,8 @@
-import { TNodeOptions, TNodeConfig, TNodeContext, TNodeMetadata, ENodeType } from '../types/node';
+import { TNodeOptions, TNodeConfig, TNodeExecutorContext, TNodeMetadata, ENodeType } from '../types/node';
+import Executor from './executor';
 
-export abstract class BaseNode<TInputs, TOutputs, TOptions extends TNodeOptions> {
+// eslint-disable-next-line max-len
+export abstract class BaseNode<TInputs, TOutputs, TOptions extends TNodeOptions> extends Executor<TInputs, TOutputs, TNodeExecutorContext<TOptions>> {
   readonly id: string;
   readonly name: string;
   readonly type?: ENodeType;
@@ -9,6 +11,8 @@ export abstract class BaseNode<TInputs, TOutputs, TOptions extends TNodeOptions>
   private metadata: TNodeMetadata<TOptions>;
 
   constructor(config: TNodeConfig<TOptions>) {
+    super('node');
+
     const { id, name, description, type, ...metadata } = config;
 
     this.id = id;
@@ -19,9 +23,7 @@ export abstract class BaseNode<TInputs, TOutputs, TOptions extends TNodeOptions>
     this.metadata = metadata;
   }
 
-  abstract execute(inputs: TInputs, context: TNodeContext<TOptions>): Promise<TOutputs> | TOutputs;
-
-  getMetadata(context: TNodeContext<TOptions>) {
+  getMetadata(context: TNodeExecutorContext<TOptions>) {
     const { options, inputs, outputs, } = this.metadata;
 
     return {
@@ -31,7 +33,7 @@ export abstract class BaseNode<TInputs, TOutputs, TOptions extends TNodeOptions>
     };
   }
 
-  validateOptions(options: TOptions, context: TNodeContext<TOptions>): boolean {
+  validateOptions(options: TOptions, context: TNodeExecutorContext<TOptions>): boolean {
     const { options: optionConfigs, } = this.getMetadata(context);
 
     const isValid = Object

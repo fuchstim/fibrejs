@@ -6,7 +6,6 @@ import EditorNodeModel from './model';
 import EditorPortModel, { EPortType } from '../port/model';
 import EditorPortWidget from '../port/widget';
 import { Types, WrappedTypes } from '@tripwire/engine';
-import { TKeyValue } from '@tripwire/engine/dist/types/common';
 
 interface EditorNodeProps {
   editorNode: EditorNodeModel;
@@ -17,7 +16,7 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
   const [ , updateState, ] = useState<object | undefined>();
   const forceUpdate = React.useCallback(() => updateState({}), []);
 
-  const [ portFoldLevels, setPortFoldLevels, ] = useState<TKeyValue<EPortType, number>>({
+  const [ portFoldLevels, setPortFoldLevels, ] = useState<Types.Common.TKeyValue<EPortType, number>>({
     [EPortType.INPUT]: 0,
     [EPortType.OUTPUT]: 0,
   });

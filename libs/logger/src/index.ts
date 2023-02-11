@@ -1,22 +1,20 @@
-import {
-  Logger as Winston,
-  LoggerOptions as WinstonLoggerOptions,
-  transports as WinstonTransports
-} from 'winston';
+import winston from 'winston';
 
-class Logger {
+export class Logger {
   private prefix: string;
-  private loggerOptions: WinstonLoggerOptions;
-  private _winston: Winston;
+  private _winston: winston.Logger;
 
-  constructor(prefix?: string, loggerOptions?: WinstonLoggerOptions) {
+  constructor(prefix?: string) {
     this.prefix = prefix ?? '';
-    this.loggerOptions = loggerOptions ?? {};
 
-    this._winston = new Winston(loggerOptions);
-    this._winston.transports = [
-      new WinstonTransports.Console(),
-    ];
+    this._winston = winston.createLogger({
+      level: 'info',
+      transports: [
+        new winston.transports.Console({
+          format: winston.format.simple(),
+        }),
+      ],
+    });
   }
 
   ns(...namespaces: string[]) { return this.namespace(...namespaces); }
@@ -26,19 +24,18 @@ class Logger {
       [
         this.prefix,
         ...namespaces.map(ns => `[${ns}]`),
-      ].join('').trim(),
-      this.loggerOptions
+      ].join('').trim()
     );
   }
 
   log(...args: unknown[]) { return this.info(...args); }
 
-  error(...args: unknown[]) { return this._winston.error(this.prefix, ...args); }
-  warn(...args: unknown[]) { return this._winston.warn(this.prefix, ...args); }
-  info(...args: unknown[]) { return this._winston.info(this.prefix, ...args); }
-  verbose(...args: unknown[]) { return this._winston.verbose(this.prefix, ...args); }
-  debug(...args: unknown[]) { return this._winston.debug(this.prefix, ...args); }
-  silly(...args: unknown[]) { return this._winston.silly(this.prefix, ...args); }
+  error(...args: unknown[]) { return this._winston.error([ this.prefix, ...args, ].join(' ')); }
+  warn(...args: unknown[]) { return this._winston.warn([ this.prefix, ...args, ].join(' ')); }
+  info(...args: unknown[]) { return this._winston.info([ this.prefix, ...args, ].join(' ')); }
+  verbose(...args: unknown[]) { return this._winston.verbose([ this.prefix, ...args, ].join(' ')); }
+  debug(...args: unknown[]) { return this._winston.debug([ this.prefix, ...args, ].join(' ')); }
+  silly(...args: unknown[]) { return this._winston.silly([ this.prefix, ...args, ].join(' ')); }
 }
 
 export default new Logger();

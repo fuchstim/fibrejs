@@ -1,6 +1,6 @@
 import { BaseNode } from '../common/base-node';
 import { WBooleanType, WNumberType, TBooleanType, TNumberType } from '../common/wrapped-types';
-import { ENodeMetadataOptionType, TNodeContext } from '../types/node';
+import { ENodeMetadataOptionType, TNodeExecutorContext } from '../types/node';
 
 type TNodeInput = {
   inputA: TNumberType,
@@ -55,7 +55,7 @@ export default class CompareNumbersNode extends BaseNode<TNodeInput, TNodeOutput
     });
   }
 
-  execute({ inputA, inputB, }: TNodeInput, context: TNodeContext<TNodeOptions>): TNodeOutput {
+  execute({ inputA, inputB, }: TNodeInput, context: TNodeExecutorContext<TNodeOptions>): TNodeOutput {
     const result = {
       [EOperation.EQUAL]: inputA.value === inputB.value,
       [EOperation.NOT_EQUAL]: inputA.value !== inputB.value,

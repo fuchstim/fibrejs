@@ -28,7 +28,7 @@ export default class GetUserNode extends BaseNode<TNodeInput, TNodeOutput, void>
     });
   }
 
-  execute(input: TNodeInput): TNodeOutput {
+  async execute(input: TNodeInput): Promise<TNodeOutput> {
     return {
       user: WUserType.fromNative({
         id: input.userId.value,

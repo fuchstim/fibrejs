@@ -1,7 +1,9 @@
 export enum EEventName {
-  CONFIG_UPDATED = 'CONFIG_UPDATED',
+  // RULE_SET_EXECUTION_START
+  // RULE_SET_EXECUTION_END
+  // RULE_SET_EXECUTION_ERROR
 }
 
 export type TEventTypes = {
-  [EEventName.CONFIG_UPDATED]: { version: string },
+  // [EEventName.CONFIG_UPDATED]: { version: string },
 };

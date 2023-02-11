@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { HeaderSetter } from '../../common/types';
-import { Types } from '@tripwire/engine';
+import type { Types } from '@tripwire/engine';
 import { useNavigate } from 'react-router-dom';
 import client from '../../common/client';
 import { Button, Col, Row, Table, notification } from 'antd';

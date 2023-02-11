@@ -1,15 +1,18 @@
 import { BaseNode } from '../common/base-node';
+import Executor from '../common/executor';
+import { TExecutorResult } from '../types/common';
 import { TNodeOptions } from '../types/node';
-import { TRuleContext } from '../types/rule';
-import { TRuleStageInput, TRuleStageOptions, TRuleStagePreviousOutputs } from '../types/rule-stage';
+import { TRuleStageExecutorContext, TRuleStageInput, TRuleStageInputs, TRuleStageOptions } from '../types/rule-stage';
 
-export default class RuleStage {
+export default class RuleStage extends Executor<TRuleStageInputs, TExecutorResult<any>, TRuleStageExecutorContext> {
   readonly id: string;
   readonly node: BaseNode<any, any, any>;
   readonly inputs: TRuleStageInput[];
   readonly nodeOptions: TNodeOptions;
 
   constructor(options: TRuleStageOptions) {
+    super('rule-stage');
+
     this.id = options.id;
     this.node = options.node;
     this.inputs = options.inputs;
@@ -20,29 +23,29 @@ export default class RuleStage {
     return this.inputs.map(input => input.ruleStageId);
   }
 
-  async execute(previousOutputs: TRuleStagePreviousOutputs, additionalNodeInputs = {}, ruleContext: TRuleContext): Promise<any> {
+  async execute({ previousResults, additionalNodeInputs, }: TRuleStageInputs, context: TRuleStageExecutorContext) {
     const nodeInputs = this.inputs.reduce(
       (acc, { ruleStageId, inputId, outputId, }) => ({
         ...acc,
-        [inputId]: this.getOutputByKey(previousOutputs[ruleStageId], outputId),
+        [inputId]: this.getOutputByKey(previousResults[ruleStageId], outputId),
       }),
-      additionalNodeInputs
+      additionalNodeInputs ?? {}
     );
 
     const nodeContext = {
-      ...ruleContext,
+      ...context,
       nodeOptions: this.nodeOptions,
     };
-    const result = await this.node.execute(nodeInputs, nodeContext);
+    const result = await this.node.run(nodeInputs, nodeContext);
 
-    return result;
+    return result.output;
   }
 
-  private getOutputByKey(outputs: TRuleStagePreviousOutputs, key: string): any {
+  private getOutputByKey({ output, }: TExecutorResult<any>, key: string): any {
     const pathParts = key.split('.');
     const value = pathParts.reduce(
       (acc, pathPart) => acc[pathPart],
-      outputs
+      output
     );
 
     return value;

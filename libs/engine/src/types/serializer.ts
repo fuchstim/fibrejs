@@ -1,5 +1,5 @@
 import type { EPrimitive } from '../common/wrapped-types';
-import { TKeyValue } from './common';
+import type { TKeyValue } from './common';
 import type { ENodeMetadataOptionType, ENodeType, TNodeMetadataDropDownOption, TNodeMetadataInputOptions } from './node';
 
 interface ISerializedType {

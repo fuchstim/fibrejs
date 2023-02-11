@@ -1,6 +1,6 @@
 import { BaseNode } from '../common/base-node';
 import { WBooleanType, WNumberType, WStringType, EPrimitive, TBooleanType, TNumberType, TStringType, TWrappedType } from '../common/wrapped-types';
-import { ENodeMetadataOptionType, TNodeContext } from '../types/node';
+import { ENodeMetadataOptionType, TNodeExecutorContext } from '../types/node';
 
 type TNodeOutput = {
   value: TStringType | TNumberType | TBooleanType,
@@ -68,7 +68,7 @@ export default class StaticValueNode extends BaseNode<never, TNodeOutput, TNodeO
     return wrappedValueType ?? WStringType;
   }
 
-  execute(_: never, context: TNodeContext<TNodeOptions>): TNodeOutput {
+  execute(_: never, context: TNodeExecutorContext<TNodeOptions>): TNodeOutput {
     const { valueType, value, } = context.nodeOptions;
 
     switch (valueType) {

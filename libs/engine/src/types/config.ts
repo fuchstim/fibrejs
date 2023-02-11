@@ -1,6 +1,6 @@
 import type { ERuleSeverity } from '../constants/rule-severities';
-import type Rule from '../rule';
-import type RuleSet from '../rule/rule-set';
+import type Rule from '../executors/rule';
+import type RuleSet from '../executors/rule-set';
 import type { TNodeOptions } from './node';
 import type { TRuleStageInput } from './rule-stage';
 

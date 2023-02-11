@@ -1,6 +1,7 @@
-import type Rule from '../rule';
-import type RuleStage from '../rule/rule-stage';
+import type RuleStage from '../executors/rule-stage';
 import type { TKeyValue } from './common';
+import type { TRuleSetExecutorContext } from './rule-set';
+import type { TRuleStageResults } from './rule-stage';
 
 export type TRuleOptions = {
   id: string,
@@ -11,11 +12,9 @@ export type TRuleOptions = {
 export type TRuleInputs = TKeyValue<string, any>;
 export type TStageOutputs = TKeyValue<string, any>;
 
-export type TRuleContext ={
-  rules: Rule[],
-};
+export type TRuleExecutorContext = TRuleSetExecutorContext;
 
 export type TRuleOutput = {
   triggered: boolean,
-  // ToDo: Add more rule execution information
+  ruleStageResults: TRuleStageResults
 };

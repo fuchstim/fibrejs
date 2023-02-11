@@ -1,7 +1,7 @@
 import { BaseNode } from '../common/base-node';
-import Rule from '../rule';
-import RuleSet from '../rule/rule-set';
-import RuleStage from '../rule/rule-stage';
+import Rule from '../executors/rule';
+import RuleSet from '../executors/rule-set';
+import RuleStage from '../executors/rule-stage';
 
 import { TEngineConfig, TRuleConfig, TRuleSetConfig, TRuleStageConfig, TParsedEngineConfig } from '../types/config';
 

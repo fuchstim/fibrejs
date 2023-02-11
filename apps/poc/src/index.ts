@@ -48,6 +48,13 @@ async function run() {
     )
   );
 
+  const result = await engine.executeRuleSet(
+    'testRuleSet',
+    { userId: 'testUser', age: 21, }
+  );
+
+  fs.writeFileSync('execution-result.json', JSON.stringify(result, null, 2));
+
   const hostname = 'localhost';
   const port = 3030;
 

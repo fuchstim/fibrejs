@@ -7,7 +7,7 @@ import {
   DeserializeEvent,
   LinkModel
 } from '@projectstorm/react-diagrams';
-import { Types } from '@tripwire/engine';
+import type { Types } from '@tripwire/engine';
 import { notification } from 'antd';
 
 export enum EPortType {

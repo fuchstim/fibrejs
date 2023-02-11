@@ -12,15 +12,15 @@ type TProxy<T extends TEventTypeMap> = {
 export default class EventEmitter<T extends TEventTypeMap> extends BaseEventEmitter {
   private proxies: TProxy<T>[] = [];
 
-  on<N extends TEventName<T>>(eventName: N, listener: TEventListener<T[N]>) {
+  override on<N extends TEventName<T>>(eventName: N, listener: TEventListener<T[N]>) {
     return super.on(eventName, listener);
   }
 
-  off<N extends TEventName<T>>(eventName: N, listener: TEventListener<T[N]>) {
+  override off<N extends TEventName<T>>(eventName: N, listener: TEventListener<T[N]>) {
     return super.off(eventName, listener);
   }
 
-  emit<N extends TEventName<T>>(eventName: N, payload: T[N]) {
+  override emit<N extends TEventName<T>>(eventName: N, payload: T[N]) {
     this.proxies
       .filter(p => p.eventNames?.includes(eventName) ?? true)
       .forEach(p => p.target.emit(eventName, payload));
@@ -36,43 +36,43 @@ export default class EventEmitter<T extends TEventTypeMap> extends BaseEventEmit
     this.proxies = this.proxies.filter(p => p.target !== target);
   }
 
-  addListener<N extends TEventName<T>>(eventName: N, listener: TEventListener<T[N]>) {
+  override addListener<N extends TEventName<T>>(eventName: N, listener: TEventListener<T[N]>) {
     return super.addListener(eventName, listener);
   }
 
-  once<N extends TEventName<T>>(eventName: N, listener: TEventListener<T[N]>) {
+  override once<N extends TEventName<T>>(eventName: N, listener: TEventListener<T[N]>) {
     return super.once(eventName, listener);
   }
 
-  removeListener<N extends TEventName<T>>(eventName: N, listener: TEventListener<T[N]>) {
+  override removeListener<N extends TEventName<T>>(eventName: N, listener: TEventListener<T[N]>) {
     return super.removeListener(eventName, listener);
   }
 
-  removeAllListeners<N extends TEventName<T>>(eventName: N) {
+  override removeAllListeners<N extends TEventName<T>>(eventName: N) {
     return super.removeAllListeners(eventName);
   }
 
-  listeners<N extends TEventName<T>>(eventName: N): TEventListener<T[N]>[] {
+  override listeners<N extends TEventName<T>>(eventName: N): TEventListener<T[N]>[] {
     return super.listeners(eventName) as TEventListener<T[N]>[];
   }
 
-  rawListeners<N extends TEventName<T>>(eventName: N): TEventListener<T[N]>[] {
+  override rawListeners<N extends TEventName<T>>(eventName: N): TEventListener<T[N]>[] {
     return super.rawListeners(eventName) as TEventListener<T[N]>[];
   }
 
-  listenerCount<N extends TEventName<T>>(eventName: N): number {
+  override listenerCount<N extends TEventName<T>>(eventName: N): number {
     return super.listenerCount(eventName);
   }
 
-  prependListener<N extends TEventName<T>>(eventName: N, listener: TEventListener<T[N]>) {
+  override prependListener<N extends TEventName<T>>(eventName: N, listener: TEventListener<T[N]>) {
     return super.prependListener(eventName, listener);
   }
 
-  prependOnceListener<N extends TEventName<T>>(eventName: N, listener: TEventListener<T[N]>) {
+  override prependOnceListener<N extends TEventName<T>>(eventName: N, listener: TEventListener<T[N]>) {
     return super.prependOnceListener(eventName, listener);
   }
 
-  eventNames() {
+  override eventNames() {
     return super.eventNames() as unknown as TEventName<T>[];
   }
 }

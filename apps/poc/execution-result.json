@@ -1,0 +1,90 @@
+{
+  "executionTimeMs": 3,
+  "output": {
+    "severity": null,
+    "triggered": false,
+    "ruleResults": [
+      {
+        "ruleId": "rule-1",
+        "severity": "CRITICAL",
+        "result": {
+          "executionTimeMs": 3,
+          "output": {
+            "triggered": false,
+            "ruleStageResults": {
+              "stage-1": {
+                "executionTimeMs": 0,
+                "output": {
+                  "userId": "testUser",
+                  "age": 21
+                }
+              },
+              "stage-4": {
+                "executionTimeMs": 0,
+                "output": {
+                  "value": {
+                    "value": 50
+                  }
+                }
+              },
+              "stage-2": {
+                "executionTimeMs": 0,
+                "output": {
+                  "user": {
+                    "id": {},
+                    "username": {
+                      "value": "username"
+                    },
+                    "age": {},
+                    "createdAt": {
+                      "milliseconds": {
+                        "value": 624
+                      },
+                      "seconds": {
+                        "value": 34
+                      },
+                      "minutes": {
+                        "value": 51
+                      },
+                      "hours": {
+                        "value": 20
+                      },
+                      "days": {
+                        "value": 10
+                      },
+                      "months": {
+                        "value": 2
+                      },
+                      "years": {
+                        "value": 2023
+                      },
+                      "timestamp": {
+                        "value": "2023-02-11T01:51:34.624Z"
+                      }
+                    }
+                  }
+                }
+              },
+              "stage-3": {
+                "executionTimeMs": 0,
+                "output": {
+                  "result": {
+                    "value": false
+                  }
+                }
+              },
+              "stage-5": {
+                "executionTimeMs": 0,
+                "output": {
+                  "result": {
+                    "value": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

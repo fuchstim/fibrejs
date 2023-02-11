@@ -1,23 +1,23 @@
+import Executor from '../common/executor';
 import { ENodeType } from '../types/node';
-import { TRuleOptions, TRuleInputs, TRuleOutput, TStageOutputs, TRuleContext } from '../types/rule';
+import { TRuleOptions, TRuleInputs, TRuleOutput, TRuleExecutorContext } from '../types/rule';
+import { TRuleStageResults } from '../types/rule-stage';
 import RuleStage from './rule-stage';
 
-export default class Rule {
+export default class Rule extends Executor<TRuleInputs, TRuleOutput, TRuleExecutorContext> {
   readonly id: string;
   readonly name: string;
   readonly stages: RuleStage[];
 
   constructor(options: TRuleOptions) {
+    super('rule');
+
     this.id = options.id;
     this.name = options.name;
     this.stages = this._sortStages(options.stages);
 
-    const entryStages = this.stages.filter(
-      stage => stage.node.type === ENodeType.ENTRY
-    );
-    const exitStages = this.stages.filter(
-      stage => stage.node.type === ENodeType.EXIT
-    );
+    const entryStages = this.stages.filter(stage => stage.node.type === ENodeType.ENTRY);
+    const exitStages = this.stages.filter(stage => stage.node.type === ENodeType.EXIT);
 
     if (entryStages.length !== 1 || exitStages.length !== 1) {
       throw new Error('Invalid number of entry / exit RuleStages defined');
@@ -25,36 +25,42 @@ export default class Rule {
   }
 
   get entryStage() {
-    const entryStage = this.stages.find(
-      stage => stage.node.type === ENodeType.ENTRY
-    );
+    const entryStage = this.stages.find(stage => stage.node.type === ENodeType.ENTRY);
     if (!entryStage) { throw new Error(`Failed to find entry stage for rule ${this.id}`); }
 
     return entryStage;
   }
 
   get exitStage() {
-    const exitStage = this.stages.find(
-      stage => stage.node.type === ENodeType.EXIT
-    );
+    const exitStage = this.stages.find(stage => stage.node.type === ENodeType.EXIT);
     if (!exitStage) { throw new Error(`Failed to find exit stage for rule ${this.id}`); }
 
     return exitStage;
   }
 
-  async execute(inputs: TRuleInputs, context: TRuleContext): Promise<TRuleOutput> {
-    const stageOutputs: TStageOutputs = {};
+  async execute(inputs: TRuleInputs, context: TRuleExecutorContext): Promise<TRuleOutput> {
+    const ruleStageResults: TRuleStageResults = {};
 
     for (const stage of this.stages) {
-      stageOutputs[stage.id] = await stage.execute(
-        stageOutputs,
-        stage.node.type === ENodeType.ENTRY ? inputs : {},
-        context
+      const ruleStageInputs = {
+        previousResults: ruleStageResults,
+        additionalNodeInputs: stage.node.type === ENodeType.ENTRY ? inputs : {},
+      };
+
+      const ruleStageExecutorContext = {
+        ...context,
+        logger: context.logger.ns(stage.id),
+      };
+
+      ruleStageResults[stage.id] = await stage.run(
+        ruleStageInputs,
+        ruleStageExecutorContext
       );
     }
 
     return {
-      triggered: Boolean(stageOutputs[this.exitStage.id].result.value),
+      triggered: Boolean(ruleStageResults[this.exitStage.id].output.output),
+      ruleStageResults,
     };
   }
 

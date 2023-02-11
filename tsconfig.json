@@ -16,7 +16,7 @@
     "noImplicitThis": true,
     "alwaysStrict": true,
     "noImplicitReturns": true,
-    "noImplicitOverride": false,
+    "noImplicitOverride": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
   }

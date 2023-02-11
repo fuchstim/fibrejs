@@ -1,10 +1,10 @@
 import { BaseNode } from '../common/base-node';
-import { TNodeContext, TNodeMetadataOption, TNodeMetadataInputOutput, ENodeMetadataOptionType } from '../types/node';
+import { TNodeExecutorContext, TNodeMetadataOption, TNodeMetadataInputOutput, ENodeMetadataOptionType } from '../types/node';
 import { TSerializedNode, TSerializedNodeOption, TSerializedNodeInputOutput, TSerializedType } from '../types/serializer';
 import { TWrappedType, EPrimitive } from './wrapped-types';
 
 class Serializer {
-  serializeNode(node: BaseNode<any, any, any>, context: TNodeContext<any>): TSerializedNode {
+  serializeNode(node: BaseNode<any, any, any>, context: TNodeExecutorContext<any>): TSerializedNode {
     const { options, inputs, outputs, } = node.getMetadata(context);
 
     return {

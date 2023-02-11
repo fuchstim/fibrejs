@@ -1,6 +1,6 @@
 import type { EPrimitive, TWrappedType } from '../common/wrapped-types';
 import type { TKeyValue, TOptionalGetter } from './common';
-import type { TRuleContext } from './rule';
+import type { TRuleStageExecutorContext } from './rule-stage';
 
 export enum ENodeMetadataOptionType {
   DROP_DOWN = 'DROP_DOWN',
@@ -48,14 +48,14 @@ export type TNodeMetadataInputOutput = {
 export type TNodeOption = string | number | boolean;
 export type TNodeOptions = TKeyValue<string, TNodeOption> | void;
 
-export type TNodeContext<T extends TNodeOptions> = TRuleContext & {
+export type TNodeExecutorContext<T extends TNodeOptions> = TRuleStageExecutorContext & {
   nodeOptions: T
 };
 
 export type TNodeMetadata<T extends TNodeOptions> = {
-  options: TOptionalGetter<TNodeContext<T>, TNodeMetadataOption[]>,
-  inputs: TOptionalGetter<TNodeContext<T>, TNodeMetadataInputOutput[]>,
-  outputs: TOptionalGetter<TNodeContext<T>, TNodeMetadataInputOutput[]>,
+  options: TOptionalGetter<TNodeExecutorContext<T>, TNodeMetadataOption[]>,
+  inputs: TOptionalGetter<TNodeExecutorContext<T>, TNodeMetadataInputOutput[]>,
+  outputs: TOptionalGetter<TNodeExecutorContext<T>, TNodeMetadataInputOutput[]>,
 };
 
 export type TNodeConfig<T extends TNodeOptions> = TNodeMetadata<T> & {

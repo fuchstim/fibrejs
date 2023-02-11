@@ -1,6 +1,6 @@
 import { BaseNode } from '../common/base-node';
 import { WBooleanType, TBooleanType } from '../common/wrapped-types';
-import { ENodeMetadataOptionType, TNodeContext } from '../types/node';
+import { ENodeMetadataOptionType, TNodeExecutorContext } from '../types/node';
 
 type TNodeInput = {
   inputA: TBooleanType,
@@ -49,7 +49,7 @@ export default class CompareBooleans extends BaseNode<TNodeInput, TNodeOutput, T
     });
   }
 
-  execute({ inputA, inputB, }: TNodeInput, context: TNodeContext<TNodeOptions>): TNodeOutput {
+  execute({ inputA, inputB, }: TNodeInput, context: TNodeExecutorContext<TNodeOptions>): TNodeOutput {
     const result = {
       [EOperation.NEITHER]: !inputA.value && !inputB.value,
       [EOperation.EITHER]: inputA.value || inputB.value,

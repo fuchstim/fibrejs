@@ -4,6 +4,9 @@ export { BaseNode } from './common/base-node';
 export { ConfigProvider } from './storage/config-provider';
 export * as Types from './types';
 
+import { randomUUID } from 'crypto';
+import logger from '@tripwire/logger';
+
 import { BaseNode } from './common/base-node';
 import eventBus from './common/event-bus';
 import EventEmitter from './common/event-emitter';
@@ -13,16 +16,17 @@ import CompareBooleansNode from './nodes/compare-booleans';
 import CompareNumbersNode from './nodes/compare-numbers';
 import CompareStringsNode from './nodes/compare-strings';
 import StaticValueNode from './nodes/static-value';
-import Rule from './rule';
-import RuleSet from './rule/rule-set';
+import Rule from './executors/rule';
+import RuleSet from './executors/rule-set';
 import ConfigParser from './storage/config-parser';
 import { ConfigProvider } from './storage/config-provider';
-import { TRuleSetExecutionResult, TRuleSetInputs } from './types/rule-set';
+import { TRuleSetInputs } from './types/rule-set';
 import { TSerializedNode } from './types/serializer';
 import { TEngineConfig } from './types/config';
 import { TKeyValue } from './types/common';
 import { TNodeOptions } from './types/node';
 import { TEventTypes } from './types/events';
+import { TRuleSetExecutorContext } from './types/rule-set';
 
 export type TEngineOptions = {
   configProvider: ConfigProvider,
@@ -64,15 +68,22 @@ export default class Engine extends EventEmitter<TEventTypes> {
     this.ruleSets = ruleSets;
   }
 
-  async executeRuleSet(ruleSetId: string, inputs: TRuleSetInputs): Promise<TRuleSetExecutionResult> {
+  async executeRuleSet(ruleSetId: string, inputs: TRuleSetInputs) {
     const ruleSet = this.ruleSets.find(ruleSet => ruleSet.id === ruleSetId);
     if (!ruleSet) {
       throw new Error(`Cannot execute unknown RuleSet: ${ruleSetId}`);
     }
 
-    const result = await ruleSet.execute(
+    const executionId = randomUUID();
+    const ruleSetExecutorContext: TRuleSetExecutorContext = {
+      executionId: randomUUID(),
+      logger: logger.ns(executionId, ruleSetId),
+      rules: this.rules,
+    };
+
+    const result = await ruleSet.run(
       inputs,
-      { rules: this.rules, }
+      ruleSetExecutorContext
     );
 
     return result;
@@ -107,6 +118,8 @@ export default class Engine extends EventEmitter<TEventTypes> {
     if (!node) { throw new Error(`Invalid Node ID: ${nodeId}`);}
 
     const context = {
+      executionId: '',
+      logger: logger.ns('serializer', nodeId),
       rules: this.rules,
       nodeOptions,
     };

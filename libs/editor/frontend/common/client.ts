@@ -1,4 +1,4 @@
-import { Types } from '@tripwire/engine';
+import type { Types } from '@tripwire/engine';
 import axios, { AxiosRequestConfig } from 'axios';
 
 const client = axios.create({

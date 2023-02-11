@@ -1,6 +1,6 @@
 import { BaseNode } from '../common/base-node';
 import { TKeyValue } from '../types/common';
-import { ENodeMetadataOptionType, TNodeContext, TNodeMetadataInputOutput, TNodeMetadataOption } from '../types/node';
+import { ENodeMetadataOptionType, TNodeExecutorContext, TNodeMetadataInputOutput, TNodeMetadataOption } from '../types/node';
 
 type TNodeInput = TKeyValue<string, any>;
 
@@ -22,7 +22,7 @@ export default class ExecuteRule extends BaseNode<TNodeInput, TNodeOutput, TNode
     });
   }
 
-  private getOptions(context: TNodeContext<TNodeOptions>): TNodeMetadataOption[] {
+  private getOptions(context: TNodeExecutorContext<TNodeOptions>): TNodeMetadataOption[] {
     const dropDownOptions = context.rules.map(
       ({ id, name, }) => ({ id, name, })
     );
@@ -40,7 +40,7 @@ export default class ExecuteRule extends BaseNode<TNodeInput, TNodeOutput, TNode
     ];
   }
 
-  private getInputs(context: TNodeContext<TNodeOptions>): TNodeMetadataInputOutput[] {
+  private getInputs(context: TNodeExecutorContext<TNodeOptions>): TNodeMetadataInputOutput[] {
     const rule = context.rules.find(
       rule => rule.id === context.nodeOptions.ruleId
     );
@@ -49,7 +49,7 @@ export default class ExecuteRule extends BaseNode<TNodeInput, TNodeOutput, TNode
     return rule.entryStage.node.getMetadata(context).inputs;
   }
 
-  private getOutputs(context: TNodeContext<TNodeOptions>): TNodeMetadataInputOutput[] {
+  private getOutputs(context: TNodeExecutorContext<TNodeOptions>): TNodeMetadataInputOutput[] {
     const rule = context.rules.find(
       rule => rule.id === context.nodeOptions.ruleId
     );
@@ -58,7 +58,7 @@ export default class ExecuteRule extends BaseNode<TNodeInput, TNodeOutput, TNode
     return rule.exitStage.node.getMetadata(context).outputs;
   }
 
-  execute(inputs: TNodeInput, context: TNodeContext<TNodeOptions>): TNodeOutput {
+  execute(inputs: TNodeInput, context: TNodeExecutorContext<TNodeOptions>): TNodeOutput {
     return {
       result: { value: false, },
     };
