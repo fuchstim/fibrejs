@@ -1,1 +1,501 @@
-[{"id":"getUser","name":"Get User","description":"Retrieve details for a given user ID","options":[],"inputs":[{"id":"userId","name":"User ID","type":{"id":"STRING","name":"String","isComplex":false,"fields":{"value":"STRING"}}},{"id":"age","name":"Age","type":{"id":"NUMBER","name":"Number","isComplex":false,"fields":{"value":"NUMBER"}}}],"outputs":[{"id":"user","name":"User","type":{"id":"USER","name":"User","isComplex":true,"fields":{"id":{"id":"STRING","name":"String","isComplex":false,"fields":{"value":"STRING"}},"username":{"id":"STRING","name":"String","isComplex":false,"fields":{"value":"STRING"}},"age":{"id":"NUMBER","name":"Number","isComplex":false,"fields":{"value":"NUMBER"}},"createdAt":{"id":"DATE","name":"Date","isComplex":true,"fields":{"milliseconds":{"id":"NUMBER","name":"Number","isComplex":false,"fields":{"value":"NUMBER"}},"seconds":{"id":"NUMBER","name":"Number","isComplex":false,"fields":{"value":"NUMBER"}},"minutes":{"id":"NUMBER","name":"Number","isComplex":false,"fields":{"value":"NUMBER"}},"hours":{"id":"NUMBER","name":"Number","isComplex":false,"fields":{"value":"NUMBER"}},"days":{"id":"NUMBER","name":"Number","isComplex":false,"fields":{"value":"NUMBER"}},"months":{"id":"NUMBER","name":"Number","isComplex":false,"fields":{"value":"NUMBER"}},"years":{"id":"NUMBER","name":"Number","isComplex":false,"fields":{"value":"NUMBER"}},"timestamp":{"id":"STRING","name":"String","isComplex":false,"fields":{"value":"STRING"}}}}}}}]},{"id":"entryTest","name":"Test Entry Node","type":"ENTRY","options":[],"inputs":[{"id":"userId","name":"User ID","type":{"id":"STRING","name":"String","isComplex":false,"fields":{"value":"STRING"}}},{"id":"age","name":"Age","type":{"id":"NUMBER","name":"Number","isComplex":false,"fields":{"value":"NUMBER"}}}],"outputs":[{"id":"userId","name":"User ID","type":{"id":"STRING","name":"String","isComplex":false,"fields":{"value":"STRING"}}},{"id":"age","name":"Age","type":{"id":"NUMBER","name":"Number","isComplex":false,"fields":{"value":"NUMBER"}}}]},{"id":"exit","name":"Rule Result","type":"EXIT","options":[],"inputs":[{"id":"result","name":"Rule Result","type":{"id":"BOOLEAN","name":"Boolean","isComplex":false,"fields":{"value":"BOOLEAN"}}}],"outputs":[{"id":"result","name":"Rule Result","type":{"id":"BOOLEAN","name":"Boolean","isComplex":false,"fields":{"value":"BOOLEAN"}}}]},{"id":"compareBooleans","name":"Compare Booleans","defaultOptions":{"operation":"BOTH"},"options":[{"id":"operation","name":"Operation","type":"DROP_DOWN","dropDownOptions":[{"id":"NEITHER","name":"Neither"},{"id":"EITHER","name":"Either"},{"id":"BOTH","name":"Both"}]}],"inputs":[{"id":"inputA","name":"Input A","type":{"id":"BOOLEAN","name":"Boolean","isComplex":false,"fields":{"value":"BOOLEAN"}}},{"id":"inputB","name":"Input B","type":{"id":"BOOLEAN","name":"Boolean","isComplex":false,"fields":{"value":"BOOLEAN"}}}],"outputs":[{"id":"result","name":"Result","type":{"id":"BOOLEAN","name":"Boolean","isComplex":false,"fields":{"value":"BOOLEAN"}}}]},{"id":"compareNumbers","name":"Compare Numbers","defaultOptions":{"operation":"EQUAL"},"options":[{"id":"operation","name":"Operation","type":"DROP_DOWN","dropDownOptions":[{"id":"EQUAL","name":"Equal"},{"id":"NOT_EQUAL","name":"Not Equal"},{"id":"GREATER","name":"Greater"},{"id":"GREATER_EQUAL","name":"Greater or Equal"},{"id":"LESS","name":"Less"},{"id":"LESS_EQUAL","name":"Less or Equal"}]}],"inputs":[{"id":"inputA","name":"Input A","type":{"id":"NUMBER","name":"Number","isComplex":false,"fields":{"value":"NUMBER"}}},{"id":"inputB","name":"Input B","type":{"id":"NUMBER","name":"Number","isComplex":false,"fields":{"value":"NUMBER"}}}],"outputs":[{"id":"result","name":"Result","type":{"id":"BOOLEAN","name":"Boolean","isComplex":false,"fields":{"value":"BOOLEAN"}}}]},{"id":"compareStrings","name":"Compare Strings","defaultOptions":{"operation":"EQUAL"},"options":[{"id":"operation","name":"Operation","type":"DROP_DOWN","dropDownOptions":[{"id":"EQUAL","name":"Equal"},{"id":"NOT_EQUAL","name":"Not Equal"}]}],"inputs":[{"id":"inputA","name":"Input A","type":{"id":"STRING","name":"String","isComplex":false,"fields":{"value":"STRING"}}},{"id":"inputB","name":"Input B","type":{"id":"STRING","name":"String","isComplex":false,"fields":{"value":"STRING"}}}],"outputs":[{"id":"result","name":"Result","type":{"id":"BOOLEAN","name":"Boolean","isComplex":false,"fields":{"value":"BOOLEAN"}}}]},{"id":"staticValue","name":"Static Value","defaultOptions":{"valueType":"STRING","value":""},"options":[{"id":"valueType","name":"Value Type","type":"DROP_DOWN","dropDownOptions":[{"id":"STRING","name":"String"},{"id":"NUMBER","name":"Number"},{"id":"BOOLEAN","name":"Boolean"}]},{"id":"value","name":"Value","type":"INPUT","inputOptions":{"type":"STRING"}}],"inputs":[],"outputs":[{"id":"value","name":"Value","type":{"id":"STRING","name":"String","isComplex":false,"fields":{"value":"STRING"}}}]}]
+[
+  {
+    "id": "getUser",
+    "name": "Get User",
+    "description": "Retrieve details for a given user ID",
+    "defaultOptions": {},
+    "options": [],
+    "inputs": [
+      {
+        "id": "userId",
+        "name": "User ID",
+        "type": {
+          "id": "STRING",
+          "name": "String",
+          "isComplex": false,
+          "fields": {
+            "value": "STRING"
+          }
+        }
+      },
+      {
+        "id": "age",
+        "name": "Age",
+        "type": {
+          "id": "NUMBER",
+          "name": "Number",
+          "isComplex": false,
+          "fields": {
+            "value": "NUMBER"
+          }
+        }
+      }
+    ],
+    "outputs": [
+      {
+        "id": "user",
+        "name": "User",
+        "type": {
+          "id": "USER",
+          "name": "User",
+          "isComplex": true,
+          "fields": {
+            "id": {
+              "id": "STRING",
+              "name": "String",
+              "isComplex": false,
+              "fields": {
+                "value": "STRING"
+              }
+            },
+            "username": {
+              "id": "STRING",
+              "name": "String",
+              "isComplex": false,
+              "fields": {
+                "value": "STRING"
+              }
+            },
+            "age": {
+              "id": "NUMBER",
+              "name": "Number",
+              "isComplex": false,
+              "fields": {
+                "value": "NUMBER"
+              }
+            },
+            "createdAt": {
+              "id": "DATE",
+              "name": "Date",
+              "isComplex": true,
+              "fields": {
+                "milliseconds": {
+                  "id": "NUMBER",
+                  "name": "Number",
+                  "isComplex": false,
+                  "fields": {
+                    "value": "NUMBER"
+                  }
+                },
+                "seconds": {
+                  "id": "NUMBER",
+                  "name": "Number",
+                  "isComplex": false,
+                  "fields": {
+                    "value": "NUMBER"
+                  }
+                },
+                "minutes": {
+                  "id": "NUMBER",
+                  "name": "Number",
+                  "isComplex": false,
+                  "fields": {
+                    "value": "NUMBER"
+                  }
+                },
+                "hours": {
+                  "id": "NUMBER",
+                  "name": "Number",
+                  "isComplex": false,
+                  "fields": {
+                    "value": "NUMBER"
+                  }
+                },
+                "days": {
+                  "id": "NUMBER",
+                  "name": "Number",
+                  "isComplex": false,
+                  "fields": {
+                    "value": "NUMBER"
+                  }
+                },
+                "months": {
+                  "id": "NUMBER",
+                  "name": "Number",
+                  "isComplex": false,
+                  "fields": {
+                    "value": "NUMBER"
+                  }
+                },
+                "years": {
+                  "id": "NUMBER",
+                  "name": "Number",
+                  "isComplex": false,
+                  "fields": {
+                    "value": "NUMBER"
+                  }
+                },
+                "timestamp": {
+                  "id": "STRING",
+                  "name": "String",
+                  "isComplex": false,
+                  "fields": {
+                    "value": "STRING"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "entryTest",
+    "name": "Test Entry Node",
+    "type": "ENTRY",
+    "defaultOptions": {},
+    "options": [],
+    "inputs": [
+      {
+        "id": "userId",
+        "name": "User ID",
+        "type": {
+          "id": "STRING",
+          "name": "String",
+          "isComplex": false,
+          "fields": {
+            "value": "STRING"
+          }
+        }
+      },
+      {
+        "id": "age",
+        "name": "Age",
+        "type": {
+          "id": "NUMBER",
+          "name": "Number",
+          "isComplex": false,
+          "fields": {
+            "value": "NUMBER"
+          }
+        }
+      }
+    ],
+    "outputs": [
+      {
+        "id": "userId",
+        "name": "User ID",
+        "type": {
+          "id": "STRING",
+          "name": "String",
+          "isComplex": false,
+          "fields": {
+            "value": "STRING"
+          }
+        }
+      },
+      {
+        "id": "age",
+        "name": "Age",
+        "type": {
+          "id": "NUMBER",
+          "name": "Number",
+          "isComplex": false,
+          "fields": {
+            "value": "NUMBER"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "exit",
+    "name": "Rule Result",
+    "type": "EXIT",
+    "defaultOptions": {},
+    "options": [],
+    "inputs": [
+      {
+        "id": "result",
+        "name": "Rule Result",
+        "type": {
+          "id": "BOOLEAN",
+          "name": "Boolean",
+          "isComplex": false,
+          "fields": {
+            "value": "BOOLEAN"
+          }
+        }
+      }
+    ],
+    "outputs": [
+      {
+        "id": "result",
+        "name": "Rule Result",
+        "type": {
+          "id": "BOOLEAN",
+          "name": "Boolean",
+          "isComplex": false,
+          "fields": {
+            "value": "BOOLEAN"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "compareBooleans",
+    "name": "Compare Booleans",
+    "defaultOptions": {
+      "operation": "BOTH"
+    },
+    "options": [
+      {
+        "id": "operation",
+        "name": "Operation",
+        "type": "DROP_DOWN",
+        "dropDownOptions": [
+          {
+            "id": "NEITHER",
+            "name": "Neither"
+          },
+          {
+            "id": "EITHER",
+            "name": "Either"
+          },
+          {
+            "id": "BOTH",
+            "name": "Both"
+          }
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "id": "inputA",
+        "name": "Input A",
+        "type": {
+          "id": "BOOLEAN",
+          "name": "Boolean",
+          "isComplex": false,
+          "fields": {
+            "value": "BOOLEAN"
+          }
+        }
+      },
+      {
+        "id": "inputB",
+        "name": "Input B",
+        "type": {
+          "id": "BOOLEAN",
+          "name": "Boolean",
+          "isComplex": false,
+          "fields": {
+            "value": "BOOLEAN"
+          }
+        }
+      }
+    ],
+    "outputs": [
+      {
+        "id": "result",
+        "name": "Result",
+        "type": {
+          "id": "BOOLEAN",
+          "name": "Boolean",
+          "isComplex": false,
+          "fields": {
+            "value": "BOOLEAN"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "compareNumbers",
+    "name": "Compare Numbers",
+    "defaultOptions": {
+      "operation": "EQUAL"
+    },
+    "options": [
+      {
+        "id": "operation",
+        "name": "Operation",
+        "type": "DROP_DOWN",
+        "dropDownOptions": [
+          {
+            "id": "EQUAL",
+            "name": "Equal"
+          },
+          {
+            "id": "NOT_EQUAL",
+            "name": "Not Equal"
+          },
+          {
+            "id": "GREATER",
+            "name": "Greater"
+          },
+          {
+            "id": "GREATER_EQUAL",
+            "name": "Greater or Equal"
+          },
+          {
+            "id": "LESS",
+            "name": "Less"
+          },
+          {
+            "id": "LESS_EQUAL",
+            "name": "Less or Equal"
+          }
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "id": "inputA",
+        "name": "Input A",
+        "type": {
+          "id": "NUMBER",
+          "name": "Number",
+          "isComplex": false,
+          "fields": {
+            "value": "NUMBER"
+          }
+        }
+      },
+      {
+        "id": "inputB",
+        "name": "Input B",
+        "type": {
+          "id": "NUMBER",
+          "name": "Number",
+          "isComplex": false,
+          "fields": {
+            "value": "NUMBER"
+          }
+        }
+      }
+    ],
+    "outputs": [
+      {
+        "id": "result",
+        "name": "Result",
+        "type": {
+          "id": "BOOLEAN",
+          "name": "Boolean",
+          "isComplex": false,
+          "fields": {
+            "value": "BOOLEAN"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "compareStrings",
+    "name": "Compare Strings",
+    "defaultOptions": {
+      "operation": "EQUAL"
+    },
+    "options": [
+      {
+        "id": "operation",
+        "name": "Operation",
+        "type": "DROP_DOWN",
+        "dropDownOptions": [
+          {
+            "id": "EQUAL",
+            "name": "Equal"
+          },
+          {
+            "id": "NOT_EQUAL",
+            "name": "Not Equal"
+          }
+        ]
+      }
+    ],
+    "inputs": [
+      {
+        "id": "inputA",
+        "name": "Input A",
+        "type": {
+          "id": "STRING",
+          "name": "String",
+          "isComplex": false,
+          "fields": {
+            "value": "STRING"
+          }
+        }
+      },
+      {
+        "id": "inputB",
+        "name": "Input B",
+        "type": {
+          "id": "STRING",
+          "name": "String",
+          "isComplex": false,
+          "fields": {
+            "value": "STRING"
+          }
+        }
+      }
+    ],
+    "outputs": [
+      {
+        "id": "result",
+        "name": "Result",
+        "type": {
+          "id": "BOOLEAN",
+          "name": "Boolean",
+          "isComplex": false,
+          "fields": {
+            "value": "BOOLEAN"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "staticValue",
+    "name": "Static Value",
+    "defaultOptions": {
+      "valueType": "STRING",
+      "value": ""
+    },
+    "options": [
+      {
+        "id": "valueType",
+        "name": "Value Type",
+        "type": "DROP_DOWN",
+        "dropDownOptions": [
+          {
+            "id": "STRING",
+            "name": "String"
+          },
+          {
+            "id": "NUMBER",
+            "name": "Number"
+          },
+          {
+            "id": "BOOLEAN",
+            "name": "Boolean"
+          }
+        ]
+      },
+      {
+        "id": "value",
+        "name": "Value",
+        "type": "INPUT",
+        "inputOptions": {
+          "type": "STRING"
+        }
+      }
+    ],
+    "inputs": [],
+    "outputs": [
+      {
+        "id": "value",
+        "name": "Value",
+        "type": {
+          "id": "STRING",
+          "name": "String",
+          "isComplex": false,
+          "fields": {
+            "value": "STRING"
+          }
+        }
+      }
+    ]
+  }
+]

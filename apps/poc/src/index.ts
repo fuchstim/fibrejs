@@ -44,7 +44,9 @@ async function run() {
   fs.writeFileSync(
     'nodes.json',
     JSON.stringify(
-      await engine.exportSerializedNodes()
+      await engine.exportSerializedNodes(),
+      null,
+      2
     )
   );
 
