@@ -1,5 +1,5 @@
 import { BaseNode } from '../common/base-node';
-import { WBooleanType, WNumberType, WStringType, EPrimitive, TBooleanType, TNumberType, TStringType, TWrappedPrimitive } from '../common/wrapped-types';
+import { WBooleanType, WNumberType, WStringType, EPrimitive, TWrappedPrimitive, TStringType, TNumberType, TBooleanType } from '../common/wrapped-types';
 import { ENodeMetadataOptionType, TNodeExecutorContext } from '../types/node';
 
 type TNodeOutput = {
@@ -68,18 +68,18 @@ export default class StaticValueNode extends BaseNode<never, TNodeOutput, TNodeO
     return wrappedValueType ?? WStringType;
   }
 
-  execute(_: never, context: TNodeExecutorContext<TNodeOptions>): TNodeOutput {
+  execute(_: never, context: TNodeExecutorContext<TNodeOptions>) {
     const { valueType, value, } = context.nodeOptions;
 
-    switch (valueType) {
-      case EPrimitive.STRING:
-        return { value: { value: String(value), }, };
-      case EPrimitive.NUMBER:
-        return { value: { value: Number(value), }, };
-      case EPrimitive.BOOLEAN:
-        return { value: { value: Boolean(value), }, };
-
-      default: throw new Error(`Invalid valueType specified: ${valueType}`);
+    const wrappedType = {
+      [EPrimitive.STRING]: WStringType.fromNative(value as string),
+      [EPrimitive.NUMBER]: WNumberType.fromNative(value as number),
+      [EPrimitive.BOOLEAN]: WBooleanType.fromNative(value as boolean),
+    }[valueType];
+    if (!wrappedType) {
+      throw new Error(`Invalid valueType specified: ${valueType}`);
     }
+
+    return { value: wrappedType, };
   }
 }
