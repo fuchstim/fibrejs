@@ -250,7 +250,7 @@ export default function RuleSetEditor() {
 
               return {
                 id: index,
-                ruleId: entry.ruleId + '1',
+                ruleId: entry.ruleId,
                 ruleName: rule.name,
                 severity: entry.severity,
               };
