@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import type { Types } from '@tripwire/engine';
 import { useNavigate } from 'react-router-dom';
 import client from '../../common/client';
-import { Button, Col, Form, Input, Popover, Row, Table, notification } from 'antd';
+import { Button, Col, Form, Input, Popconfirm, Popover, Row, Table, notification } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
 
@@ -46,6 +46,15 @@ export default function RuleList() {
       });
   };
 
+  const deleteRule = async (ruleId: string) => {
+    setLoading(true);
+
+    await client.deleteRule(ruleId)
+      .then(() => getRules())
+      .catch(e => notification.error({ message: e.message, }))
+      .finally(() => setLoading(false));
+  };
+
   useEffect(() => { getRules(); }, []);
 
   const columns: ColumnsType<Types.Config.TRuleConfig> = [
@@ -75,13 +84,21 @@ export default function RuleList() {
           </Col>
 
           <Col>
-            <Button
-              danger
-              icon={<DeleteOutlined />}
-              // onClick={() => navigate(record.id)}
+            <Popconfirm
+              title="Delete Rule"
+              description={`Delete rule ${record.name}. Continue?`}
+              okText="Yes"
+              cancelText="No"
+              onConfirm={() => deleteRule(record.id)}
+              placement="bottomRight"
             >
-              Remove
-            </Button>
+              <Button
+                danger
+                icon={<DeleteOutlined />}
+              >
+                Remove
+              </Button>
+            </Popconfirm>
           </Col>
         </Row>
       ),
