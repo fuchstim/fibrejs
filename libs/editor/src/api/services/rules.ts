@@ -40,7 +40,7 @@ export default class RulesService implements IService<Types.Config.TRuleConfig> 
     return rule;
   }
 
-  update(ruleId: string, rule: Types.Config.TRuleConfig) {
+  patch(ruleId: string, rule: Types.Config.TRuleConfig) {
     if (ruleId !== rule.id) { throw new Error(`Rule id ${ruleId} does not match rule id ${rule.id}`); }
 
     const config = this.engine.getActiveConfig();

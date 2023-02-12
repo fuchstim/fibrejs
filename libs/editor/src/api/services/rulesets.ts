@@ -40,7 +40,7 @@ export default class RuleSetsService implements IService<Types.Config.TRuleSetCo
     return ruleSet;
   }
 
-  update(ruleSetId: string, ruleSet: Types.Config.TRuleSetConfig) {
+  patch(ruleSetId: string, ruleSet: Types.Config.TRuleSetConfig) {
     if (ruleSetId !== ruleSet.id) { throw new Error(`Rule set id ${ruleSetId} does not match rule set id ${ruleSet.id}`); }
 
     const config = this.engine.getActiveConfig();
