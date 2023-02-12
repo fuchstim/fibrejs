@@ -12,8 +12,8 @@ class ConfigProvider extends BaseConfigProvider {
   getLatestRevision() {
     return fs.readdirSync(path.resolve('config'))
       .filter(filename => filename.endsWith('.json'))
-      .map(filename => Number(filename.slice(0, 1)))
-      .sort()
+      .map(filename => Number(filename.replace('.json', '')))
+      .sort((a, b) => a - b)
       .pop() ?? 1;
   }
 

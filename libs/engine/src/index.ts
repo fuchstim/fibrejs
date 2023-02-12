@@ -119,6 +119,10 @@ export default class Engine extends EventEmitter<TEventTypes> {
   async replaceActiveConfig(config: TEngineConfig) {
     const { revision, rules, ruleSets, } = ConfigParser.parse(config, this.nodes);
 
+    if (revision <= this.activeConfigRevision) {
+      throw new Error('Cannot replace active config with older revision');
+    }
+
     await this.configProvider.save(
       ConfigParser.export(
         revision,
