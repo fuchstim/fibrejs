@@ -80,12 +80,13 @@ export default function RuleEditor(props: Props) {
 
     // TODO: Improve ID generation
     const highestIdNumber = Math.max(
+      0,
       ...engine
-        .getModel()
-        .getNodes()
-        .map(
-          node => Number(node.getOptions().id?.split('stage-')?.[1] ?? '0')
-        )
+          .getModel()
+          .getNodes()
+          .map(
+            node => Number(node.getOptions().id?.split('stage-')?.[1] ?? '0')
+          )
     );
 
     const ruleStage: TRuleStageWithNode = {
