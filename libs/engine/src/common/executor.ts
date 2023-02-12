@@ -50,19 +50,15 @@ export default abstract class Executor<TInput, TOutput, TContext extends TExecut
     };
   }
 
-  protected validateInput(input: TInput, context: TContext): TExecutorValidationResult<TInput> {
-    return {
-      valid: true,
-      actual: input,
-      expected: {},
-    };
+  validateContext(context: TContext): TExecutorValidationResult<TContext> {
+    return { valid: true, actual: context, };
   }
 
-  protected validateOutput(output: TOutput, context: TContext): TExecutorValidationResult<TOutput> {
-    return {
-      valid: true,
-      actual: output,
-      expected: {},
-    };
+  validateInput(input: TInput, context: TContext): TExecutorValidationResult<TInput> {
+    return { valid: true, actual: input, };
+  }
+
+  validateOutput(output: TOutput, context: TContext): TExecutorValidationResult<TOutput> {
+    return { valid: true, actual: output, };
   }
 }

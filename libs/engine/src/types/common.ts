@@ -11,10 +11,9 @@ export type TExecutorResult<TOutput> = {
 };
 
 export type TExecutorValidationResult<T> = {
-  valid: boolean,
   actual: T,
-  expected: Record<string, TWrappedType<any, any> | TWrappedPrimitive<any, any>>,
-};
+  expected?: Record<string, TWrappedType<any, any> | TWrappedPrimitive<any, any>>,
+} & ({ valid: true, reason: null } | { valid: false, reason: string });
 
 export interface IExecutorLogger {
   ns: (...namespaces: string[]) => IExecutorLogger;

@@ -1,4 +1,5 @@
 import type { EPrimitive, TWrappedPrimitive, TWrappedType } from '../common/wrapped-types';
+import type RuleStage from '../executors/rule-stage';
 import { TOptionalGetter } from './common';
 import type { TRuleStageExecutorContext } from './rule-stage';
 
@@ -48,9 +49,7 @@ export type TNodeMetadataInputOutput = {
 export type TNodeOption = string | number | boolean;
 export type TNodeOptions = Record<string, TNodeOption | never>;
 
-export type TNodeExecutorContext<T extends TNodeOptions> = TRuleStageExecutorContext & {
-  nodeOptions: T
-};
+export type TNodeExecutorContext<T extends TNodeOptions> = TRuleStageExecutorContext & { ruleStage?: RuleStage, nodeOptions: T };
 
 export type TNodeMetadata<T extends TNodeOptions> = {
   defaultOptions: T,

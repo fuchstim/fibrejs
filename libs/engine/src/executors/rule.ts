@@ -1,4 +1,5 @@
 import Executor from '../common/executor';
+import { TExecutorValidationResult } from '../types/common';
 import { ENodeType } from '../types/node';
 import { TRuleOptions, TRuleInputs, TRuleOutput, TRuleExecutorContext } from '../types/rule';
 import { TRuleStageResults } from '../types/rule-stage';
@@ -69,6 +70,28 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutput, TRuleExecut
     return {
       triggered: Boolean(ruleStageResults[this.exitStage.id].output.output),
       ruleStageResults,
+    };
+  }
+
+  override validateContext(context: TRuleExecutorContext): TExecutorValidationResult<TRuleExecutorContext> {
+    const invalidStages = this.stages
+      .map(
+        stage => stage.validateContext({ ...context, rule: this, })
+      )
+      .filter(r => r.valid === false);
+
+    if (invalidStages.length) {
+      return {
+        valid: false,
+        reason: `Invalid entries: ${invalidStages.map(e => e.reason).join(', ')}`,
+        actual: context,
+      };
+    }
+
+    return {
+      valid: true,
+      reason: null,
+      actual: context,
     };
   }
 

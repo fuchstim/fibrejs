@@ -1,8 +1,10 @@
 import Executor from '../common/executor';
 import { ERuleSeverity } from '../constants/rule-severities';
+import { TExecutorValidationResult } from '../types/common';
 import { TRuleExecutorContext } from '../types/rule';
 import { TRuleSetExecutorContext } from '../types/rule-set';
 import { TRuleSetEntry, TRuleSetOptions, TRuleSetInputs, TRuleSetExecutorResult } from '../types/rule-set';
+import Rule from './rule';
 
 const ORDERED_RULE_SEVERITIES = [
   ERuleSeverity.INFO,
@@ -45,11 +47,37 @@ export default class RuleSet extends Executor<TRuleSetInputs, TRuleSetExecutorRe
     };
   }
 
-  private async executeEntry({ ruleId, severity, }: TRuleSetEntry, inputs: TRuleSetInputs, context: TRuleExecutorContext) {
+  override validateContext(context: TRuleSetExecutorContext): TExecutorValidationResult<TRuleSetExecutorContext> {
+    const invalidEntries = this.entries
+      .map(
+        ({ ruleId, }) => this.getRuleFromContext(context, ruleId).validateContext({ ...context, ruleSet: this, })
+      )
+      .filter(r => r.valid === false);
+
+    if (invalidEntries.length) {
+      return {
+        valid: false,
+        reason: `Invalid entries: ${invalidEntries.map(e => e.reason).join(', ')}`,
+        actual: context,
+      };
+    }
+
+    return {
+      valid: true,
+      reason: null,
+      actual: context,
+    };
+  }
+
+  private getRuleFromContext(context: TRuleSetExecutorContext, ruleId: string): Rule {
     const rule = context.rules.find(rule => rule.id === ruleId);
     if (!rule) { throw new Error(`Failed to find rule for id ${ruleId}`); }
 
-    const result = await rule.run(inputs, context);
+    return rule;
+  }
+
+  private async executeEntry({ ruleId, severity, }: TRuleSetEntry, inputs: TRuleSetInputs, context: TRuleExecutorContext) {
+    const result = await this.getRuleFromContext(context, ruleId).run(inputs, context);
 
     return { ruleId, severity, result, };
   }

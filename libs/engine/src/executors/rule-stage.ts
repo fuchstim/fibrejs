@@ -1,6 +1,6 @@
 import { BaseNode } from '../common/base-node';
 import Executor from '../common/executor';
-import { TExecutorResult } from '../types/common';
+import { TExecutorResult, TExecutorValidationResult } from '../types/common';
 import { TNodeExecutorContext, TNodeOptions } from '../types/node';
 import { TRuleStageExecutorContext, TRuleStageInput, TRuleStageInputs, TRuleStageOptions } from '../types/rule-stage';
 
@@ -26,6 +26,7 @@ export default class RuleStage extends Executor<TRuleStageInputs, TExecutorResul
   createNodeContext(context: TRuleStageExecutorContext): TNodeExecutorContext<TNodeOptions> {
     return {
       ...context,
+      ruleStage: this,
       nodeOptions: {
         ...this.node.getDefaultOptions(),
         ...this.nodeOptions,
@@ -55,6 +56,10 @@ export default class RuleStage extends Executor<TRuleStageInputs, TExecutorResul
     );
 
     return result.output;
+  }
+
+  override validateContext(context: TRuleStageExecutorContext): TExecutorValidationResult<TRuleStageExecutorContext> {
+    return this.node.validateContext(this.createNodeContext(context));
   }
 
   private getOutputByKey({ output, }: TExecutorResult<any>, key: string): any {

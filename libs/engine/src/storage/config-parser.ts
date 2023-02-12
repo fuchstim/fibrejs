@@ -1,3 +1,4 @@
+import Logger from '@tripwire/logger';
 import { BaseNode } from '../common/base-node';
 import Rule from '../executors/rule';
 import RuleSet from '../executors/rule-set';
@@ -7,7 +8,7 @@ import { TEngineConfig, TRuleConfig, TRuleSetConfig, TRuleStageConfig, TParsedEn
 
 class ConfigParser {
   validate(config: TEngineConfig): boolean {
-    return true; // TODO: Actually validate config. Detect e.g. circular references, invalid options, invalid nodeIds etc
+    return true; // TODO: Actually validate config. Detect e.g. invalid options, invalid nodeIds etc
   }
 
   parse(config: TEngineConfig, availableNodes: BaseNode<any, any, any>[]): TParsedEngineConfig {
@@ -31,6 +32,17 @@ class ConfigParser {
     const duplicateRuleSetIds = this.detectDuplicates(ruleSets);
     if (duplicateRuleSetIds) {
       throw new Error(`Duplicate rule set ids detected: ${duplicateRuleSetIds.join(', ')}`);
+    }
+
+    const validationContext = {
+      executionId: 'validation',
+      logger: new Logger('validation'),
+      rules,
+      ruleSets,
+    };
+    const invalidRuleSets = ruleSets.filter(rs => !rs.validateContext(validationContext).valid);
+    if (invalidRuleSets.length) {
+      throw new Error(`One or more rule sets has invalid context: ${invalidRuleSets.map(rs => rs.id).join(', ')}`);
     }
 
     return {
