@@ -11,7 +11,12 @@ module.exports = {
   entry: './frontend/index.tsx',
   output: {
     path: path.resolve(__dirname, 'dist/html'),
-    publicPath: '/',
+    publicPath: prod ? undefined : '/',
+  },
+  resolve: {
+    fallback: {
+      path: require.resolve('path-browserify'),
+    },
   },
   module: {
     rules: [
@@ -44,7 +49,8 @@ module.exports = {
   devServer: {
     historyApiFallback: true,
     proxy: {
-      '/api': 'http://localhost:3030',
+      '**/base-path': 'http://localhost:3030',
+      '**/api/*': 'http://localhost:3030',
     },
   },
 };

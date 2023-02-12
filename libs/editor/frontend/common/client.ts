@@ -1,9 +1,21 @@
+import path from 'path';
 import type { Types } from '@tripwire/engine';
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 
 const client = axios.create({
   baseURL: '/api',
 });
+
+const updateBasePath = async () => {
+  const result = await axios.get<{ basePath: string }>('base-path');
+
+  const basePath = result?.data?.basePath;
+  if (!basePath) { throw new Error('Failed to fetch base path');}
+
+  client.defaults.baseURL = path.join(basePath, 'api');
+
+  return basePath;
+};
 
 const handleError = (error: AxiosError<{ message: string }>) => {
   error.message = error.response?.data?.message ?? error.message;
@@ -51,13 +63,10 @@ const wrappedDelete = async <TResult>(url: string, config?: AxiosRequestConfig) 
 
 export default {
   client,
+  updateBasePath,
 
-  getNode: (nodeId: string, context?: Types.Serializer.TSerializationContext) => (
-    wrappedGet<Types.Serializer.TSerializedNode>(`nodes/${nodeId}`, { context, })
-  ),
-  findNodes: (context?: Types.Serializer.TMultiSerializationContext) => (
-    wrappedGet<Types.Serializer.TSerializedNode[]>('nodes', { context, })
-  ),
+  getNode: (nodeId: string, context?: Types.Serializer.TSerializationContext) => wrappedGet<Types.Serializer.TSerializedNode>(`nodes/${nodeId}`, { context, }),
+  findNodes: (context?: Types.Serializer.TMultiSerializationContext) => wrappedGet<Types.Serializer.TSerializedNode[]>('nodes', { context, }),
 
   getRule: (ruleId: string) => wrappedGet<Types.Config.TRuleConfig>(`rules/${ruleId}`),
   findRules: () => wrappedGet<Types.Config.TRuleConfig[]>('rules'),
