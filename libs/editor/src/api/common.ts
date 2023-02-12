@@ -9,6 +9,7 @@ export function registerService(app: Application, path: string, service: IServic
       [ERequestMethod.FIND]: () => service.find?.apply(service, [ { req, res, }, ]),
       [ERequestMethod.GET]: () => service.get?.apply(service, [ req.params.__id, { req, res, }, ]),
       [ERequestMethod.CREATE]: () => service.create?.apply(service, [ req.body, { req, res, }, ]),
+      [ERequestMethod.PATCH]: () => service.patch?.apply(service, [ req.params.__id, req.body, { req, res, }, ]),
     }[method];
 
     const result = await Promise.resolve(getResult());
@@ -36,6 +37,11 @@ export function registerService(app: Application, path: string, service: IServic
       method: 'post',
       handler: createHandler(ERequestMethod.CREATE),
     },
+    [ERequestMethod.PATCH]: {
+      path: cleanPath + '/:__id',
+      method: 'patch',
+      handler: createHandler(ERequestMethod.PATCH),
+    },
   };
 
   const activeConfigs = Object.values(ERequestMethod)
@@ -46,6 +52,7 @@ export function registerService(app: Application, path: string, service: IServic
     switch (config.method) {
       case 'get': return app.get(config.path, config.handler);
       case 'post': return app.post(config.path, config.handler);
+      case 'patch': return app.patch(config.path, config.handler);
       default: return null;
     }
   });
