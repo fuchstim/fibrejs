@@ -25,6 +25,7 @@ import { TRuleSetInputs } from './types/rule-set';
 import { TMultiSerializationContext, TSerializationContext } from './types/serializer';
 import { TEventTypes } from './types/events';
 import { TRuleSetExecutorContext } from './types/rule-set';
+import { TEngineConfig } from './types/config';
 
 export type TEngineOptions = {
   configProvider: ConfigProvider,
@@ -113,6 +114,22 @@ export default class Engine extends EventEmitter<TEventTypes> {
     );
 
     await this.configProvider.save(config);
+  }
+
+  async replaceActiveConfig(config: TEngineConfig) {
+    const { revision, rules, ruleSets, } = ConfigParser.parse(config, this.nodes);
+
+    await this.configProvider.save(
+      ConfigParser.export(
+        revision,
+        rules,
+        ruleSets
+      )
+    );
+
+    this.activeConfigRevision = revision;
+    this.rules = rules;
+    this.ruleSets = ruleSets;
   }
 
   exportSerializedNode(nodeId: string, context?: TSerializationContext) {

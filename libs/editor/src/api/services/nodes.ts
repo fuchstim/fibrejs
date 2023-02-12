@@ -3,7 +3,7 @@ import type { Types } from '@tripwire/engine';
 
 import { IService, TContext } from '../../types';
 
-export default class NodesService implements IService {
+export default class NodesService implements IService<Types.Serializer.TSerializedNode> {
   private engine: Engine;
 
   constructor(engine: Engine) {

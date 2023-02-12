@@ -1,7 +1,8 @@
 import { Application, NextFunction, Request, Response } from 'express';
 import { ERequestMethod, IService } from '../types';
 
-export function registerService(app: Application, path: string, service: IService) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function registerService(app: Application, path: string, service: IService<any>) {
   const cleanPath = path.endsWith('/') ? path.slice(0, path.length -1) : path;
 
   const createHandler = (method: ERequestMethod) => async (req: Request, res: Response, next: NextFunction) => {
@@ -12,13 +13,21 @@ export function registerService(app: Application, path: string, service: IServic
       [ERequestMethod.PATCH]: () => service.patch?.apply(service, [ req.params.__id, req.body, { req, res, }, ]),
     }[method];
 
-    const result = await Promise.resolve(getResult());
-    if (result == null) {
-      res.status(404);
-      res.json({ message: 'Not Found', });
-    } else {
-      res.json(result);
-    }
+    await Promise.resolve(getResult())
+      .then(result => {
+        if (result == null) {
+          res.status(404);
+          res.json({ message: 'Not Found', });
+
+          return;
+        }
+
+        res.json(result);
+      })
+      .catch(error => {
+        res.status(500);
+        res.json({ message: error.message, stack: error.stack, });
+      });
   };
 
   const handlerConfigs = {
