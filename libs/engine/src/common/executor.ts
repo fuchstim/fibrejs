@@ -19,6 +19,11 @@ export default abstract class Executor<TInput, TOutput, TContext extends TExecut
 
     context.logger.info(`Executing ${this.executorType}...`);
 
+    const contextValidationResult = this.validateContext(context);
+    if (!contextValidationResult.valid) {
+      throw new Error(`Failed to execute ${this.executorType} ${this.executorId} with invalid context (${contextValidationResult.reason})`);
+    }
+
     const inputValidationResult = this.validateInput(input, context);
     if (!inputValidationResult.valid) {
       throw new Error(`Failed to execute ${this.executorType} ${this.executorId} with invalid input (${inputValidationResult.reason})`);
