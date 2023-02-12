@@ -62,5 +62,5 @@ export type TNodeConfig<T extends TNodeOptions> = TNodeMetadata<T> & {
   id: string,
   name: string,
   type?: ENodeType,
-  description?: string,
+  description: string,
 };

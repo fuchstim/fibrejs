@@ -14,6 +14,7 @@ export default class ExecuteRule extends BaseNode<TNodeInput, TNodeOutput, TNode
     super({
       id: 'executeRule',
       name: 'Execute Rule',
+      description: 'Execute another rule',
 
       defaultOptions: {
         ruleId: '', // TODO: Find better solution

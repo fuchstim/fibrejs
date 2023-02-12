@@ -12,6 +12,7 @@ export default class ExitNode extends BaseNode<TNodeInput, TNodeInput, Record<st
       id: 'exit',
       name: 'Rule Result',
       type: ENodeType.EXIT,
+      description: 'Return final rule result',
 
       defaultOptions: {},
       options: [],

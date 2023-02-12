@@ -15,6 +15,7 @@ export default class EntryTestNode extends BaseNode<TNodeInput, TNodeOutput, Rec
       id: 'entryTest',
       name: 'Test Entry Node',
       type: Types.Node.ENodeType.ENTRY,
+      description: 'Test entry node',
 
       defaultOptions: {},
       options: [],

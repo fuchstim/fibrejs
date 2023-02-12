@@ -15,7 +15,7 @@ export default class GetUserNode extends BaseNode<TNodeInput, TNodeOutput, Recor
     super({
       id: 'getUser',
       name: 'Get User',
-      description: 'Retrieve details for a given user ID',
+      description: 'Retrieve details for a user ID',
 
       defaultOptions: {},
       options: [],

@@ -16,6 +16,7 @@ export default class StaticValueNode extends BaseNode<never, TNodeOutput, TNodeO
     super({
       id: 'staticValue',
       name: 'Static Value',
+      description: 'Define a static value',
 
       defaultOptions: {
         valueType: EPrimitive.STRING,

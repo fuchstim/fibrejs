@@ -24,6 +24,7 @@ export default class CompareStringsNode extends BaseNode<TNodeInput, TNodeOutput
     super({
       id: 'compareStrings',
       name: 'Compare Strings',
+      description: 'Compare string input A to input B',
 
       defaultOptions: {
         operation: EOperation.EQUAL,

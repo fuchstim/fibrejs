@@ -9,7 +9,7 @@ export abstract class BaseNode<TInputs extends Record<string, any>, TOutputs ext
   readonly id: string;
   readonly name: string;
   readonly type?: ENodeType;
-  readonly description?: string;
+  readonly description: string;
 
   private metadata: TNodeMetadata<TOptions>;
 
