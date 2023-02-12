@@ -68,7 +68,7 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutput, TRuleExecut
     }
 
     return {
-      triggered: Boolean(ruleStageResults[this.exitStage.id].output.value),
+      triggered: Boolean(ruleStageResults[this.exitStage.id].output.result.value),
       ruleStageResults,
     };
   }
