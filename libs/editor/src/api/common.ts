@@ -13,21 +13,22 @@ export function registerService(app: Application, path: string, service: IServic
       [ERequestMethod.PATCH]: () => service.patch?.apply(service, [ req.params.__id, req.body, { req, res, }, ]),
     }[method];
 
-    await Promise.resolve(getResult())
-      .then(result => {
-        if (result == null) {
-          res.status(404);
-          res.json({ message: 'Not Found', });
+    try {
+      const result = await Promise.resolve(getResult());
+      if (result == null) {
+        res.status(404);
+        res.json({ message: 'Not Found', });
 
-          return;
-        }
+        return;
+      }
 
-        res.json(result);
-      })
-      .catch(error => {
-        res.status(500);
-        res.json({ message: error.message, stack: error.stack, });
-      });
+      res.json(result);
+    } catch (e: unknown) {
+      const error = e as Error;
+
+      res.status(500);
+      res.json({ message: error.message, stack: error.stack, });
+    }
   };
 
   const handlerConfigs = {

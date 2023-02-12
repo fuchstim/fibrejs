@@ -4,3 +4,4 @@ dist
 .creds
 .envrc
 tsconfig.tsbuildinfo
+**/config/*.json

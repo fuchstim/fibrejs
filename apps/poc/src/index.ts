@@ -1,5 +1,6 @@
 import fs from 'fs';
 import express from 'express';
+import path from 'path';
 
 import Engine, { ConfigProvider as BaseConfigProvider, Types } from '@tripwire/engine';
 import createMiddleware from '@tripwire/editor';
@@ -9,12 +10,16 @@ import EntryTestNode from './nodes/entry-test';
 
 class ConfigProvider extends BaseConfigProvider {
   getLatestRevision() {
-    return 1;
+    return fs.readdirSync(path.resolve('config'))
+      .filter(filename => filename.endsWith('.json'))
+      .map(filename => Number(filename.slice(0, 1)))
+      .sort()
+      .pop() ?? 1;
   }
 
   load(revision: number) {
     const config = JSON.parse(
-      fs.readFileSync('./example-config.json').toString()
+      fs.readFileSync(path.resolve('config', `${revision}.json`)).toString()
     ) as Types.Config.TEngineConfig;
 
     return config;
@@ -22,8 +27,8 @@ class ConfigProvider extends BaseConfigProvider {
 
   save(config: Types.Config.TEngineConfig) {
     fs.writeFileSync(
-      './example-config.json',
-      JSON.stringify(config)
+      path.resolve('config', `${config.revision}.json`),
+      JSON.stringify(config, null, 2)
     );
 
     return;
@@ -40,15 +45,6 @@ const engine = new Engine({
 
 async function run() {
   await engine.init();
-
-  fs.writeFileSync(
-    'nodes.json',
-    JSON.stringify(
-      await engine.exportSerializedNodes(),
-      null,
-      2
-    )
-  );
 
   const hostname = 'localhost';
   const port = 3030;

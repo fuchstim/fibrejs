@@ -1,7 +1,8 @@
 import { BaseNode } from '../common/base-node';
 import Executor from '../common/executor';
+import { detectDuplicates } from '../common/util';
 import { TExecutorResult, TExecutorValidationResult } from '../types/common';
-import { TNodeExecutorContext, TNodeOptions } from '../types/node';
+import { ENodeType, TNodeExecutorContext, TNodeOptions } from '../types/node';
 import { TRuleStageExecutorContext, TRuleStageInput, TRuleStageInputs, TRuleStageOptions } from '../types/rule-stage';
 
 export default class RuleStage extends Executor<TRuleStageInputs, TExecutorResult<any>, TRuleStageExecutorContext> {
@@ -59,7 +60,27 @@ export default class RuleStage extends Executor<TRuleStageInputs, TExecutorResul
   }
 
   override validateContext(context: TRuleStageExecutorContext): TExecutorValidationResult<TRuleStageExecutorContext> {
-    return this.node.validateContext(this.createNodeContext(context));
+    const validationContext = this.createNodeContext(context);
+
+    const duplicateInputsIds = detectDuplicates(this.inputs.map(i => i.inputId));
+    if (duplicateInputsIds.length) {
+      return { valid: false, reason: `Multiple values to same inputs: ${duplicateInputsIds.join(', ')}`, actual: context, };
+    }
+
+    if (this.node.type === ENodeType.ENTRY && this.inputs.length > 0) {
+      return { valid: false, reason: 'Entry node stage cannot have inputs', actual: context, };
+    }
+
+    const nodeInputs = this.node.getMetadata(validationContext).inputs;
+    if (this.node.type !== ENodeType.ENTRY && this.inputs.length !== nodeInputs.length) {
+      const missingInputs = nodeInputs.filter(
+        nodeInput => !this.inputs.map(i => i.inputId).includes(nodeInput.id)
+      );
+
+      return { valid: false, reason: `Missing inputs: ${missingInputs.map(i => i.id)}`, actual: context, };
+    }
+
+    return this.node.validateContext(validationContext);
   }
 
   private getOutputByKey({ output, }: TExecutorResult<any>, key: string): any {

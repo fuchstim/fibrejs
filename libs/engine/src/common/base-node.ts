@@ -1,6 +1,7 @@
 import { TExecutorValidationResult } from '../types/common';
 import { TNodeOptions, TNodeConfig, TNodeExecutorContext, TNodeMetadata, ENodeType } from '../types/node';
 import Executor from './executor';
+import { detectDuplicates } from './util';
 import { EPrimitive } from './wrapped-types';
 
 // eslint-disable-next-line max-len
@@ -44,7 +45,7 @@ export abstract class BaseNode<TInputs extends Record<string, any>, TOutputs ext
       }
     }
 
-    const duplicateInputIds = this.detectDuplicateKeys(inputs);
+    const duplicateInputIds = detectDuplicates(inputs);
     if (duplicateInputIds.length) {
       return {
         valid: false,
@@ -53,7 +54,7 @@ export abstract class BaseNode<TInputs extends Record<string, any>, TOutputs ext
       };
     }
 
-    const duplicateOutputIds = this.detectDuplicateKeys(outputs);
+    const duplicateOutputIds = detectDuplicates(outputs);
     if (duplicateOutputIds.length) {
       return {
         valid: false,
@@ -151,19 +152,5 @@ export abstract class BaseNode<TInputs extends Record<string, any>, TOutputs ext
       inputs: typeof inputs === 'function' ? inputs(context) : inputs,
       outputs: typeof outputs === 'function' ? outputs(context) : outputs,
     };
-  }
-
-  private detectDuplicateKeys(inputs: (string | { id: string })[]): string[] {
-    const inputStrings = inputs.map(
-      input => typeof input === 'string' ? input : input.id
-    );
-
-    return Array.from(
-      new Set(
-        inputStrings.filter(
-          input => inputStrings.filter(i => i === input).length > 1
-        )
-      )
-    );
   }
 }

@@ -119,6 +119,7 @@ export function exportRuleStages(engine: DiagramEngine): Types.Config.TRuleStage
 
     const inputs: Types.RuleStage.TRuleStageInput[] = node
       .getInputPorts()
+      .filter(port => Object.values(port.getLinks()).length === 1)
       .map(targetPort => {
         const sourcePort = Object.values(targetPort.getLinks())[0].getSourcePort() as EditorPortModel;
 

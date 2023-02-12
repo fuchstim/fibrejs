@@ -24,10 +24,10 @@ export default class RulesService implements IService<Types.Config.TRuleConfig> 
     return config.rules;
   }
 
-  create(rule: Types.Config.TRuleConfig) {
+  async create(rule: Types.Config.TRuleConfig) {
     const config = this.engine.getActiveConfig();
 
-    this.engine.replaceActiveConfig({
+    await this.engine.replaceActiveConfig({
       version: config.version,
       revision: config.revision + 1,
       rules: [
@@ -40,12 +40,12 @@ export default class RulesService implements IService<Types.Config.TRuleConfig> 
     return rule;
   }
 
-  patch(ruleId: string, rule: Types.Config.TRuleConfig) {
+  async patch(ruleId: string, rule: Types.Config.TRuleConfig) {
     if (ruleId !== rule.id) { throw new Error(`Rule id ${ruleId} does not match rule id ${rule.id}`); }
 
     const config = this.engine.getActiveConfig();
 
-    this.engine.replaceActiveConfig({
+    await this.engine.replaceActiveConfig({
       version: config.version,
       revision: config.revision + 1,
       rules: [

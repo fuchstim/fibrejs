@@ -5,6 +5,7 @@ import RuleSet from '../executors/rule-set';
 import RuleStage from '../executors/rule-stage';
 
 import { TEngineConfig, TRuleConfig, TRuleSetConfig, TRuleStageConfig, TParsedEngineConfig, EConfigVersion, IConfigParser } from '../types/config';
+import { detectDuplicates } from '../common/util';
 
 const EXPORT_VERSION = EConfigVersion.V_1;
 
@@ -14,7 +15,7 @@ class ConfigParser implements IConfigParser {
       rule => this.parseRule(rule, availableNodes)
     );
 
-    const duplicateRuleIds = this.detectDuplicates(rules);
+    const duplicateRuleIds = detectDuplicates(rules);
     if (duplicateRuleIds.length) {
       throw new Error(`Duplicate rule ids: ${duplicateRuleIds.join(', ')}`);
     }
@@ -23,7 +24,7 @@ class ConfigParser implements IConfigParser {
       ruleSetConfig => this.parseRuleSet(ruleSetConfig)
     );
 
-    const duplicateRuleSetIds = this.detectDuplicates(ruleSets);
+    const duplicateRuleSetIds = detectDuplicates(ruleSets);
     if (duplicateRuleSetIds.length) {
       throw new Error(`Duplicate rule set ids: ${duplicateRuleSetIds.join(', ')}`);
     }
@@ -69,7 +70,7 @@ class ConfigParser implements IConfigParser {
   private parseRule(ruleConfig: TRuleConfig, availableNodes: BaseNode<any, any, any>[]): Rule {
     const { id, name, stages, } = ruleConfig;
 
-    const duplicateStageIds = this.detectDuplicates(stages);
+    const duplicateStageIds = detectDuplicates(stages);
     if (duplicateStageIds.length) {
       throw new Error(`Duplicate rule stage ids detected in rule ${id}: ${duplicateStageIds.join(', ')}`);
     }
@@ -140,20 +141,6 @@ class ConfigParser implements IConfigParser {
       name,
       entries,
     };
-  }
-
-  private detectDuplicates(inputs: (string | { id: string })[]): string[] {
-    const inputStrings = inputs.map(
-      input => typeof input === 'string' ? input : input.id
-    );
-
-    return Array.from(
-      new Set(
-        inputStrings.filter(
-          input => inputStrings.filter(i => i === input).length > 1
-        )
-      )
-    );
   }
 }
 
