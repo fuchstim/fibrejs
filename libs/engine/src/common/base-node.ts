@@ -1,5 +1,6 @@
 import { TNodeOptions, TNodeConfig, TNodeExecutorContext, TNodeMetadata, ENodeType } from '../types/node';
 import Executor from './executor';
+import { EPrimitive } from './wrapped-types';
 
 // eslint-disable-next-line max-len
 export abstract class BaseNode<TInputs extends Record<string, any>, TOutputs extends Record<string, any>, TOptions extends TNodeOptions> extends Executor<TInputs, TOutputs, TNodeExecutorContext<TOptions>> {
@@ -42,6 +43,18 @@ export abstract class BaseNode<TInputs extends Record<string, any>, TOutputs ext
 
   protected override validateOutput(outputValues: TOutputs, context: TNodeExecutorContext<TOptions>) {
     const { outputs, } = this.getMetadata(context);
+
+    if (this.type === ENodeType.EXIT) {
+      const validExitNodeOutputConfig = (
+        outputs.length === 1
+        && outputs[0].id === 'result'
+        && Object.values(EPrimitive).includes(outputs[0].type.id as EPrimitive)
+      );
+
+      if (!validExitNodeOutputConfig) {
+        throw new Error(`Exit node ${this.id} has invalid output configuration`);
+      }
+    }
 
     const valid = outputs.every(
       output => output.type.validate(outputValues[output.id])
