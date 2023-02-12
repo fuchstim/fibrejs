@@ -30,7 +30,7 @@ class ConfigParser {
     );
 
     const duplicateRuleSetIds = this.detectDuplicates(ruleSets);
-    if (duplicateRuleSetIds) {
+    if (duplicateRuleSetIds.length) {
       throw new Error(`Duplicate rule set ids detected: ${duplicateRuleSetIds.join(', ')}`);
     }
 
@@ -40,9 +40,13 @@ class ConfigParser {
       rules,
       ruleSets,
     };
-    const invalidRuleSets = ruleSets.filter(rs => !rs.validateContext(validationContext).valid);
+    const invalidRuleSets = ruleSets
+      .map(ruleSet => ({ ruleSet, result: ruleSet.validateContext(validationContext), }))
+      .filter(({ result, }) => !result.valid);
     if (invalidRuleSets.length) {
-      throw new Error(`One or more rule sets has invalid context: ${invalidRuleSets.map(rs => rs.id).join(', ')}`);
+      const formatReason = (reason: string | null) => reason?.replaceAll('\t', '\t\t');
+      const invalidReasons = invalidRuleSets.map(rs => `\n\t${rs.ruleSet.id}: ${formatReason(rs.result.reason)}`).join('');
+      throw new Error(`One or more rule sets is not valid: ${invalidReasons}`);
     }
 
     return {
@@ -86,7 +90,7 @@ class ConfigParser {
     const { id, name, stages, } = ruleConfig;
 
     const duplicateStageIds = this.detectDuplicates(stages);
-    if (duplicateStageIds) {
+    if (duplicateStageIds.length) {
       throw new Error(`Duplicate rule stage ids detected in rule ${id}: ${duplicateStageIds.join(', ')}`);
     }
 

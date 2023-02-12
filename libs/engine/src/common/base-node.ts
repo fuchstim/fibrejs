@@ -45,10 +45,10 @@ export abstract class BaseNode<TInputs extends Record<string, any>, TOutputs ext
     }
 
     const duplicateInputIds = this.detectDuplicateKeys(inputs);
-    if (duplicateInputIds) {
+    if (duplicateInputIds.length) {
       return {
         valid: false,
-        reason: `Duplicate input ids: ${duplicateInputIds.length}`,
+        reason: `Duplicate input ids: ${duplicateInputIds.join(', ')}`,
         actual: context,
       };
     }
@@ -57,7 +57,7 @@ export abstract class BaseNode<TInputs extends Record<string, any>, TOutputs ext
     if (duplicateOutputIds.length) {
       return {
         valid: false,
-        reason: `Duplicate output ids: ${duplicateOutputIds.length}`,
+        reason: `Duplicate output ids: ${duplicateOutputIds.join(', ')}`,
         actual: context,
       };
     }
@@ -68,7 +68,7 @@ export abstract class BaseNode<TInputs extends Record<string, any>, TOutputs ext
     if (invalidOptionConfigs.length) {
       return {
         valid: false,
-        reason: `Invalid option configs: ${invalidOptionConfigs.map(c => c.id).join(',')}`,
+        reason: `Invalid option configs: ${invalidOptionConfigs.map(c => `${c.name} (${c.id})`).join(', ')}`,
         actual: context,
       };
     }

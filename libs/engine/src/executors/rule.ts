@@ -76,14 +76,15 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutput, TRuleExecut
   override validateContext(context: TRuleExecutorContext): TExecutorValidationResult<TRuleExecutorContext> {
     const invalidStages = this.stages
       .map(
-        stage => stage.validateContext({ ...context, rule: this, })
+        stage => ({ stage, result: stage.validateContext({ ...context, rule: this, }), })
       )
-      .filter(r => r.valid === false);
+      .filter(r => r.result.valid === false);
 
     if (invalidStages.length) {
+      const formatReason = (reason: string | null) => reason?.replaceAll('\t', '\t\t');
       return {
         valid: false,
-        reason: `Invalid entries: ${invalidStages.map(e => e.reason).join(', ')}`,
+        reason: `Invalid stages: ${invalidStages.map(e => `\n\t${e.stage.id}: ${formatReason(e.result.reason)}`).join('')}`,
         actual: context,
       };
     }
