@@ -2,32 +2,52 @@ import React, { useEffect, useState } from 'react';
 import type { Types } from '@tripwire/engine';
 import { useNavigate } from 'react-router-dom';
 import client from '../../common/client';
-import { Button, Col, Row, Table, notification } from 'antd';
+import { Button, Col, Form, Input, Popover, Popconfirm, Row, Table, notification } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
 import Page from '../../components/page';
 
 export default function RuleSetList() {
   const [ loading, setLoading, ] = useState(false);
+  const [ showPopover, setShowPopover, ] = useState(false);
   const [ ruleSets, setRuleSets, ] = useState<Types.Config.TRuleSetConfig[]>([]);
+
+  const [ createRuleSetForm, ] = Form.useForm();
 
   const navigate = useNavigate();
 
-  const getRules = async () => {
-    const ruleSets = await client.findRuleSets();
+  const getRuleSets = async () => {
+    setLoading(true);
 
-    setRuleSets(ruleSets);
+    await client.findRuleSets()
+      .then(ruleSets => setRuleSets(ruleSets))
+      .catch(e => notification.error({ message: e.message, }))
+      .finally(() => setLoading(false));
   };
 
-  useEffect(
-    () => {
-      setLoading(true);
-      getRules()
-        .catch(e => notification.error({ message: e.message, }))
-        .finally(() => setLoading(false));
-    },
-    []
-  );
+  const createRuleSet = async ({ name, }: { name: string }) => {
+    setLoading(true);
+
+    await client.createRuleSet({ name, entries: [], })
+      .then(() => getRuleSets())
+      .catch(e => notification.error({ message: e.message, }))
+      .finally(() => {
+        setLoading(false),
+        setShowPopover(false);
+        createRuleSetForm.resetFields();
+      });
+  };
+
+  const deleteRuleSet = async (ruleSetId: string) => {
+    setLoading(true);
+
+    await client.deleteRuleSet(ruleSetId)
+      .then(() => getRuleSets())
+      .catch(e => notification.error({ message: e.message, }))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => { getRuleSets(); }, []);
 
   const columns: ColumnsType<Types.Config.TRuleSetConfig> = [
     {
@@ -56,13 +76,21 @@ export default function RuleSetList() {
           </Col>
 
           <Col>
-            <Button
-              danger
-              icon={<DeleteOutlined />}
-              // onClick={() => navigate(record.id)}
+            <Popconfirm
+              title="Delete Rule Set"
+              description={`Delete rule set ${record.name}. Continue?`}
+              okText="Yes"
+              cancelText="No"
+              onConfirm={() => deleteRuleSet(record.id)}
+              placement="bottomRight"
             >
-              Remove
-            </Button>
+              <Button
+                danger
+                icon={<DeleteOutlined />}
+              >
+                Remove
+              </Button>
+            </Popconfirm>
           </Col>
         </Row>
       ),
@@ -74,12 +102,44 @@ export default function RuleSetList() {
       title="Rule Sets"
       subtitle="Create, remove, or edit rule sets"
       headerExtra={
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
+        <Popover
+          content={(
+            <Form
+              form={createRuleSetForm}
+              onFinish={createRuleSet}
+            >
+              <Form.Item
+                name="name"
+                style={{ margin: '0', marginBottom: '16px', }}
+                rules={[ { required: true, message: 'Please enter a rule set name', }, ]}
+              >
+                <Input placeholder='Rule Set Name'/>
+              </Form.Item>
+
+              <Form.Item style={{ margin: 0, }}>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  loading={loading}
+                >
+                  Submit
+                </Button>
+              </Form.Item>
+            </Form>
+          )}
+          title="Create new Rule Set"
+          trigger="click"
+          placement="bottomRight"
+          open={showPopover}
+          onOpenChange={setShowPopover}
         >
-          Create
-        </Button>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+          >
+            Create
+          </Button>
+        </Popover>
       }
       content={
         <Table
