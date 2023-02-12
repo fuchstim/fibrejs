@@ -52,19 +52,17 @@ async function run() {
   const app = express();
   app.use(express.json());
   app.post(
-    '/run',
+    '/run/:ruleSetId',
     async (req, res) => {
+      const { ruleSetId, } = req.params;
       const inputs = req.body;
-      if (!inputs) {
+      if (!ruleSetId || !inputs) {
         res.status(400);
         res.json({ error: 'Invalid inputs', });
       }
 
       try {
-        const result = await engine.executeRuleSet(
-          'testRuleSet',
-          inputs
-        );
+        const result = await engine.executeRuleSet(ruleSetId, inputs);
 
         res.json(result);
       } catch (e: unknown) {
