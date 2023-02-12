@@ -8,11 +8,11 @@ import GetUserNode from './nodes/get-user';
 import EntryTestNode from './nodes/entry-test';
 
 class ConfigProvider extends BaseConfigProvider {
-  getLatestConfigVersion() {
+  getLatestRevision() {
     return 1;
   }
 
-  loadConfig(version: number) {
+  load(revision: number) {
     const config = JSON.parse(
       fs.readFileSync('./example-config.json').toString()
     ) as Types.Config.TEngineConfig;
@@ -20,7 +20,7 @@ class ConfigProvider extends BaseConfigProvider {
     return config;
   }
 
-  saveConfig(config: Types.Config.TEngineConfig) {
+  save(config: Types.Config.TEngineConfig) {
     fs.writeFileSync(
       './example-config.json',
       JSON.stringify(config)
