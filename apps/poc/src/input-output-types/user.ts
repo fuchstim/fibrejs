@@ -21,11 +21,27 @@ export const WUserType: WrappedTypes.TWrappedType<TUserType, TWrappedUserType> =
     age: WrappedTypes.WNumberType,
     createdAt: WrappedTypes.WDateType,
   },
-  validate: wrappedUser => (
+  validate: wrappedUser => {
+    const validationErrors: string[] = [];
+
     Object
       .entries(wrappedUser)
-      .every(([ key, value, ]) => WUserType.fields[key].validate(value))
-  ),
+      .forEach(([ key, value, ]) => {
+        const { valid, reason, } = WUserType.fields[key].validate(value);
+        if (!valid) {
+          validationErrors.push(
+            `Invalid ${key} (${reason})`
+          );
+        }
+      });
+
+    if (validationErrors.length === 0) { return { valid: true, reason: null, }; }
+
+    return {
+      valid: false,
+      reason: validationErrors.join(', '),
+    };
+  },
   toNative: user => ({
     id: user.id.value,
     username: user.username.value,

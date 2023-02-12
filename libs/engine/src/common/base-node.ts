@@ -84,13 +84,16 @@ export abstract class BaseNode<TInputs extends Record<string, any>, TOutputs ext
   override validateInput(inputValues: TInputs, context: TNodeExecutorContext<TOptions>): TExecutorValidationResult<TInputs> {
     const { inputs, } = this.getMetadata(context);
 
-    const invalidInputs = inputs.filter(
-      input => !input.type.validate(inputValues[input.id])
-    );
-    if (invalidInputs.length) {
+    const inputValidationErrors = inputs
+      .map(
+        input => ({ input, result: input.type.validate(inputValues[input.id]), })
+      )
+      .filter(({ result, }) => !result.valid);
+
+    if (inputValidationErrors.length) {
       return {
         valid: false,
-        reason: `Invalid values for inputs: ${invalidInputs.map(i => i.id).join(', ')}`,
+        reason: `Invalid inputs for values: ${inputValidationErrors.map(e => `${e.input.id} (${e.result.reason})`).join(', ')}}`,
         actual: inputValues,
         expected: inputs.reduce(
           (acc, { id, type, }) => ({ ...acc, [id]: type, }),
@@ -113,13 +116,16 @@ export abstract class BaseNode<TInputs extends Record<string, any>, TOutputs ext
   override validateOutput(outputValues: TOutputs, context: TNodeExecutorContext<TOptions>): TExecutorValidationResult<TOutputs> {
     const { outputs, } = this.getMetadata(context);
 
-    const invalidOutputs = outputs.filter(
-      output => !output.type.validate(outputValues[output.id])
-    );
-    if (invalidOutputs.length) {
+    const outputValidationErrors = outputs
+      .map(
+        output => ({ output, result: output.type.validate(outputValues[output.id]), })
+      )
+      .filter(({ result, }) => !result.valid);
+
+    if (outputValidationErrors.length) {
       return {
         valid: false,
-        reason: `Invalid values for outputs: ${invalidOutputs.map(o => o.id).join(', ')}`,
+        reason: `Invalid outputs for values: ${outputValidationErrors.map(e => `${e.output.id} (${e.result.reason})`).join(', ')}}`,
         actual: outputValues,
         expected: outputs.reduce(
           (acc, { id, type, }) => ({ ...acc, [id]: type, }),

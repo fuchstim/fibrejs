@@ -4,11 +4,13 @@ export enum EPrimitive {
   BOOLEAN = 'BOOLEAN',
 }
 
+type TTypeValidationResult = { valid: true, reason: null, } | { valid: false, reason: string };
+
 export type TWrappedType<TNativeType, TCustomType extends Record<string, any>> = {
   id: string,
   name: string,
   fields: Record<string, TWrappedType<any, any> | TWrappedPrimitive<any, any>>,
-  validate: (input: TCustomType) => boolean,
+  validate: (input: TCustomType) => TTypeValidationResult,
   toNative: (input: TCustomType) => TNativeType,
   fromNative: (input: TNativeType) => TCustomType
 };
@@ -16,6 +18,17 @@ export type TWrappedType<TNativeType, TCustomType extends Record<string, any>> =
 export type TWrappedPrimitive<TNativeType extends (string | number | boolean), TCustomType extends Record<string, any>> = Omit<TWrappedType<TNativeType, TCustomType>, 'fields'> & {
   fields: Record<string, EPrimitive>
 };
+
+function validatePrimitive(value: string | number | boolean, expected: 'string' | 'number' | 'boolean'): TTypeValidationResult {
+  if (typeof value !== expected) {
+    return {
+      valid: false,
+      reason: `\`${JSON.stringify(value)}\` is not a ${expected}`,
+    };
+  }
+
+  return { valid: true, reason: null, };
+}
 
 export type TStringType = {
   value: string,
@@ -26,7 +39,7 @@ export const WStringType: TWrappedPrimitive<string, TStringType> = {
   fields: {
     value: EPrimitive.STRING,
   },
-  validate: ({ value, }) => typeof value === 'string',
+  validate: ({ value, }) => validatePrimitive(value, 'string'),
   toNative: ({ value, }) => String(value),
   fromNative: value => ({ value, }),
 };
@@ -40,7 +53,7 @@ export const WNumberType: TWrappedPrimitive<number, TNumberType> = {
   fields: {
     value: EPrimitive.NUMBER,
   },
-  validate: ({ value, }) => typeof value === 'number',
+  validate: ({ value, }) => validatePrimitive(value, 'number'),
   toNative: ({ value, }) => Number(value),
   fromNative: value => ({ value, }),
 };
@@ -54,7 +67,7 @@ export const WBooleanType: TWrappedPrimitive<boolean, TBooleanType> = {
   fields: {
     value: EPrimitive.BOOLEAN,
   },
-  validate: ({ value, }) => typeof value === 'boolean',
+  validate: ({ value, }) => validatePrimitive(value, 'boolean'),
   toNative: ({ value, }) => Boolean(value),
   fromNative: value => ({ value, }),
 };
@@ -82,11 +95,27 @@ export const WDateType: TWrappedType<Date, TDateType> = {
     years: WNumberType,
     timestamp: WStringType,
   },
-  validate: wrappedDate => (
+  validate: wrappedDate => {
+    const validationErrors: string[] = [];
+
     Object
       .entries(wrappedDate)
-      .every(([ key, value, ]) => WDateType.fields[key].validate(value))
-  ),
+      .forEach(([ key, value, ]) => {
+        const { valid, reason, } = WDateType.fields[key].validate(value);
+        if (!valid) {
+          validationErrors.push(
+            `Invalid ${key} (${reason})`
+          );
+        }
+      });
+
+    if (validationErrors.length === 0) { return { valid: true, reason: null, }; }
+
+    return {
+      valid: false,
+      reason: validationErrors.join(', '),
+    };
+  },
   toNative: ({ timestamp, }) => new Date(WStringType.toNative(timestamp)),
   fromNative: date => ({
     milliseconds: WNumberType.fromNative(date.getMilliseconds()),
