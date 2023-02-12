@@ -78,6 +78,7 @@ export default function RuleEditor(props: Props) {
   const addNodeToGraph = (node: Types.Serializer.TSerializedNode) => {
     if (!engine) { return; }
 
+    // TODO: Improve ID generation
     const highestIdNumber = Math.max(
       ...engine
         .getModel()

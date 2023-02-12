@@ -20,8 +20,8 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutput, TRuleExecut
     const entryStages = this.stages.filter(stage => stage.node.type === ENodeType.ENTRY);
     const exitStages = this.stages.filter(stage => stage.node.type === ENodeType.EXIT);
 
-    if (entryStages.length !== 1 || exitStages.length !== 1) {
-      throw new Error('Invalid number of entry / exit RuleStages defined');
+    if (this.stages.length && (entryStages.length !== 1 || exitStages.length !== 1)) {
+      throw new Error('Invalid number of entry / exit stages defined');
     }
   }
 
