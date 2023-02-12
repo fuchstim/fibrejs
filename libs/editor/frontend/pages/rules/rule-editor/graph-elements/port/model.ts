@@ -9,6 +9,7 @@ import {
 } from '@projectstorm/react-diagrams';
 import type { Types } from '@tripwire/engine';
 import { notification } from 'antd';
+import EditorNodeModel from '../node/model';
 
 export enum EPortType {
   INPUT = 'INPUT',
@@ -36,6 +37,7 @@ export default class EditorPortModel extends PortModel<EditorPortModelGenerics> 
       portType,
       config,
       level,
+      maximumLinks: portType === EPortType.INPUT ? 1 : undefined,
     });
   }
 
@@ -47,7 +49,7 @@ export default class EditorPortModel extends PortModel<EditorPortModelGenerics> 
     return !!Object.values(this.links).length;
   }
 
-  canLinkToPort(targetPort: EditorPortModel): boolean {
+  override canLinkToPort(targetPort: EditorPortModel): boolean {
     const { config: sourceConfig, } = this.getOptions();
     const { config: targetConfig, portType: targetPortType, } = targetPort.getOptions();
 
@@ -100,5 +102,9 @@ export default class EditorPortModel extends PortModel<EditorPortModelGenerics> 
 
   createLinkModel(): LinkModel {
     return super.createLinkModel() || new DefaultLinkModel();
+  }
+
+  override getParent() {
+    return super.getParent() as EditorNodeModel;
   }
 }

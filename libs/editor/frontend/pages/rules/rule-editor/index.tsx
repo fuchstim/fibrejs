@@ -9,7 +9,7 @@ import {
 
 import './_style.css';
 
-import { createDiagramEngine, distributeNodes, fetchStages } from './_common';
+import { createDiagramEngine, distributeNodes, exportRuleStages, fetchStages } from './_common';
 import { PicCenterOutlined, PlusOutlined, SaveOutlined } from '@ant-design/icons';
 import AddNodeDrawer from '../../../components/add-node-drawer';
 import Page from '../../../components/page';
@@ -18,9 +18,13 @@ import type { Types } from '@tripwire/engine';
 import { TRuleStageWithNode } from './_types';
 import client from '../../../common/client';
 
-export default function RuleEditor() {
+type Props = {
+  ruleScaffold?: Types.Config.TRuleConfig
+};
+
+export default function RuleEditor(props: Props) {
   const [ loading, setLoading, ] = useState(false);
-  const [ ruleName, setRuleName, ] = useState<string>();
+  const [ rule, setRule, ] = useState<Types.Config.TRuleConfig>();
   const [ showAddNodeDrawer, setShowAddNodeDrawer, ] = useState(false);
   const [ engine, setEngine, ] = useState<DiagramEngine>();
 
@@ -28,35 +32,47 @@ export default function RuleEditor() {
   const navigate = useNavigate();
 
   useEffect(
-    () => {
-      if (!ruleId) {
-        return navigate('/rules');
-      }
-
-      setLoading(true);
-
-      client
-        .getRule(ruleId)
-        .then(rule => { setRuleName(rule.name); return rule; })
-        .then(rule => fetchStages(rule))
-        .then(stages => createDiagramEngine(stages))
-        .then(engine => setEngine(engine))
-        .catch(e => notification.error({ message: e.message, }))
-        .finally(() => setLoading(false));
-    },
+    () => { init(); },
     []
   );
 
-  const saveAndReturn = async () => {
+  const init = async () => {
+    if (!ruleId) {
+      return navigate('/rules');
+    }
+
     setLoading(true);
 
-    notification.info({ message: 'TODO: Implement save', });
+    try {
+      const rule = props.ruleScaffold || await client.getRule(ruleId);
+      setRule(rule);
 
-    await new Promise(
-      resolve => setTimeout(resolve, 1000)
-    );
+      await fetchStages(rule)
+        .then(stages => createDiagramEngine(stages))
+        .then(engine => setEngine(engine));
+    } catch (error) {
+      const { message, } = error as Error;
+      notification.error({ message, });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    navigate('/rules');
+  const saveAndReturn = async () => {
+    if (!rule || !engine) { return; }
+
+    const updatedConfig: Types.Config.TRuleConfig = {
+      id: rule.id,
+      name: rule.name,
+      stages: exportRuleStages(engine),
+    };
+
+    setLoading(true);
+
+    await client.updateRule(updatedConfig)
+      .then(() => navigate('/rules'))
+      .catch(error => notification.error(error))
+      .finally(() => setLoading(false));
   };
 
   const addNodeToGraph = (node: Types.Serializer.TSerializedNode) => {
@@ -64,11 +80,11 @@ export default function RuleEditor() {
 
     const highestIdNumber = Math.max(
       ...engine
-          .getModel()
-          .getNodes()
-          .map(
-            node => Number(node.getOptions().id?.split('stage-')?.[1] ?? '0')
-          )
+        .getModel()
+        .getNodes()
+        .map(
+          node => Number(node.getOptions().id?.split('stage-')?.[1] ?? '0')
+        )
     );
 
     const ruleStage: TRuleStageWithNode = {
@@ -111,7 +127,7 @@ export default function RuleEditor() {
 
   return (
     <Page
-      title={ruleName || 'Edit Rule'}
+      title={rule?.name || 'Edit Rule'}
       subtitle="Add, remove, or change parts of this rule"
       headerExtra={(
         <Row gutter={16} wrap={false} justify="end" align="middle">

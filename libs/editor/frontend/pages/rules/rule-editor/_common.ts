@@ -6,6 +6,7 @@ import EditorNodeModel from './graph-elements/node/model';
 import type { Types } from '@tripwire/engine';
 import EditorNodeFactory from './graph-elements/node/factory';
 import EditorPortFactory from './graph-elements/port/factory';
+import EditorPortModel from './graph-elements/port/model';
 
 const dagreEngine = new DagreEngine({
   graph: {
@@ -104,4 +105,37 @@ function createNodeLinks(nodes: EditorNodeModel[]): LinkModel[] {
   }
 
   return links;
+}
+
+export function exportRuleStages(engine: DiagramEngine): Types.Config.TRuleStageConfig[] {
+  const nodes: EditorNodeModel[] = engine
+    .getModel()
+    .getNodes()
+    .map(n => n as EditorNodeModel)
+    .filter(n => n.getType() === 'editor-node');
+
+  const stages: Types.Config.TRuleStageConfig[] = nodes.map(node => {
+    const nodeOptions = node.getOptions();
+
+    const inputs: Types.RuleStage.TRuleStageInput[] = node
+      .getInputPorts()
+      .map(targetPort => {
+        const sourcePort = Object.values(targetPort.getLinks())[0].getSourcePort() as EditorPortModel;
+
+        return {
+          ruleStageId: sourcePort.getParent().getID(),
+          outputId: sourcePort.getOptions().config.id,
+          inputId: targetPort.getOptions().config.id,
+        };
+      });
+
+    return {
+      id: node.getID(),
+      nodeId: nodeOptions.ruleStage.nodeId,
+      inputs,
+      nodeOptions: nodeOptions.ruleStage.nodeOptions,
+    };
+  });
+
+  return stages;
 }

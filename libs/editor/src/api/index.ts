@@ -20,7 +20,7 @@ export default function createApiMiddleware(engine: Engine) {
 
   registerService(app, '/nodes', new NodesService(engine));
   registerService(app, '/rules', new RulesService(engine));
-  registerService(app, '/rulesets', new RuleSetsService(engine));
+  registerService(app, '/rule-sets', new RuleSetsService(engine));
 
   app.get(
     '*',
