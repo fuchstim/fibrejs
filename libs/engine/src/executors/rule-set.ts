@@ -49,17 +49,30 @@ export default class RuleSet extends Executor<TRuleSetInputs, TRuleSetExecutorRe
   override validateContext(context: TRuleSetExecutorContext): TExecutorValidationResult<TRuleSetExecutorContext> {
     const invalidEntries = this.entries
       .map(
-        ({ ruleId, }) => ({
-          ruleId,
-          result: this.getRuleFromContext(context, ruleId).validateContext({ ...context, ruleSet: this, }),
-        })
+        entry => {
+          const validSeverity = ORDERED_RULE_SEVERITIES.includes(entry.severity);
+          if (!validSeverity) {
+            return {
+              entry,
+              result: {
+                valid: false,
+                reason: 'Invalid severity',
+              },
+            };
+          }
+
+          return {
+            entry,
+            result: this.getRuleFromContext(context, entry.ruleId).validateContext({ ...context, ruleSet: this, }),
+          };
+        }
       )
       .filter(r => r.result.valid === false);
 
     if (invalidEntries.length) {
       return {
         valid: false,
-        reason: `Invalid entries: ${invalidEntries.map(e => `${e.ruleId} (${e.result.reason})`).join(', ')}`,
+        reason: `Invalid entries: ${invalidEntries.map(e => `${e.entry.ruleId} - ${e.entry.severity} (${e.result.reason})`).join(', ')}`,
         actual: context,
       };
     }
