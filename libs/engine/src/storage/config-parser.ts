@@ -19,15 +19,39 @@ class ConfigParser {
       rule => this.parseRule(rule, availableNodes)
     );
 
+    const duplicateRuleIds = this.detectDuplicates(rules);
+    if (duplicateRuleIds.length) {
+      throw new Error(`Duplicate rule ids detected: ${duplicateRuleIds.join(', ')}`);
+    }
+
     const ruleSets = config.ruleSets.map(
       ruleSetConfig => this.parseRuleSet(ruleSetConfig)
     );
+
+    const duplicateRuleSetIds = this.detectDuplicates(ruleSets);
+    if (duplicateRuleSetIds) {
+      throw new Error(`Duplicate rule set ids detected: ${duplicateRuleSetIds.join(', ')}`);
+    }
 
     return {
       version: config.version,
       rules,
       ruleSets,
     };
+  }
+
+  private detectDuplicates(inputs: (string | { id: string })[]): string[] {
+    const inputStrings = inputs.map(
+      input => typeof input === 'string' ? input : input.id
+    );
+
+    return Array.from(
+      new Set(
+        inputStrings.filter(
+          input => inputStrings.filter(i => i === input).length > 1
+        )
+      )
+    );
   }
 
   export(version: number, rules: Rule[], ruleSets: RuleSet[]): TEngineConfig {
@@ -48,6 +72,11 @@ class ConfigParser {
 
   private parseRule(ruleConfig: TRuleConfig, availableNodes: BaseNode<any, any, any>[]): Rule {
     const { id, name, stages, } = ruleConfig;
+
+    const duplicateStageIds = this.detectDuplicates(stages);
+    if (duplicateStageIds) {
+      throw new Error(`Duplicate rule stage ids detected in rule ${id}: ${duplicateStageIds.join(', ')}`);
+    }
 
     return new Rule({
       id,
