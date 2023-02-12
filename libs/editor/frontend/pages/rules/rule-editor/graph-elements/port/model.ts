@@ -49,11 +49,11 @@ export default class EditorPortModel extends PortModel<EditorPortModelGenerics> 
     return !!Object.values(this.links).length;
   }
 
-  override canLinkToPort(targetPort: EditorPortModel): boolean {
+  override canLinkToPort(targetPort: EditorPortModel, ignoreExistingLink = false): boolean {
     const { config: sourceConfig, } = this.getOptions();
     const { config: targetConfig, portType: targetPortType, } = targetPort.getOptions();
 
-    if (targetPort.hasLink) {
+    if (!ignoreExistingLink && targetPort.hasLink) {
       return false;
     }
 

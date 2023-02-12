@@ -54,20 +54,51 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
   }
 
   private generatePortsFromNode(node: Types.Serializer.TSerializedNode) {
-    this.removePorts(...Object.values(this.ports));
-
     if (node.type !== Types.Node.ENodeType.ENTRY) {
-      this.addPorts(
-        ...node.inputs.flatMap(config => this.generatePortsFromNodeInput(config))
+      const oldInputPorts = this.getInputPorts();
+      const newInputPorts = node.inputs.flatMap(config => this.generatePortsFromNodeInput(config));
+
+      oldInputPorts.forEach(
+        oldPort => {
+          const newPort = newInputPorts.find(newPort => newPort.getID() === oldPort.getID());
+          if (!newPort) { return; }
+
+          Object
+            .values(oldPort.getLinks())
+            .forEach(link => {
+              if (link.getSourcePort().canLinkToPort(newPort)) {
+                link.setTargetPort(newPort);
+              }
+            });
+        }
       );
+
+      this.removePorts(...oldInputPorts);
+      this.addPorts(...newInputPorts);
     }
 
     if (node.type !== Types.Node.ENodeType.EXIT) {
-      this.addPorts(
-        ...node.outputs.flatMap(config => this.generatePortsFromNodeOutput(config))
-      );
-    }
+      const oldOutputPorts = this.getOutputPorts();
+      const newOutputPorts = node.outputs.flatMap(config => this.generatePortsFromNodeOutput(config));
 
+      oldOutputPorts.forEach(
+        oldPort => {
+          const newPort = newOutputPorts.find(newPort => newPort.getID() === oldPort.getID());
+          if (!newPort) { return; }
+
+          Object
+            .values(oldPort.getLinks())
+            .forEach(link => {
+              if (newPort.canLinkToPort(link.getTargetPort() as EditorPortModel, true)) {
+                link.setSourcePort(newPort);
+              }
+            });
+        }
+      );
+
+      this.removePorts(...oldOutputPorts);
+      this.addPorts(...newOutputPorts);
+    }
   }
 
   private generatePortsFromNodeInput(config: Types.Serializer.TSerializedNodeInputOutput, level = 0): EditorPortModel[] {
