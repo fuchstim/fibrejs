@@ -19,11 +19,7 @@ import { TRuleStageWithNode } from './_types';
 import client from '../../../common/client';
 import { AxiosError } from 'axios';
 
-type Props = {
-  ruleScaffold?: Types.Config.TRuleConfig
-};
-
-export default function RuleEditor(props: Props) {
+export default function RuleEditor() {
   const [ loading, setLoading, ] = useState(false);
   const [ rule, setRule, ] = useState<Types.Config.TRuleConfig>();
   const [ showAddNodeDrawer, setShowAddNodeDrawer, ] = useState(false);
@@ -33,11 +29,11 @@ export default function RuleEditor(props: Props) {
   const navigate = useNavigate();
 
   useEffect(
-    () => { init(); },
+    () => { getRule(); },
     []
   );
 
-  const init = async () => {
+  const getRule = async () => {
     if (!ruleId) {
       return navigate('/rules');
     }
@@ -45,7 +41,7 @@ export default function RuleEditor(props: Props) {
     setLoading(true);
 
     try {
-      const rule = props.ruleScaffold || await client.getRule(ruleId);
+      const rule = await client.getRule(ruleId);
       setRule(rule);
 
       await fetchStages(rule)

@@ -1,5 +1,5 @@
 import type { BaseNode } from '../common/base-node';
-import type { ERuleSeverity } from '../constants/rule-severities';
+import type { ERuleSeverity } from './rule-set';
 import type Rule from '../executors/rule';
 import type RuleSet from '../executors/rule-set';
 import type { TNodeOptions } from './node';

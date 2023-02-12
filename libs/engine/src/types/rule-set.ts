@@ -1,6 +1,14 @@
-import type { ERuleSeverity } from '../constants/rule-severities';
 import type { TExecutorContext, TExecutorResult } from './common';
 import type { TRuleOutput } from './rule';
+
+export enum ERuleSeverity {
+  INFO = 'INFO',
+  LOW = 'LOW',
+  MEDIUM = 'MEDIUM',
+  HIGH = 'HIGH',
+  VERY_HIGH = 'VERY_HIGH',
+  CRITICAL = 'CRITICAL',
+}
 
 export type TRuleSetEntry = {
   ruleId: string,

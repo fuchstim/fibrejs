@@ -70,6 +70,7 @@ export default function RuleSetList() {
             <Button
               icon={<EditOutlined />}
               onClick={() => navigate(record.id)}
+              disabled={loading}
             >
               Edit
             </Button>
@@ -87,6 +88,7 @@ export default function RuleSetList() {
               <Button
                 danger
                 icon={<DeleteOutlined />}
+                disabled={loading}
               >
                 Remove
               </Button>
@@ -113,7 +115,7 @@ export default function RuleSetList() {
                 style={{ margin: '0', marginBottom: '16px', }}
                 rules={[ { required: true, message: 'Please enter a rule set name', }, ]}
               >
-                <Input placeholder='Rule Set Name'/>
+                <Input disabled={loading} placeholder='Rule Set Name'/>
               </Form.Item>
 
               <Form.Item style={{ margin: 0, }}>
@@ -136,6 +138,7 @@ export default function RuleSetList() {
           <Button
             type="primary"
             icon={<PlusOutlined />}
+            disabled={loading}
           >
             Create
           </Button>

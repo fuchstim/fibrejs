@@ -1,8 +1,7 @@
 import Executor from '../common/executor';
-import { ERuleSeverity } from '../constants/rule-severities';
 import { TExecutorValidationResult } from '../types/common';
 import { TRuleExecutorContext } from '../types/rule';
-import { TRuleSetExecutorContext } from '../types/rule-set';
+import { TRuleSetExecutorContext, ERuleSeverity } from '../types/rule-set';
 import { TRuleSetEntry, TRuleSetOptions, TRuleSetInputs, TRuleSetExecutorResult } from '../types/rule-set';
 import Rule from './rule';
 
