@@ -2,3 +2,4 @@
   - Show values on rule stages / ports
 - Authentication handler
 - Fix winston import bug
+- Support registering editor middleware on subpath
