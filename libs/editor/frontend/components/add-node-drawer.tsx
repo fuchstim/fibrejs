@@ -7,12 +7,13 @@ import type { Types } from '@tripwire/engine';
 import { ColumnsType } from 'antd/es/table';
 
 type Props = {
+  ruleId?: string,
   open: boolean
   onSelected: (node: Types.Serializer.TSerializedNode) => void;
   onClose: () => void;
 };
 
-export default function AddNodeDrawer({ open, onSelected, onClose, }: Props) {
+export default function AddNodeDrawer({ ruleId, open, onSelected, onClose, }: Props) {
   const [ loading, setLoading, ] = useState(false);
   const [ nodes, setNodes, ] = useState<Types.Serializer.TSerializedNode[]>([]);
 
@@ -20,7 +21,7 @@ export default function AddNodeDrawer({ open, onSelected, onClose, }: Props) {
     () => {
       setLoading(true);
 
-      client.findNodes()
+      client.findNodes({ ruleId, })
         .then(nodes => setNodes(nodes))
         .catch(e => notification.error({ message: e.message, }))
         .finally(() => setLoading(false));

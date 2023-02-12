@@ -11,19 +11,19 @@ import { BaseNode } from './common/base-node';
 import eventBus from './common/event-bus';
 import EventEmitter from './common/event-emitter';
 import serializer from './common/serializer';
-import ExitNode from './nodes/exit';
 import CompareBooleansNode from './nodes/compare-booleans';
 import CompareNumbersNode from './nodes/compare-numbers';
 import CompareStringsNode from './nodes/compare-strings';
+import ExecuteRuleNode from './nodes/execute-rule';
+import ExitNode from './nodes/exit';
 import StaticValueNode from './nodes/static-value';
 import Rule from './executors/rule';
 import RuleSet from './executors/rule-set';
 import ConfigParser from './storage/config-parser';
 import { ConfigProvider } from './storage/config-provider';
 import { TRuleSetInputs } from './types/rule-set';
-import { TSerializedNode } from './types/serializer';
+import { TMultiSerializationContext, TSerializationContext, TSerializedNode } from './types/serializer';
 import { TEngineConfig } from './types/config';
-import { TNodeOptions } from './types/node';
 import { TEventTypes } from './types/events';
 import { TRuleSetExecutorContext } from './types/rule-set';
 
@@ -46,10 +46,11 @@ export default class Engine extends EventEmitter<TEventTypes> {
 
     this.nodes = [
       ...options.customNodes ?? [],
-      new ExitNode(),
       new CompareBooleansNode(),
       new CompareNumbersNode(),
       new CompareStringsNode(),
+      new ExecuteRuleNode(),
+      new ExitNode(),
       new StaticValueNode(),
     ];
 
@@ -78,6 +79,7 @@ export default class Engine extends EventEmitter<TEventTypes> {
       executionId: randomUUID(),
       logger: new Logger().ns(executionId),
       rules: this.rules,
+      ruleSets: this.ruleSets,
     };
 
     const result = await ruleSet.run(
@@ -110,25 +112,26 @@ export default class Engine extends EventEmitter<TEventTypes> {
     await this.configProvider.saveConfig(config);
   }
 
-  exportSerializedNode(nodeId: string, nodeOptions?: TNodeOptions): TSerializedNode {
-    const node = this.nodes.find(
-      node => node.id === nodeId
-    );
+  exportSerializedNode(nodeId: string, context?: TSerializationContext): TSerializedNode {
+    const node = this.nodes.find(node => node.id === nodeId);
     if (!node) { throw new Error(`Invalid Node ID: ${nodeId}`);}
 
-    const context = {
+    const nodeContext = {
       executionId: '',
       logger: new Logger().ns('serializer', nodeId),
       rules: this.rules,
-      nodeOptions: nodeOptions ?? node.getDefaultOptions(),
+      ruleSets: this.ruleSets,
+      rule: this.rules.find(rule => rule.id === context?.ruleId),
+      ruleSet: this.ruleSets.find(ruleSet => ruleSet.id === context?.ruleSetId),
+      nodeOptions: context?.nodeOptions ?? node.getDefaultOptions(),
     };
 
-    return serializer.serializeNode(node, context);
+    return serializer.serializeNode(node, nodeContext);
   }
 
-  exportSerializedNodes(nodeOptions?: Record<string, TNodeOptions>): TSerializedNode[] {
+  exportSerializedNodes(context?: TMultiSerializationContext): TSerializedNode[] {
     return this.nodes.map(
-      node => this.exportSerializedNode(node.id, nodeOptions?.[node.id])
+      node => this.exportSerializedNode(node.id, { ...context, nodeOptions: context?.nodeOptions?.[node.id], })
     );
   }
 }

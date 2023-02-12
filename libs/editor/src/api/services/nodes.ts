@@ -11,28 +11,28 @@ export default class NodesService implements IService {
   }
 
   get(nodeId: string, context: TContext) {
-    const nodeOptions = this.parseNodeOptions(context.req.query);
+    const serializationContext = this.parseContext<Types.Serializer.TSerializationContext>(context.req.query);
 
-    const node = this.engine.exportSerializedNode(nodeId, nodeOptions as Types.Node.TNodeOptions | undefined);
+    const node = this.engine.exportSerializedNode(nodeId, serializationContext);
 
     return node;
   }
 
   find(context: TContext) {
-    const nodeOptions = this.parseNodeOptions(context.req.query);
+    const serializationContext = this.parseContext<Types.Serializer.TMultiSerializationContext>(context.req.query);
 
-    const nodes = this.engine.exportSerializedNodes(nodeOptions);
+    const nodes = this.engine.exportSerializedNodes(serializationContext);
 
     return nodes;
   }
 
-  private parseNodeOptions(query: { nodeOptions?: string }): Record<string, Types.Node.TNodeOptions> | undefined {
-    if (!query?.nodeOptions) { return; }
+  private parseContext<TContext>(query: { context?: string }) {
+    if (!query.context) { return; }
 
-    const decoded = decodeURIComponent(query.nodeOptions);
+    const decoded = decodeURIComponent(query.context);
 
     try {
-      return JSON.parse(decoded);
+      return JSON.parse(decoded) as TContext;
     } catch {
       return;
     }

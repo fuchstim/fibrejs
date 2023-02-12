@@ -22,11 +22,11 @@ const wrappedGet = async <T>(url: string, data: object = {}, config?: AxiosReque
 export default {
   client,
 
-  getNode: (nodeId: string, nodeOptions?: Types.Node.TNodeOptions) => (
-    wrappedGet<Types.Serializer.TSerializedNode>(`nodes/${nodeId}`, { nodeOptions, })
+  getNode: (nodeId: string, context?: Types.Serializer.TSerializationContext) => (
+    wrappedGet<Types.Serializer.TSerializedNode>(`nodes/${nodeId}`, { context, })
   ),
-  findNodes: (nodeOptions?: Record<string, Types.Node.TNodeOptions>) => (
-    wrappedGet<Types.Serializer.TSerializedNode[]>('nodes', { nodeOptions, })
+  findNodes: (context?: Types.Serializer.TMultiSerializationContext) => (
+    wrappedGet<Types.Serializer.TSerializedNode[]>('nodes', { context, })
   ),
 
   getRule: (ruleId: string) => (

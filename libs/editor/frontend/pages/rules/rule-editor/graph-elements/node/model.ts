@@ -184,9 +184,12 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
   }
 
   async handleOptionsUpdated({ updatedOptions, }: OptionsUpdatedEvent) {
-    if (!updatedOptions) { return;}
+    if (!updatedOptions) { return; }
 
-    const updatedNode = await client.getNode(this.ruleStage.nodeId, updatedOptions);
+    const updatedNode = await client.getNode(
+      this.ruleStage.nodeId,
+      { nodeOptions: updatedOptions, ruleId: this.ruleStage.ruleId, }
+    );
 
     this.ruleStage.nodeOptions = updatedOptions;
     this.ruleStage.node = updatedNode;

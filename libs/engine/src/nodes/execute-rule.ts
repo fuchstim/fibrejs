@@ -25,9 +25,11 @@ export default class ExecuteRule extends BaseNode<TNodeInput, TNodeOutput, TNode
   }
 
   private getOptions(context: TNodeExecutorContext<TNodeOptions>): TNodeMetadataOption[] {
-    const dropDownOptions = context.rules.map(
-      ({ id, name, }) => ({ id, name, })
-    );
+    const dropDownOptions = context.rules
+      .filter(rule => rule.id !== context.rule?.id)
+      .map(
+        ({ id, name, }) => ({ id, name, })
+      );
 
     return [
       {

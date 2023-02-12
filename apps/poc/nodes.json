@@ -200,41 +200,6 @@
     ]
   },
   {
-    "id": "exit",
-    "name": "Rule Result",
-    "type": "EXIT",
-    "defaultOptions": {},
-    "options": [],
-    "inputs": [
-      {
-        "id": "result",
-        "name": "Rule Result",
-        "type": {
-          "id": "BOOLEAN",
-          "name": "Boolean",
-          "isComplex": false,
-          "fields": {
-            "value": "BOOLEAN"
-          }
-        }
-      }
-    ],
-    "outputs": [
-      {
-        "id": "result",
-        "name": "Rule Result",
-        "type": {
-          "id": "BOOLEAN",
-          "name": "Boolean",
-          "isComplex": false,
-          "fields": {
-            "value": "BOOLEAN"
-          }
-        }
-      }
-    ]
-  },
-  {
     "id": "compareBooleans",
     "name": "Compare Booleans",
     "defaultOptions": {
@@ -435,6 +400,63 @@
       {
         "id": "result",
         "name": "Result",
+        "type": {
+          "id": "BOOLEAN",
+          "name": "Boolean",
+          "isComplex": false,
+          "fields": {
+            "value": "BOOLEAN"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "executeRule",
+    "name": "Execute Rule",
+    "defaultOptions": {
+      "ruleId": ""
+    },
+    "options": [
+      {
+        "id": "ruleId",
+        "name": "Rule",
+        "type": "DROP_DOWN",
+        "dropDownOptions": [
+          {
+            "id": "rule-1",
+            "name": "Rule 1"
+          }
+        ]
+      }
+    ],
+    "inputs": [],
+    "outputs": []
+  },
+  {
+    "id": "exit",
+    "name": "Rule Result",
+    "type": "EXIT",
+    "defaultOptions": {},
+    "options": [],
+    "inputs": [
+      {
+        "id": "result",
+        "name": "Rule Result",
+        "type": {
+          "id": "BOOLEAN",
+          "name": "Boolean",
+          "isComplex": false,
+          "fields": {
+            "value": "BOOLEAN"
+          }
+        }
+      }
+    ],
+    "outputs": [
+      {
+        "id": "result",
+        "name": "Rule Result",
         "type": {
           "id": "BOOLEAN",
           "name": "Boolean",

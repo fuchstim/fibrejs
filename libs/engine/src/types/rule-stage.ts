@@ -1,4 +1,5 @@
 import type { BaseNode } from '../common/base-node';
+import type Rule from '../executors/rule';
 import type { TExecutorResult } from './common';
 import type { TNodeOptions } from './node';
 import type { TRuleExecutorContext } from './rule';
@@ -16,7 +17,7 @@ export type TRuleStageOptions = {
   nodeOptions: TNodeOptions,
 };
 
-export type TRuleStageExecutorContext = TRuleExecutorContext;
+export type TRuleStageExecutorContext = TRuleExecutorContext & { rule?: Rule };
 
 export type TRuleStageResults = Record<string, TExecutorResult<any>>;
 

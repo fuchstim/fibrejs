@@ -1,5 +1,5 @@
 import type { EPrimitive } from '../common/wrapped-types';
-import type { ENodeMetadataOptionType, ENodeType, TNodeMetadataDropDownOption, TNodeMetadataInputOptions } from './node';
+import type { ENodeMetadataOptionType, ENodeType, TNodeMetadataDropDownOption, TNodeMetadataInputOptions, TNodeOptions } from './node';
 
 interface ISerializedType {
   id: string,
@@ -52,3 +52,11 @@ export type TSerializedNode = {
   inputs: TSerializedNodeInputOutput[],
   outputs: TSerializedNodeInputOutput[],
 };
+
+export type TSerializationContext = {
+  nodeOptions?: TNodeOptions,
+  ruleId?: string,
+  ruleSetId?: string,
+};
+
+export type TMultiSerializationContext = Omit<TSerializationContext, 'nodeOptions'> & { nodeOptions?: Record<string, TNodeOptions> };

@@ -25,10 +25,10 @@ export async function fetchStages(rule: Types.Config.TRuleConfig): Promise<TRule
     {} as Record<string, Types.Node.TNodeOptions>
   );
 
-  const nodes = await client.findNodes(nodeOptions);
+  const nodes = await client.findNodes({ ruleId: rule.id, nodeOptions, });
 
   return rule.stages.map<TRuleStageWithNode>(
-    stage => ({ ...stage, node: nodes.find(node => node.id === stage.nodeId)!, })
+    stage => ({ ...stage, ruleId: rule.id, node: nodes.find(node => node.id === stage.nodeId)!, })
   );
 }
 

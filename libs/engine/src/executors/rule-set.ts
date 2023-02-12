@@ -1,5 +1,6 @@
 import Executor from '../common/executor';
 import { ERuleSeverity } from '../constants/rule-severities';
+import { TRuleExecutorContext } from '../types/rule';
 import { TRuleSetExecutorContext } from '../types/rule-set';
 import { TRuleSetEntry, TRuleSetOptions, TRuleSetInputs, TRuleSetExecutorResult } from '../types/rule-set';
 
@@ -26,8 +27,10 @@ export default class RuleSet extends Executor<TRuleSetInputs, TRuleSetExecutorRe
   }
 
   async execute(inputs: TRuleSetInputs, context: TRuleSetExecutorContext): Promise<TRuleSetExecutorResult> {
+    const ruleContext = { ...context, ruleSet: this, };
+
     const results = await Promise.all(
-      this.entries.map(entry => this.executeEntry(entry, inputs, context))
+      this.entries.map(entry => this.executeEntry(entry, inputs, ruleContext))
     );
 
     const highestSeverityResult = results
@@ -42,7 +45,7 @@ export default class RuleSet extends Executor<TRuleSetInputs, TRuleSetExecutorRe
     };
   }
 
-  private async executeEntry({ ruleId, severity, }: TRuleSetEntry, inputs: TRuleSetInputs, context: TRuleSetExecutorContext) {
+  private async executeEntry({ ruleId, severity, }: TRuleSetEntry, inputs: TRuleSetInputs, context: TRuleExecutorContext) {
     const rule = context.rules.find(rule => rule.id === ruleId);
     if (!rule) { throw new Error(`Failed to find rule for id ${ruleId}`); }
 

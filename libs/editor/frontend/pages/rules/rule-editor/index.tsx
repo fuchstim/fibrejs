@@ -74,6 +74,7 @@ export default function RuleEditor() {
     const ruleStage: TRuleStageWithNode = {
       id: `stage-${highestIdNumber + 1}`,
       nodeId: node.id,
+      ruleId,
       node,
       inputs: [],
       nodeOptions: {},
@@ -99,6 +100,7 @@ export default function RuleEditor() {
       <>
         <CanvasWidget className="editor-canvas" engine={engine} />
         <AddNodeDrawer
+          ruleId={ruleId}
           open={showAddNodeDrawer}
           onSelected={node => addNodeToGraph(node)}
           onClose={() => setShowAddNodeDrawer(false)}

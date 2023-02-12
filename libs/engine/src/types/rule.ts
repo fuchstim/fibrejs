@@ -1,3 +1,4 @@
+import type RuleSet from '../executors/rule-set';
 import type RuleStage from '../executors/rule-stage';
 import type { TRuleSetExecutorContext } from './rule-set';
 import type { TRuleStageResults } from './rule-stage';
@@ -11,7 +12,7 @@ export type TRuleOptions = {
 export type TRuleInputs = Record<string, any>;
 export type TStageOutputs = Record<string, any>;
 
-export type TRuleExecutorContext = TRuleSetExecutorContext;
+export type TRuleExecutorContext = TRuleSetExecutorContext & { ruleSet?: RuleSet };
 
 export type TRuleOutput = {
   triggered: boolean,

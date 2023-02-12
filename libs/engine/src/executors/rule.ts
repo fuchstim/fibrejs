@@ -41,8 +41,10 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutput, TRuleExecut
   async execute(inputs: TRuleInputs, context: TRuleExecutorContext): Promise<TRuleOutput> {
     const ruleStageResults: TRuleStageResults = {};
 
+    const ruleStageContext = { ...context, rule: this, };
+
     const entryStageInputs = this.entryStage.node
-      .getMetadata(this.entryStage.createNodeContext(context))
+      .getMetadata(this.entryStage.createNodeContext(ruleStageContext))
       .inputs
       .reduce(
         (acc, input) => ({
@@ -60,7 +62,7 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutput, TRuleExecut
 
       ruleStageResults[stage.id] = await stage.run(
         ruleStageInputs,
-        context
+        ruleStageContext
       );
     }
 
