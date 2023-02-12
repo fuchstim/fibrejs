@@ -105,6 +105,7 @@ export default function RuleSetEditor() {
       dataIndex: 'ruleId',
       key: 'ruleId',
       width: '150px',
+      render: (text, record) => <a target="_blank" href={`/rules/${record.ruleId}`} rel="noreferrer">{text}</a>,
     },
     {
       title: 'Rule Name',
