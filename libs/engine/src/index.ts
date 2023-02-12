@@ -22,8 +22,7 @@ import RuleSet from './executors/rule-set';
 import ConfigParser from './storage/config-parser';
 import { ConfigProvider } from './storage/config-provider';
 import { TRuleSetInputs } from './types/rule-set';
-import { TMultiSerializationContext, TSerializationContext, TSerializedNode } from './types/serializer';
-import { TEngineConfig } from './types/config';
+import { TMultiSerializationContext, TSerializationContext } from './types/serializer';
 import { TEventTypes } from './types/events';
 import { TRuleSetExecutorContext } from './types/rule-set';
 
@@ -34,7 +33,7 @@ export type TEngineOptions = {
 
 export default class Engine extends EventEmitter<TEventTypes> {
   private configProvider: ConfigProvider;
-  private activeConfigVersion = 0;
+  private activeConfigRevision = 0;
   private nodes: BaseNode<any, any, any>[];
   private rules: Rule[] = [];
   private ruleSets: RuleSet[] = [];
@@ -58,14 +57,7 @@ export default class Engine extends EventEmitter<TEventTypes> {
   }
 
   async init() {
-    const configVersion = await this.configProvider.getLatestConfigVersion();
-
-    const config = await this.configProvider.loadConfig(configVersion);
-    const { version, rules, ruleSets, } = ConfigParser.parse(config, this.nodes);
-
-    this.activeConfigVersion = version;
-    this.rules = rules;
-    this.ruleSets = ruleSets;
+    await this.loadConfig();
   }
 
   async executeRuleSet(ruleSetId: string, inputs: TRuleSetInputs) {
@@ -90,9 +82,9 @@ export default class Engine extends EventEmitter<TEventTypes> {
     return result;
   }
 
-  getActiveConfig(): TEngineConfig {
+  getActiveConfig() {
     const activeConfig = ConfigParser.export(
-      this.activeConfigVersion,
+      this.activeConfigRevision,
       this.rules,
       this.ruleSets
     );
@@ -100,19 +92,30 @@ export default class Engine extends EventEmitter<TEventTypes> {
     return activeConfig;
   }
 
-  async saveActiveConfig(): Promise<void> {
-    const configVersion = await this.configProvider.getLatestConfigVersion();
+  async loadConfig() {
+    const latestRevision = await this.configProvider.getLatestRevision();
+
+    const config = await this.configProvider.load(latestRevision);
+    const { revision, rules, ruleSets, } = ConfigParser.parse(config, this.nodes);
+
+    this.activeConfigRevision = revision;
+    this.rules = rules;
+    this.ruleSets = ruleSets;
+  }
+
+  async saveActiveConfig() {
+    const revision = await this.configProvider.getLatestRevision();
 
     const config = ConfigParser.export(
-      configVersion + 1,
+      revision + 1,
       this.rules,
       this.ruleSets
     );
 
-    await this.configProvider.saveConfig(config);
+    await this.configProvider.save(config);
   }
 
-  exportSerializedNode(nodeId: string, context?: TSerializationContext): TSerializedNode {
+  exportSerializedNode(nodeId: string, context?: TSerializationContext) {
     const node = this.nodes.find(node => node.id === nodeId);
     if (!node) { throw new Error(`Invalid Node ID: ${nodeId}`);}
 
@@ -129,7 +132,7 @@ export default class Engine extends EventEmitter<TEventTypes> {
     return serializer.serializeNode(node, nodeContext);
   }
 
-  exportSerializedNodes(context?: TMultiSerializationContext): TSerializedNode[] {
+  exportSerializedNodes(context?: TMultiSerializationContext) {
     return this.nodes.map(
       node => this.exportSerializedNode(node.id, { ...context, nodeOptions: context?.nodeOptions?.[node.id], })
     );

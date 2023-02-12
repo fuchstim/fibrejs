@@ -4,9 +4,11 @@ import Rule from '../executors/rule';
 import RuleSet from '../executors/rule-set';
 import RuleStage from '../executors/rule-stage';
 
-import { TEngineConfig, TRuleConfig, TRuleSetConfig, TRuleStageConfig, TParsedEngineConfig } from '../types/config';
+import { TEngineConfig, TRuleConfig, TRuleSetConfig, TRuleStageConfig, TParsedEngineConfig, EConfigVersion, IConfigParser } from '../types/config';
 
-class ConfigParser {
+const EXPORT_VERSION = EConfigVersion.V_1;
+
+class ConfigParser implements IConfigParser {
   parse(config: TEngineConfig, availableNodes: BaseNode<any, any, any>[]): TParsedEngineConfig {
     const rules = config.rules.map(
       rule => this.parseRule(rule, availableNodes)
@@ -41,27 +43,13 @@ class ConfigParser {
     }
 
     return {
-      version: config.version,
+      revision: config.revision,
       rules,
       ruleSets,
     };
   }
 
-  private detectDuplicates(inputs: (string | { id: string })[]): string[] {
-    const inputStrings = inputs.map(
-      input => typeof input === 'string' ? input : input.id
-    );
-
-    return Array.from(
-      new Set(
-        inputStrings.filter(
-          input => inputStrings.filter(i => i === input).length > 1
-        )
-      )
-    );
-  }
-
-  export(version: number, rules: Rule[], ruleSets: RuleSet[]): TEngineConfig {
+  export(revision: number, rules: Rule[], ruleSets: RuleSet[]): TEngineConfig {
     const ruleConfigs = rules.map(
       rule => this.exportRule(rule)
     );
@@ -71,7 +59,8 @@ class ConfigParser {
     );
 
     return {
-      version,
+      version: EXPORT_VERSION,
+      revision,
       rules: ruleConfigs,
       ruleSets: ruleSetConfigs,
     };
@@ -151,6 +140,20 @@ class ConfigParser {
       name,
       entries,
     };
+  }
+
+  private detectDuplicates(inputs: (string | { id: string })[]): string[] {
+    const inputStrings = inputs.map(
+      input => typeof input === 'string' ? input : input.id
+    );
+
+    return Array.from(
+      new Set(
+        inputStrings.filter(
+          input => inputStrings.filter(i => i === input).length > 1
+        )
+      )
+    );
   }
 }
 
