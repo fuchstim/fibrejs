@@ -158,4 +158,15 @@ export default class Engine extends EventEmitter<TEventTypes> {
       node => this.exportSerializedNode(node.id, { ...context, nodeOptions: context?.nodeOptions?.[node.id], })
     );
   }
+
+  generateId(prefix: 'rule' | 'rule-set'): string {
+    const existingEntities = prefix === 'rule' ? this.rules : this.ruleSets;
+
+    const highestExistingId = Math.max(
+      0,
+      ...existingEntities.map(e => Number(e.id.replace(`${prefix}-`, '')))
+    );
+
+    return `${prefix}-${highestExistingId + 1}`;
+  }
 }

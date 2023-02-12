@@ -24,20 +24,22 @@ export default class RulesService implements IService<Types.Config.TRuleConfig> 
     return config.rules;
   }
 
-  async create(rule: Types.Config.TRuleConfig) {
+  async create(rule: Omit<Types.Config.TRuleConfig, 'id'>) {
     const config = this.engine.getActiveConfig();
+
+    const id = this.engine.generateId('rule');
 
     await this.engine.replaceActiveConfig({
       version: config.version,
       revision: config.revision + 1,
       rules: [
         ...config.rules,
-        rule,
+        { id, ...rule, },
       ],
       ruleSets: config.ruleSets,
     });
 
-    return rule;
+    return { id, ...rule, };
   }
 
   async patch(ruleId: string, rule: Types.Config.TRuleConfig) {

@@ -16,7 +16,7 @@ export type TContext = {
 export interface IService<T> {
   [ERequestMethod.FIND]?: (context: TContext) => Promise<T[] | void> | T[] | void,
   [ERequestMethod.GET]?: (id: string, context: TContext) => Promise<T | void> | T | void,
-  [ERequestMethod.CREATE]?: (data: T, context: TContext) => Promise<T | void> | T | void,
+  [ERequestMethod.CREATE]?: (data: Omit<T, 'id'>, context: TContext) => Promise<T | void> | T | void,
   [ERequestMethod.PATCH]?: (id: string, data: T, context: TContext) => Promise<T | void> | T | void,
   [ERequestMethod.DELETE]?: (id: string, context: TContext) => Promise<T | void> | T | void,
 }

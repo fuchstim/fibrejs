@@ -26,17 +26,9 @@ export default function RuleList() {
   };
 
   const createRule = async ({ name, }: { name: string }) => {
-    // TODO: Improve ID generation
-    const highestIdNumber = Math.max(
-      ...rules
-        .map(
-          rule => Number(rule.id.split('rule-')?.[1] ?? '0')
-        )
-    );
-
     setLoading(true);
 
-    await client.createRule({ id: `rule-${highestIdNumber + 1}`, name, stages: [], })
+    await client.createRule({ name, stages: [], })
       .then(() => getRules())
       .catch(e => notification.error({ message: e.message, }))
       .finally(() => {

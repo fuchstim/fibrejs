@@ -24,8 +24,10 @@ export default class RuleSetsService implements IService<Types.Config.TRuleSetCo
     return config.ruleSets;
   }
 
-  async create(ruleSet: Types.Config.TRuleSetConfig) {
+  async create(ruleSet: Omit<Types.Config.TRuleSetConfig, 'id'>) {
     const config = this.engine.getActiveConfig();
+
+    const id = this.engine.generateId('rule-set');
 
     await this.engine.replaceActiveConfig({
       version: config.version,
@@ -33,11 +35,11 @@ export default class RuleSetsService implements IService<Types.Config.TRuleSetCo
       rules: config.rules,
       ruleSets: [
         ...config.ruleSets,
-        ruleSet,
+        { id, ...ruleSet, },
       ],
     });
 
-    return ruleSet;
+    return { id, ...ruleSet, };
   }
 
   async patch(ruleSetId: string, ruleSet: Types.Config.TRuleSetConfig) {
