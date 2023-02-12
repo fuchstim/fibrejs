@@ -10,7 +10,7 @@ import {
 import './_style.css';
 
 import { createDiagramEngine, distributeNodes, exportRuleStages, fetchStages } from './_common';
-import { PicCenterOutlined, PlusOutlined, SaveOutlined } from '@ant-design/icons';
+import { CaretRightOutlined, PicCenterOutlined, PlusOutlined, SaveOutlined } from '@ant-design/icons';
 import AddNodeDrawer from '../../../components/add-node-drawer';
 import Page from '../../../components/page';
 import EditorNodeModel from './graph-elements/node/model';
@@ -143,17 +143,25 @@ export default function RuleEditor(props: Props) {
         <Row gutter={16} wrap={false} justify="end" align="middle">
           <Col>
             <Button
-              icon={<PicCenterOutlined />}
+              icon={<PlusOutlined/>}
               disabled={loading}
-              onClick={() => engine && distributeNodes(engine)}
+              onClick={() => setShowAddNodeDrawer(true)}
             />
           </Col>
 
           <Col>
             <Button
-              icon={<PlusOutlined/>}
+              icon={<CaretRightOutlined/>}
               disabled={loading}
-              onClick={() => setShowAddNodeDrawer(true)}
+              // onClick={() => setShowExecutionDrawer(true)}
+            />
+          </Col>
+
+          <Col>
+            <Button
+              icon={<PicCenterOutlined />}
+              disabled={loading}
+              onClick={() => engine && distributeNodes(engine)}
             />
           </Col>
 

@@ -12,8 +12,8 @@ export default function RuleSets() {
       />
 
       {/* <Route
-        path="/:rulesetId"
-        element={<RuleEditor  />}
+        path="/:ruleSetId"
+        element={<RuleSetEditor  />}
       /> */}
     </Routes>
   );
