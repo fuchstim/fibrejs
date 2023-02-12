@@ -21,21 +21,21 @@ export default abstract class Executor<TInput, TOutput, TContext extends TExecut
 
     const inputValidationResult = this.validateInput(input, context);
     if (!inputValidationResult.valid) {
-      throw new Error(`Failed to execute ${this.executorType} ${this.executorId} with invalid input`);
+      throw new Error(`Failed to execute ${this.executorType} ${this.executorId} with invalid input (${inputValidationResult.reason})`);
     }
 
     const startTime = process.hrtime.bigint();
 
     const output = await Promise.resolve(this.execute(input, context))
       .catch(error => {
-        context.logger.error(`Failed to execute ${this.executorType}: ${error.message}`, error.stack);
+        context.logger.error(`Failed to execute ${this.executorType} (${error.message})`, error.stack);
 
-        throw new Error(`Failed to execute ${this.executorType} ${this.executorId}: ${error.message}`);
+        throw new Error(`Failed to execute ${this.executorType} ${this.executorId} (${error.message})`);
       });
 
     const outputValidationResult = this.validateOutput(output, context);
     if (!outputValidationResult.valid) {
-      throw new Error(`${this.executorType} ${this.executorId} produced invalid output`);
+      throw new Error(`${this.executorType} ${this.executorId} produced invalid output (${outputValidationResult.reason})`);
     }
 
     const endTime = process.hrtime.bigint();

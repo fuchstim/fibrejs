@@ -44,8 +44,7 @@ class ConfigParser {
       .map(ruleSet => ({ ruleSet, result: ruleSet.validateContext(validationContext), }))
       .filter(({ result, }) => !result.valid);
     if (invalidRuleSets.length) {
-      const formatReason = (reason: string | null) => reason?.replaceAll('\t', '\t\t');
-      const invalidReasons = invalidRuleSets.map(rs => `\n\t${rs.ruleSet.id}: ${formatReason(rs.result.reason)}`).join('');
+      const invalidReasons = invalidRuleSets.map(rs => `${rs.ruleSet.id} (${rs.result.reason})`).join(', ');
       throw new Error(`One or more rule sets is not valid: ${invalidReasons}`);
     }
 

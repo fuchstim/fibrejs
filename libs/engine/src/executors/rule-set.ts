@@ -58,10 +58,9 @@ export default class RuleSet extends Executor<TRuleSetInputs, TRuleSetExecutorRe
       .filter(r => r.result.valid === false);
 
     if (invalidEntries.length) {
-      const formatReason = (reason: string | null) => reason?.replaceAll('\t', '\t\t');
       return {
         valid: false,
-        reason: `Invalid entries: ${invalidEntries.map(e => `\n\t${e.ruleId}: ${formatReason(e.result.reason)}`).join('')}`,
+        reason: `Invalid entries: ${invalidEntries.map(e => `${e.ruleId} (${e.result.reason})`).join(', ')}`,
         actual: context,
       };
     }

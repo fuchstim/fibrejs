@@ -81,10 +81,9 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutput, TRuleExecut
       .filter(r => r.result.valid === false);
 
     if (invalidStages.length) {
-      const formatReason = (reason: string | null) => reason?.replaceAll('\t', '\t\t');
       return {
         valid: false,
-        reason: `Invalid stages: ${invalidStages.map(e => `\n\t${e.stage.id}: ${formatReason(e.result.reason)}`).join('')}`,
+        reason: `Invalid stages: ${invalidStages.map(e => `${e.stage.id} (${e.result.reason})`).join(', ')}`,
         actual: context,
       };
     }
