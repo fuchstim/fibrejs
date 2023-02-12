@@ -7,22 +7,14 @@ import RuleStage from '../executors/rule-stage';
 import { TEngineConfig, TRuleConfig, TRuleSetConfig, TRuleStageConfig, TParsedEngineConfig } from '../types/config';
 
 class ConfigParser {
-  validate(config: TEngineConfig): boolean {
-    return true; // TODO: Actually validate config. Detect e.g. invalid options, invalid nodeIds etc
-  }
-
   parse(config: TEngineConfig, availableNodes: BaseNode<any, any, any>[]): TParsedEngineConfig {
-    if (!this.validate(config)) {
-      throw new Error('Failed to parse invalid config');
-    }
-
     const rules = config.rules.map(
       rule => this.parseRule(rule, availableNodes)
     );
 
     const duplicateRuleIds = this.detectDuplicates(rules);
     if (duplicateRuleIds.length) {
-      throw new Error(`Duplicate rule ids detected: ${duplicateRuleIds.join(', ')}`);
+      throw new Error(`Duplicate rule ids: ${duplicateRuleIds.join(', ')}`);
     }
 
     const ruleSets = config.ruleSets.map(
@@ -31,7 +23,7 @@ class ConfigParser {
 
     const duplicateRuleSetIds = this.detectDuplicates(ruleSets);
     if (duplicateRuleSetIds.length) {
-      throw new Error(`Duplicate rule set ids detected: ${duplicateRuleSetIds.join(', ')}`);
+      throw new Error(`Duplicate rule set ids: ${duplicateRuleSetIds.join(', ')}`);
     }
 
     const validationContext = {
