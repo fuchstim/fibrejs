@@ -17,6 +17,7 @@ import EditorNodeModel from './graph-elements/node/model';
 import type { Types } from '@tripwire/engine';
 import { TRuleStageWithNode } from './_types';
 import client from '../../../common/client';
+import { AxiosError } from 'axios';
 
 type Props = {
   ruleScaffold?: Types.Config.TRuleConfig
@@ -51,8 +52,12 @@ export default function RuleEditor(props: Props) {
         .then(stages => createDiagramEngine(stages))
         .then(engine => setEngine(engine));
     } catch (error) {
-      const { message, } = error as Error;
+      const { message, response, } = error as AxiosError;
       notification.error({ message, });
+
+      if (response?.status === 404) {
+        navigate('/rules');
+      }
     } finally {
       setLoading(false);
     }
