@@ -1,4 +1,3 @@
-- CRUD RuleSets
 - Execute rule / rule-set from editor
   - Show values on rule stages / ports
 - Authentication handler
