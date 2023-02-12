@@ -105,7 +105,7 @@ export default function RuleSetEditor() {
       dataIndex: 'ruleId',
       key: 'ruleId',
       width: '150px',
-      render: (text, record) => <a target="_blank" href={`/rules/${record.ruleId}`} rel="noreferrer">{text}</a>,
+      render: (_, row) => <a target="_blank" href={`/rules/${row.ruleId}`} rel="noreferrer">{row.ruleId}</a>,
     },
     {
       title: 'Rule Name',
@@ -120,7 +120,7 @@ export default function RuleSetEditor() {
     {
       key: 'edit',
       width: '200px',
-      render: (_, record) => (
+      render: (_, row) => (
         <Row gutter={16} justify="end">
           <Col>
             <Popconfirm
@@ -128,7 +128,7 @@ export default function RuleSetEditor() {
               description={'Delete this entry?'}
               okText="Yes"
               cancelText="No"
-              onConfirm={() => deleteEntry(record.id)}
+              onConfirm={() => deleteEntry(row.id)}
               placement="bottomRight"
             >
               <Button
