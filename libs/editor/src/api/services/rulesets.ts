@@ -57,4 +57,24 @@ export default class RuleSetsService implements IService<Types.Config.TRuleSetCo
 
     return ruleSet;
   }
+
+  async delete(ruleSetId: string) {
+    const config = this.engine.getActiveConfig();
+
+    const ruleSet = config.ruleSets.find(ruleSet => ruleSet.id === ruleSetId);
+    if (!ruleSet) {
+      throw new Error(`Cannot delete unknown rule set ${ruleSetId}`);
+    }
+
+    const filteredRuleSets = config.ruleSets.filter(ruleSet => ruleSet.id !== ruleSetId);
+
+    await this.engine.replaceActiveConfig({
+      version: config.version,
+      revision: config.revision + 1,
+      rules: config.rules,
+      ruleSets: filteredRuleSets,
+    });
+
+    return ruleSet;
+  }
 }

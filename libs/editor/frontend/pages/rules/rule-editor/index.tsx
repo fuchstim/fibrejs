@@ -99,8 +99,16 @@ export default function RuleEditor(props: Props) {
     };
 
     const nodeModel = new EditorNodeModel({ ruleStage, });
+    nodeModel.setPosition(
+      50 + Math.random() * 300,
+      50 + Math.random() * 150
+    );
 
     engine.getModel().addNode(nodeModel);
+
+    setTimeout(() => {
+      engine.repaintCanvas();
+    }, 100);
   };
 
   const getContent = () => {

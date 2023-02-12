@@ -4,7 +4,8 @@ export enum ERequestMethod {
   FIND = 'find',
   GET = 'get',
   CREATE = 'create',
-  PATCH = 'patch'
+  PATCH = 'patch',
+  DELETE = 'delete'
 }
 
 export type TContext = {
@@ -17,4 +18,5 @@ export interface IService<T> {
   [ERequestMethod.GET]?: (id: string, context: TContext) => Promise<T | void> | T | void,
   [ERequestMethod.CREATE]?: (data: T, context: TContext) => Promise<T | void> | T | void,
   [ERequestMethod.PATCH]?: (id: string, data: T, context: TContext) => Promise<T | void> | T | void,
+  [ERequestMethod.DELETE]?: (id: string, context: TContext) => Promise<T | void> | T | void,
 }
