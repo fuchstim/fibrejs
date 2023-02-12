@@ -13,8 +13,8 @@ export function registerService(app: Application, path: string, service: IServic
 
     const result = await Promise.resolve(getResult());
     if (result == null) {
-      res.json({ error: 'Not Found', });
       res.status(404);
+      res.json({ message: 'Not Found', });
     } else {
       res.json(result);
     }
