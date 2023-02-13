@@ -59,14 +59,21 @@ export default function RuleEditor() {
     }
   };
 
-  const saveAndReturn = async () => {
+  const getCurrentConfig = () => {
     if (!rule || !engine) { return; }
 
-    const updatedConfig: Types.Config.TRuleConfig = {
+    const currentConfig: Types.Config.TRuleConfig = {
       id: rule.id,
       name: rule.name,
       stages: exportRuleStages(engine),
     };
+
+    return currentConfig;
+  };
+
+  const saveAndReturn = async () => {
+    const updatedConfig = getCurrentConfig();
+    if (!updatedConfig) { return; }
 
     setLoading(true);
 
@@ -83,11 +90,11 @@ export default function RuleEditor() {
     const highestIdNumber = Math.max(
       0,
       ...engine
-          .getModel()
-          .getNodes()
-          .map(
-            node => Number(node.getOptions().id?.split('stage-')?.[1] ?? '0')
-          )
+        .getModel()
+        .getNodes()
+        .map(
+          node => Number(node.getOptions().id?.split('stage-')?.[1] ?? '0')
+        )
     );
 
     const ruleStage: TRuleStageWithNode = {

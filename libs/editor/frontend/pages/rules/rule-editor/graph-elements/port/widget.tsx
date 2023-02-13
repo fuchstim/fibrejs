@@ -7,22 +7,25 @@ import {
 } from '@ant-design/icons';
 
 import EditorPortModel from './model';
-import { Col, Row, Tag, Tooltip } from 'antd';
+import { Row, Tag, Tooltip, Typography } from 'antd';
 
 interface EditorPortWidgetProps {
   port: EditorPortModel;
   engine: DiagramEngine;
   hideIfUnlinked: boolean;
+  previewValue?: unknown;
   onClick?: () => void;
 }
 
-export default function EditorPortWidget({ port, engine, hideIfUnlinked, onClick, }: EditorPortWidgetProps) {
+export default function EditorPortWidget({ port, engine, hideIfUnlinked, onClick, previewValue, }: EditorPortWidgetProps) {
   const Icon = port.hasLink ? RightCircleFilled : RightCircleTwoTone;
   const iconStyle = port.isInput ? { marginRight: 5, marginLeft: -5, } : { marginRight: -5, marginLeft: 5, };
 
   const {
     config: { name, type, },
   } = port.getOptions();
+
+  const formattedPreviewValue = type.isComplex ? `{${type.name}}` : String(previewValue);
 
   const portWidget = (
     <PortWidget engine={engine} port={port}>
@@ -35,14 +38,17 @@ export default function EditorPortWidget({ port, engine, hideIfUnlinked, onClick
       placement={port.isInput ? 'right' : 'left'}
       title={type.name}
     >
-      <Tag
-        closable={false}
-        style={{ margin: 0, }}
-        icon={type.isComplex ? <CaretDownOutlined /> : null}
-        onClick={() => onClick?.()}
-      >
-        {name}
-      </Tag>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: port.isInput ? 'flex-start' : 'flex-end', }}>
+        <Tag
+          closable={false}
+          style={{ margin: 0, }}
+          icon={type.isComplex ? <CaretDownOutlined /> : null}
+          onClick={() => onClick?.()}
+        >
+          {name}
+        </Tag>
+        {previewValue ? (<Typography.Text type="secondary">({ formattedPreviewValue })</Typography.Text>) : <></> }
+      </div>
     </Tooltip>
   );
 
@@ -54,13 +60,13 @@ export default function EditorPortWidget({ port, engine, hideIfUnlinked, onClick
       wrap={false}
       style={{ margin: '10px 0', display: hidden ? 'none' : undefined, }}
     >
-      <Col>
+      <div>
         {port.isInput ? portWidget : labelWidget}
-      </Col>
+      </div>
 
-      <Col>
+      <div>
         {port.isInput ? labelWidget : portWidget}
-      </Col>
+      </div>
     </Row>
   );
 }

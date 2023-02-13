@@ -23,7 +23,7 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
   });
 
   useEffect(
-    () => props.editorNode.registerListener({ nodeReloaded: forceUpdate, }).deregister,
+    () => props.editorNode.registerListener({ nodeUpdated: forceUpdate, }).deregister,
     []
   );
 
@@ -49,6 +49,7 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
         port={port}
         key={port.getID()}
         onClick={config.type.isComplex ? () => toggleFold() : undefined}
+        previewValue={props.editorNode.getOptions().previewValues?.[port.getID()]}
         hideIfUnlinked={level > portFoldLevel}
       />
     );

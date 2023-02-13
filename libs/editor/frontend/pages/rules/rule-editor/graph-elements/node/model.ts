@@ -19,12 +19,13 @@ interface OptionsUpdatedEvent extends BaseEvent {
 }
 
 interface EditorNodeModelListener {
-  nodeReloaded?: (event: BaseEvent) => void;
+  nodeUpdated?: (event: BaseEvent) => void;
   optionsUpdated?: (event: OptionsUpdatedEvent) => void;
 }
 
 interface EditorNodeModelOptions {
   ruleStage: TRuleStageWithNode;
+  previewValues?: Record<string, unknown>;
 }
 
 interface EditorNodeModelGenerics extends NodeModelGenerics {
@@ -36,11 +37,12 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
   protected override ports: Record<string, EditorPortModel> = {};
   protected ruleStage: TRuleStageWithNode;
 
-  constructor({ ruleStage, }: EditorNodeModelOptions) {
+  constructor({ ruleStage, previewValues, }: EditorNodeModelOptions) {
     super({
       id: ruleStage.id,
       type: 'editor-node',
       ruleStage,
+      previewValues,
     });
 
     this.ruleStage = ruleStage;
@@ -226,6 +228,12 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
 
     this.generatePortsFromNode(updatedNode);
 
-    this.fireEvent({}, 'nodeReloaded');
+    this.fireEvent({}, 'nodeUpdated');
+  }
+
+  setPreviewValues(previewValues?: Record<string, unknown>) {
+    this.options.previewValues = previewValues;
+
+    this.fireEvent({}, 'nodeUpdated');
   }
 }
