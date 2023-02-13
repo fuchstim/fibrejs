@@ -1,17 +1,16 @@
 import Executor from '../common/executor';
 import { TExecutorValidationResult } from '../types/common';
 import { TRuleExecutorContext } from '../types/rule';
-import { TRuleSetExecutorContext, ERuleSeverity } from '../types/rule-set';
+import { TRuleSetExecutorContext, ERulePriority } from '../types/rule-set';
 import { TRuleSetEntry, TRuleSetOptions, TRuleSetInputs, TRuleSetExecutorResult } from '../types/rule-set';
 import Rule from './rule';
 
-const ORDERED_RULE_SEVERITIES = [
-  ERuleSeverity.INFO,
-  ERuleSeverity.LOW,
-  ERuleSeverity.MEDIUM,
-  ERuleSeverity.HIGH,
-  ERuleSeverity.VERY_HIGH,
-  ERuleSeverity.CRITICAL,
+const ORDERED_RULE_PRIORITIES = [
+  ERulePriority.LOWEST,
+  ERulePriority.LOW,
+  ERulePriority.MEDIUM,
+  ERulePriority.HIGH,
+  ERulePriority.HIGHEST,
 ];
 
 export default class RuleSet extends Executor<TRuleSetInputs, TRuleSetExecutorResult, TRuleSetExecutorContext> {
@@ -34,14 +33,7 @@ export default class RuleSet extends Executor<TRuleSetInputs, TRuleSetExecutorRe
       this.entries.map(entry => this.executeEntry(entry, inputs, ruleContext))
     );
 
-    const highestSeverityResult = results
-      .filter(r => r.result.output.triggered)
-      .sort((a, b) => ORDERED_RULE_SEVERITIES.indexOf(a.severity) - ORDERED_RULE_SEVERITIES.indexOf(b.severity))
-      .pop();
-
     return {
-      severity: highestSeverityResult?.severity ?? null,
-      triggered: !!highestSeverityResult,
       ruleResults: results,
     };
   }
@@ -50,13 +42,13 @@ export default class RuleSet extends Executor<TRuleSetInputs, TRuleSetExecutorRe
     const invalidEntries = this.entries
       .map(
         entry => {
-          const validSeverity = ORDERED_RULE_SEVERITIES.includes(entry.severity);
-          if (!validSeverity) {
+          const validPriority = ORDERED_RULE_PRIORITIES.includes(entry.priority);
+          if (!validPriority) {
             return {
               entry,
               result: {
                 valid: false,
-                reason: 'Invalid severity',
+                reason: 'Invalid priority',
               },
             };
           }
@@ -72,7 +64,7 @@ export default class RuleSet extends Executor<TRuleSetInputs, TRuleSetExecutorRe
     if (invalidEntries.length) {
       return {
         valid: false,
-        reason: `Invalid entries: ${invalidEntries.map(e => `${e.entry.ruleId} - ${e.entry.severity} (${e.result.reason})`).join(', ')}`,
+        reason: `Invalid entries: ${invalidEntries.map(e => `${e.entry.ruleId} - ${e.entry.priority} (${e.result.reason})`).join(', ')}`,
         actual: context,
       };
     }
@@ -91,9 +83,9 @@ export default class RuleSet extends Executor<TRuleSetInputs, TRuleSetExecutorRe
     return rule;
   }
 
-  private async executeEntry({ ruleId, severity, }: TRuleSetEntry, inputs: TRuleSetInputs, context: TRuleExecutorContext) {
+  private async executeEntry({ ruleId, priority, }: TRuleSetEntry, inputs: TRuleSetInputs, context: TRuleExecutorContext) {
     const result = await this.getRuleFromContext(context, ruleId).run(inputs, context);
 
-    return { ruleId, severity, result, };
+    return { ruleId, priority, result, };
   }
 }

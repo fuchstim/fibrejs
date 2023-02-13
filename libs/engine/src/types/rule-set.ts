@@ -1,18 +1,17 @@
 import type { TExecutorContext, TExecutorResult } from './common';
 import type { TRuleOutput } from './rule';
 
-export enum ERuleSeverity {
-  INFO = 'INFO',
+export enum ERulePriority {
+  LOWEST = 'LOWEST',
   LOW = 'LOW',
   MEDIUM = 'MEDIUM',
   HIGH = 'HIGH',
-  VERY_HIGH = 'VERY_HIGH',
-  CRITICAL = 'CRITICAL',
+  HIGHEST = 'HIGHEST'
 }
 
 export type TRuleSetEntry = {
   ruleId: string,
-  severity: ERuleSeverity,
+  priority: ERulePriority,
 };
 
 export type TRuleSetOptions = {
@@ -28,11 +27,9 @@ export type TRuleSetInputs = {
 export type TRuleSetExecutorContext = TExecutorContext;
 
 export type TRuleSetExecutorResult = {
-  triggered: boolean,
-  severity: ERuleSeverity | null,
   ruleResults: {
     ruleId: string,
-    severity: ERuleSeverity,
+    priority: ERulePriority,
     result: TExecutorResult<TRuleOutput>
   }[]
 };

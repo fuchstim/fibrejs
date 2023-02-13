@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import * as Types from '@tripwire/engine/dist/types';
+import { Types } from '@tripwire/engine';
 import { useNavigate, useParams } from 'react-router-dom';
 import client from '../../common/client';
 import { Button, Col, Form, Popover, Popconfirm, Row, Table, notification, Select } from 'antd';
@@ -12,7 +12,7 @@ type Row = {
   id: number,
   ruleId: string,
   ruleName: string,
-  severity: Types.RuleSet.ERuleSeverity
+  priority: Types.RuleSet.ERulePriority
 };
 
 export default function RuleSetEditor() {
@@ -55,14 +55,14 @@ export default function RuleSetEditor() {
     }
   };
 
-  const createEntry = ({ ruleId, severity, }: { ruleId: string, severity: Types.RuleSet.ERuleSeverity }) => {
+  const createEntry = ({ ruleId, priority, }: { ruleId: string, priority: Types.RuleSet.ERulePriority }) => {
     if (!ruleSet) { return; }
 
     setRuleSet({
       ...ruleSet,
       entries: [
         ...ruleSet.entries,
-        { ruleId, severity, },
+        { ruleId, priority, },
       ],
     });
 
@@ -113,9 +113,9 @@ export default function RuleSetEditor() {
       key: 'ruleName',
     },
     {
-      title: 'Severity',
-      dataIndex: 'severity',
-      key: 'severity',
+      title: 'Priority',
+      dataIndex: 'priority',
+      key: 'priority',
     },
     {
       key: 'edit',
@@ -170,14 +170,14 @@ export default function RuleSetEditor() {
                   </Form.Item>
 
                   <Form.Item
-                    name="severity"
+                    name="priority"
                     style={{ margin: '0', marginBottom: '16px', }}
-                    rules={[ { required: true, message: 'Please select a severity', }, ]}
+                    rules={[ { required: true, message: 'Please select a priority', }, ]}
                   >
-                    <Select placeholder="Select a Severity">
+                    <Select placeholder="Select a Priority">
                       {
-                        Object.values(Types.RuleSet.ERuleSeverity)
-                          .map(severity => (<Select.Option key={severity} value={severity}>{severity}</Select.Option>))
+                        Object.values(Types.RuleSet.ERulePriority)
+                          .map(priority => (<Select.Option key={priority} value={priority}>{priority}</Select.Option>))
                       }
                     </Select>
                   </Form.Item>
@@ -253,7 +253,7 @@ export default function RuleSetEditor() {
                 id: index,
                 ruleId: entry.ruleId,
                 ruleName: rule.name,
-                severity: entry.severity,
+                priority: entry.priority,
               };
             })
           }

@@ -1,5 +1,5 @@
 import type { BaseNode } from '../common/base-node';
-import type { ERuleSeverity } from './rule-set';
+import type { ERulePriority } from './rule-set';
 import type Rule from '../executors/rule';
 import type RuleSet from '../executors/rule-set';
 import type { TNodeOptions } from './node';
@@ -29,7 +29,7 @@ export type TRuleConfig = {
 
 export type TRuleSetEntryConfig = {
   ruleId: string,
-  severity: ERuleSeverity,
+  priority: ERulePriority,
 };
 
 export type TRuleSetConfig = {
