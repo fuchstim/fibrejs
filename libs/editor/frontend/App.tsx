@@ -72,7 +72,7 @@ export default function App() {
     if (!user || loading) {
       return (
         <>
-          <Col style={{ paddingTop: 4, }}>
+          <Col>
             <Skeleton title={{ width: '100px', }} paragraph={false} active={loading} />
           </Col>
 
@@ -85,7 +85,7 @@ export default function App() {
 
     return (
       <>
-        <Col style={{ paddingTop: 4, }}>
+        <Col>
           <Typography.Text style={{ margin: 0, }}>Welcome back, {user?.name}</Typography.Text>
         </Col>
 
