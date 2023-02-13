@@ -10,8 +10,7 @@ import {
 import EditorPortModel, { EPortType } from '../port/model';
 import { TRuleStageWithNode } from '../../_types';
 
-// TODO: Fix imports without requiring winston
-import * as Types from '@tripwire/engine/dist/types';
+import { Types } from '@tripwire/engine';
 
 import client from '../../../../../common/client';
 

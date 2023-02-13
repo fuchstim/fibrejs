@@ -22,9 +22,7 @@ export interface IExecutorLogger {
   error: (...args: unknown[]) => void;
   warn: (...args: unknown[]) => void;
   info: (...args: unknown[]) => void;
-  verbose: (...args: unknown[]) => void;
   debug: (...args: unknown[]) => void;
-  silly: (...args: unknown[]) => void;
 }
 
 export type TExecutorContext = {

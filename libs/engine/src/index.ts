@@ -4,7 +4,7 @@ export { BaseNode } from './common/base-node';
 export { ConfigProvider } from './storage/config-provider';
 export * as Types from './types';
 
-import { randomUUID } from 'crypto';
+import uuid from 'uuid';
 import Logger from '@tripwire/logger';
 
 import { BaseNode } from './common/base-node';
@@ -67,9 +67,9 @@ export default class Engine extends EventEmitter<TEventTypes> {
       throw new Error(`Cannot execute unknown RuleSet: ${ruleSetId}`);
     }
 
-    const executionId = randomUUID();
+    const executionId = uuid.v4();
     const ruleSetExecutorContext: TRuleSetExecutorContext = {
-      executionId: randomUUID(),
+      executionId,
       logger: new Logger().ns(executionId),
       rules: this.rules,
       ruleSets: this.ruleSets,

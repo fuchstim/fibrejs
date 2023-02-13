@@ -1,4 +1,3 @@
 - Execute rule / rule-set from editor
   - Show values on rule stages / ports
 - Support collection data types
-- Fix winston import bug
