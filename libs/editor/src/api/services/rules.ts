@@ -1,6 +1,6 @@
 import type Engine from '@tripwire/engine';
 
-import { IService, TContext } from '../../types';
+import { IService } from '../../types';
 import type { Types } from '@tripwire/engine';
 
 export default class RulesService implements IService<Types.Config.TRuleConfig> {

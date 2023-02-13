@@ -7,7 +7,6 @@
     ],
     "allowJs": true,
     "esModuleInterop": true,
-    "jsx": "react",
     "module": "esnext",
     "moduleResolution": "node",
     "strict": true,

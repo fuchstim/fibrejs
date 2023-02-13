@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "jsx": "react",
     "composite": true,
     "target": "ES2022",
     "experimentalDecorators": true,

@@ -1,6 +1,7 @@
 import path from 'path';
 import type { Types } from '@tripwire/engine';
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
+import { TAuthenticatedUser } from '../../src/types';
 
 const client = axios.create({
   baseURL: '/api',
@@ -64,6 +65,8 @@ const wrappedDelete = async <TResult>(url: string, config?: AxiosRequestConfig) 
 export default {
   client,
   updateBasePath,
+
+  getUser: () => wrappedGet<TAuthenticatedUser>('user'),
 
   getNode: (nodeId: string, context?: Types.Serializer.TSerializationContext) => wrappedGet<Types.Serializer.TSerializedNode>(`nodes/${nodeId}`, { context, }),
   findNodes: (context?: Types.Serializer.TMultiSerializationContext) => wrappedGet<Types.Serializer.TSerializedNode[]>('nodes', { context, }),

@@ -16,13 +16,15 @@ import {
   MenuFoldOutlined
 } from '@ant-design/icons';
 
-import { Layout, Menu, Row, Typography, theme } from 'antd';
+import { Avatar, Col, Layout, Menu, Row, Skeleton, Typography, notification, theme } from 'antd';
 
 const { Header, Content, Sider, } = Layout;
 
 import Rules from './pages/rules/';
 import NotFound from './pages/NotFound';
 import RuleSets from './pages/rule-sets';
+import client from './common/client';
+import { TAuthenticatedUser } from '../src/types';
 
 const menuItems = [
   { label: 'Dashboard', key: 'dashboard', icon: <PieChartOutlined />, },
@@ -33,6 +35,8 @@ const menuItems = [
 
 export default function App() {
   const [ collapsed, setCollapsed, ] = useState(true);
+  const [ loading, setLoading, ] = useState(false);
+  const [ user, setUser, ] = useState<TAuthenticatedUser>();
   const [ selectedKey, setSelectedKey, ] = useState('dashboard');
 
   const navigate = useNavigate();
@@ -47,6 +51,13 @@ export default function App() {
     () => {
       const pageKey = location.pathname.split('/')[1] || 'dashboard';
       if (pageKey !== selectedKey) { setSelectedKey(pageKey); }
+
+      setLoading(true);
+
+      client.getUser()
+        .then(user => setUser(user))
+        .then(() => setLoading(false))
+        .catch(e => notification.error({ message: e.message, }));
     },
     []
   );
@@ -56,6 +67,36 @@ export default function App() {
   } = theme.useToken();
 
   const toggleCollapse = () => setCollapsed(!collapsed);
+
+  const createUserHeaderComponent = () => {
+    if (!user || loading) {
+      return (
+        <>
+          <Col style={{ paddingTop: 4, }}>
+            <Skeleton title={{ width: '100px', }} paragraph={false} active={loading} />
+          </Col>
+
+          <Col>
+            <Skeleton.Avatar style={{ verticalAlign: 'middle', }} active={loading} size="large" shape="circle" />
+          </Col>
+        </>
+      );
+    }
+
+    return (
+      <>
+        <Col style={{ paddingTop: 4, }}>
+          <Typography.Text style={{ margin: 0, }}>Welcome back, {user?.name}</Typography.Text>
+        </Col>
+
+        <Col>
+          <Avatar size="large" src={user?.avatarUrl ?? undefined}>
+            {user.name.slice(0, 1).toUpperCase()}
+          </Avatar>
+        </Col>
+      </>
+    );
+  };
 
   return (
     <Layout style={{ minHeight: '100vh', }} hasSider={true}>
@@ -92,9 +133,17 @@ export default function App() {
 
       <Layout>
         <Header
-          style={{ paddingLeft: '24px', background: colorBgContainer, fontSize: '18px', }}
+          style={{ padding: '0 24px', background: colorBgContainer, fontSize: '18px', }}
         >
-          { collapsed ? (<MenuUnfoldOutlined onClick={toggleCollapse}/>) : (<MenuFoldOutlined onClick={toggleCollapse}/>)}
+          <Row align="middle" gutter={16} wrap={false}>
+            <Col>
+              { collapsed ? (<MenuUnfoldOutlined onClick={toggleCollapse}/>) : (<MenuFoldOutlined onClick={toggleCollapse}/>)}
+            </Col>
+
+            <Col flex="auto" />
+
+            { createUserHeaderComponent() }
+          </Row>
         </Header>
 
         <Content

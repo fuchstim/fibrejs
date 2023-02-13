@@ -22,11 +22,13 @@ export default function createApiMiddleware(engine: Engine) {
   registerService(app, '/rules', new RulesService(engine));
   registerService(app, '/rule-sets', new RuleSetsService(engine));
 
+  app.get('/user', (_, res) => res.json(res.locals.user));
+
   app.get(
     '*',
     (_, res) => {
-      res.json({ error: 'Unknown endpoint', });
       res.status(400);
+      res.json({ error: 'Unknown endpoint', });
     }
   );
 
