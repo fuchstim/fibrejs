@@ -49,7 +49,9 @@ module.exports = {
   devServer: {
     historyApiFallback: true,
     proxy: {
+      '/base-path': 'http://localhost:3030',
       '**/base-path': 'http://localhost:3030',
+      '/api/*': 'http://localhost:3030',
       '**/api/*': 'http://localhost:3030',
     },
   },

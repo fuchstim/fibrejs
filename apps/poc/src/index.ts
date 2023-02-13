@@ -77,7 +77,7 @@ async function run() {
       }
     }
   );
-  app.use(createMiddleware(engine));
+  app.use(createMiddleware({ engine, }));
   app.listen(
     port,
     hostname,

@@ -11,6 +11,7 @@ export enum ERequestMethod {
 export type TContext = {
   req: Request,
   res: Response,
+  user: TAuthenticatedUser
 };
 
 export interface IService<T> {
@@ -20,3 +21,9 @@ export interface IService<T> {
   [ERequestMethod.PATCH]?: (id: string, data: T, context: TContext) => Promise<T | void> | T | void,
   [ERequestMethod.DELETE]?: (id: string, context: TContext) => Promise<T | void> | T | void,
 }
+
+export type TAuthenticatedUser = {
+  id: string,
+  name: string,
+  avatarUrl?: string,
+};

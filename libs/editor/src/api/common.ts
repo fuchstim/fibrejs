@@ -1,17 +1,23 @@
-import { Application, NextFunction, Request, Response } from 'express';
-import { ERequestMethod, IService } from '../types';
+import { Application, Request, Response } from 'express';
+import { ERequestMethod, IService, TContext } from '../types';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function registerService(app: Application, path: string, service: IService<any>) {
   const cleanPath = path.endsWith('/') ? path.slice(0, path.length -1) : path;
 
-  const createHandler = (method: ERequestMethod) => async (req: Request, res: Response, next: NextFunction) => {
+  const createHandler = (method: ERequestMethod) => async (req: Request, res: Response) => {
+    const context: TContext = {
+      req,
+      res,
+      user: res.locals.user,
+    };
+
     const getResult = {
-      [ERequestMethod.FIND]: () => service.find?.apply(service, [ { req, res, }, ]),
-      [ERequestMethod.GET]: () => service.get?.apply(service, [ req.params.__id, { req, res, }, ]),
-      [ERequestMethod.CREATE]: () => service.create?.apply(service, [ req.body, { req, res, }, ]),
-      [ERequestMethod.PATCH]: () => service.patch?.apply(service, [ req.params.__id, req.body, { req, res, }, ]),
-      [ERequestMethod.DELETE]: () => service.delete?.apply(service, [ req.params.__id, { req, res, }, ]),
+      [ERequestMethod.FIND]: () => service.find?.apply(service, [ context, ]),
+      [ERequestMethod.GET]: () => service.get?.apply(service, [ req.params.__id, context, ]),
+      [ERequestMethod.CREATE]: () => service.create?.apply(service, [ req.body, context, ]),
+      [ERequestMethod.PATCH]: () => service.patch?.apply(service, [ req.params.__id, req.body, context, ]),
+      [ERequestMethod.DELETE]: () => service.delete?.apply(service, [ req.params.__id, context, ]),
     }[method];
 
     try {

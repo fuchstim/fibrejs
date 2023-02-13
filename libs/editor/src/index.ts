@@ -1,17 +1,28 @@
+export { AuthenticationProvider } from './authentication-provider';
+
 import express from 'express';
 import path from 'path';
 
 import type Engine from '@tripwire/engine';
 
 import createApiMiddleware from './api';
+import { AuthenticationProvider, AnonymousAuthenticationProvider } from './authentication-provider';
 
 const HTML_PATH = path.resolve(__dirname, 'html');
 const STATIC_FILES = [ 'main.js', 'main.css', ];
 
-export default function createMiddleware(engine: Engine) {
+type TMiddlewareOptions = {
+  engine: Engine,
+  authenticationProvider?: AuthenticationProvider
+};
+export default function createMiddleware(options: TMiddlewareOptions) {
   const app = express();
 
-  app.use('/api', createApiMiddleware(engine));
+  const authenticationProvider = options.authenticationProvider ?? new AnonymousAuthenticationProvider();
+  app.use(authenticationProvider.middleware);
+
+  app.use('/api', createApiMiddleware(options.engine));
+
   app.use(express.static(HTML_PATH));
   app.get('*', (req, res) => {
     const reqFilename = req.path.toLowerCase().split('/').pop() ?? '';
