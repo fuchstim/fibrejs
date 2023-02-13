@@ -46,7 +46,7 @@ export default class RuleSet extends Executor<TRuleSetInputs, TRuleSetExecutorRe
   override validateContext(context: TRuleSetExecutorContext): TExecutorValidationResult<TRuleSetExecutorContext> {
     const uniqueEntryNodeIds = Array.from(
       new Set(
-        ...this.entries.map(
+        this.entries.map(
           ({ ruleId, }) => this.getRuleFromContext(ruleId, context).entryStage.node.id
         )
       )
