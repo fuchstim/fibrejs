@@ -1,11 +1,11 @@
 import Executor from '../common/executor';
 import { TExecutorValidationResult } from '../types/common';
 import { ENodeType } from '../types/node';
-import { TRuleOptions, TRuleInputs, TRuleOutput, TRuleExecutorContext } from '../types/rule';
+import { TRuleOptions, TRuleInputs, TRuleOutputs, TRuleExecutorContext } from '../types/rule';
 import { TRuleStageResults } from '../types/rule-stage';
 import RuleStage from './rule-stage';
 
-export default class Rule extends Executor<TRuleInputs, TRuleOutput, TRuleExecutorContext> {
+export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecutorContext> {
   readonly id: string;
   readonly name: string;
   readonly stages: RuleStage[];
@@ -39,7 +39,7 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutput, TRuleExecut
     return exitStage;
   }
 
-  async execute(inputs: TRuleInputs, context: TRuleExecutorContext): Promise<TRuleOutput> {
+  async execute(inputs: TRuleInputs, context: TRuleExecutorContext): Promise<TRuleOutputs> {
     const ruleStageResults: TRuleStageResults = {};
 
     const ruleStageContext = { ...context, rule: this, };
@@ -68,7 +68,7 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutput, TRuleExecut
     }
 
     return {
-      exitStageOutput: ruleStageResults[this.exitStage.id].output,
+      exitStageOutputs: ruleStageResults[this.exitStage.id].outputs,
       ruleStageResults,
     };
   }

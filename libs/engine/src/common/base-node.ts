@@ -81,7 +81,7 @@ export abstract class BaseNode<TInputs extends Record<string, any>, TOutputs ext
     };
   }
 
-  override validateInput(inputValues: TInputs, context: TNodeExecutorContext<TOptions>): TExecutorValidationResult<TInputs> {
+  override validateInputs(inputValues: TInputs, context: TNodeExecutorContext<TOptions>): TExecutorValidationResult<TInputs> {
     const { inputs, } = this.getMetadata(context);
 
     const inputValidationErrors = inputs
@@ -113,7 +113,7 @@ export abstract class BaseNode<TInputs extends Record<string, any>, TOutputs ext
     };
   }
 
-  override validateOutput(outputValues: TOutputs, context: TNodeExecutorContext<TOptions>): TExecutorValidationResult<TOutputs> {
+  override validateOutputs(outputValues: TOutputs, context: TNodeExecutorContext<TOptions>): TExecutorValidationResult<TOutputs> {
     const { outputs, } = this.getMetadata(context);
 
     const outputValidationErrors = outputs

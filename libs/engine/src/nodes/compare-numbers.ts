@@ -2,12 +2,12 @@ import { BaseNode } from '../common/base-node';
 import { WBooleanType, WNumberType, TBooleanType, TNumberType } from '../common/wrapped-types';
 import { ENodeMetadataOptionType, TNodeExecutorContext } from '../types/node';
 
-type TNodeInput = {
+type TNodeInputs = {
   inputA: TNumberType,
   inputB: TNumberType,
 };
 
-type TNodeOutput = {
+type TNodeOutputs = {
   result: TBooleanType,
 };
 
@@ -23,7 +23,7 @@ type TNodeOptions = {
   operation: EOperation
 };
 
-export default class CompareNumbersNode extends BaseNode<TNodeInput, TNodeOutput, TNodeOptions> {
+export default class CompareNumbersNode extends BaseNode<TNodeInputs, TNodeOutputs, TNodeOptions> {
   constructor() {
     super({
       id: 'compareNumbers',
@@ -59,7 +59,7 @@ export default class CompareNumbersNode extends BaseNode<TNodeInput, TNodeOutput
     });
   }
 
-  execute({ inputA, inputB, }: TNodeInput, context: TNodeExecutorContext<TNodeOptions>): TNodeOutput {
+  execute({ inputA, inputB, }: TNodeInputs, context: TNodeExecutorContext<TNodeOptions>): TNodeOutputs {
     const result = {
       [EOperation.EQUAL]: inputA.value === inputB.value,
       [EOperation.NOT_EQUAL]: inputA.value !== inputB.value,

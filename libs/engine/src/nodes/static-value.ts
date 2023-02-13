@@ -2,7 +2,7 @@ import { BaseNode } from '../common/base-node';
 import { WBooleanType, WNumberType, WStringType, EPrimitive, TWrappedPrimitive, TStringType, TNumberType, TBooleanType } from '../common/wrapped-types';
 import { ENodeMetadataOptionType, TNodeExecutorContext } from '../types/node';
 
-type TNodeOutput = {
+type TNodeOutputs = {
   value: TStringType | TNumberType | TBooleanType,
 };
 
@@ -11,7 +11,7 @@ type TNodeOptions = {
   value: string | number | boolean,
 };
 
-export default class StaticValueNode extends BaseNode<never, TNodeOutput, TNodeOptions> {
+export default class StaticValueNode extends BaseNode<never, TNodeOutputs, TNodeOptions> {
   constructor() {
     super({
       id: 'staticValue',

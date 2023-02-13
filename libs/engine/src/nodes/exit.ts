@@ -2,11 +2,11 @@ import { BaseNode } from '../common/base-node';
 import { WBooleanType, TBooleanType } from '../common/wrapped-types';
 import { ENodeType } from '../types/node';
 
-type TNodeInput = {
+type TNodeInputs = {
   result: TBooleanType,
 };
 
-export default class ExitNode extends BaseNode<TNodeInput, TNodeInput, Record<string, never>> {
+export default class ExitNode extends BaseNode<TNodeInputs, TNodeInputs, Record<string, never>> {
   constructor() {
     super({
       id: 'exit',
@@ -25,7 +25,7 @@ export default class ExitNode extends BaseNode<TNodeInput, TNodeInput, Record<st
     });
   }
 
-  execute(input: TNodeInput): TNodeInput {
-    return input;
+  execute(inputs: TNodeInputs): TNodeInputs {
+    return inputs;
   }
 }

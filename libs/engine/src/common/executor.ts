@@ -1,6 +1,6 @@
 import { TExecutorResult, TExecutorContext, TExecutorValidationResult } from '../types/common';
 
-export default abstract class Executor<TInput, TOutput, TContext extends TExecutorContext> {
+export default abstract class Executor<TInputs, TOutputs, TContext extends TExecutorContext> {
   private executorId: string;
   private executorType: string;
 
@@ -9,9 +9,9 @@ export default abstract class Executor<TInput, TOutput, TContext extends TExecut
     this.executorType = type;
   }
 
-  protected abstract execute(input: TInput, context: TContext): Promise<TOutput> | TOutput;
+  protected abstract execute(inputs: TInputs, context: TContext): Promise<TOutputs> | TOutputs;
 
-  async run(input: TInput, parentContext: TContext): Promise<TExecutorResult<TOutput>> {
+  async run(inputs: TInputs, parentContext: TContext): Promise<TExecutorResult<TOutputs>> {
     const context = {
       ...parentContext,
       logger: parentContext.logger.ns(this.executorId),
@@ -24,23 +24,23 @@ export default abstract class Executor<TInput, TOutput, TContext extends TExecut
       throw new Error(`Failed to execute ${this.executorType} ${this.executorId} with invalid context (${contextValidationResult.reason})`);
     }
 
-    const inputValidationResult = this.validateInput(input, context);
+    const inputValidationResult = this.validateInputs(inputs, context);
     if (!inputValidationResult.valid) {
-      throw new Error(`Failed to execute ${this.executorType} ${this.executorId} with invalid input (${inputValidationResult.reason})`);
+      throw new Error(`Failed to execute ${this.executorType} ${this.executorId} with invalid inputs (${inputValidationResult.reason})`);
     }
 
     const startTime = process.hrtime.bigint();
 
-    const output = await Promise.resolve(this.execute(input, context))
+    const outputs = await Promise.resolve(this.execute(inputs, context))
       .catch(error => {
         context.logger.error(`Failed to execute ${this.executorType} (${error.message})`, error.stack);
 
         throw new Error(`Failed to execute ${this.executorType} ${this.executorId} (${error.message})`);
       });
 
-    const outputValidationResult = this.validateOutput(output, context);
+    const outputValidationResult = this.validateOutputs(outputs, context);
     if (!outputValidationResult.valid) {
-      throw new Error(`${this.executorType} ${this.executorId} produced invalid output (${outputValidationResult.reason})`);
+      throw new Error(`${this.executorType} ${this.executorId} produced invalid outputs (${outputValidationResult.reason})`);
     }
 
     const endTime = process.hrtime.bigint();
@@ -51,7 +51,7 @@ export default abstract class Executor<TInput, TOutput, TContext extends TExecut
 
     return {
       executionTimeMs,
-      output,
+      outputs,
     };
   }
 
@@ -59,11 +59,11 @@ export default abstract class Executor<TInput, TOutput, TContext extends TExecut
     return { valid: true, reason: null, actual: context, };
   }
 
-  validateInput(input: TInput, context: TContext): TExecutorValidationResult<TInput> {
-    return { valid: true, reason: null, actual: input, };
+  validateInputs(inputs: TInputs, context: TContext): TExecutorValidationResult<TInputs> {
+    return { valid: true, reason: null, actual: inputs, };
   }
 
-  validateOutput(output: TOutput, context: TContext): TExecutorValidationResult<TOutput> {
-    return { valid: true, reason: null, actual: output, };
+  validateOutputs(outputs: TOutputs, context: TContext): TExecutorValidationResult<TOutputs> {
+    return { valid: true, reason: null, actual: outputs, };
   }
 }

@@ -3,9 +3,9 @@ import Executor from '../common/executor';
 import { detectDuplicates } from '../common/util';
 import { TExecutorResult, TExecutorValidationResult } from '../types/common';
 import { ENodeType, TNodeExecutorContext, TNodeOptions } from '../types/node';
-import { TRuleStageExecutorContext, TRuleStageInput, TRuleStageInputs, TRuleStageOptions } from '../types/rule-stage';
+import { TRuleStageExecutorContext, TRuleStageInput, TRuleStageInputs as TRuleStageExecutorInputs, TRuleStageOptions } from '../types/rule-stage';
 
-export default class RuleStage extends Executor<TRuleStageInputs, TExecutorResult<any>, TRuleStageExecutorContext> {
+export default class RuleStage extends Executor<TRuleStageExecutorInputs, TExecutorResult<any>, TRuleStageExecutorContext> {
   readonly id: string;
   readonly node: BaseNode<any, any, any>;
   readonly inputs: TRuleStageInput[];
@@ -35,7 +35,7 @@ export default class RuleStage extends Executor<TRuleStageInputs, TExecutorResul
     };
   }
 
-  async execute({ previousResults, additionalNodeInputs, }: TRuleStageInputs, context: TRuleStageExecutorContext) {
+  async execute({ previousResults, additionalNodeInputs, }: TRuleStageExecutorInputs, context: TRuleStageExecutorContext) {
     const nodeInputs = this.inputs.reduce(
       (acc, { ruleStageId, inputId, outputId, }) => ({
         ...acc,
@@ -50,7 +50,7 @@ export default class RuleStage extends Executor<TRuleStageInputs, TExecutorResul
       nodeContext
     );
 
-    return result.output;
+    return result.outputs;
   }
 
   override validateContext(context: TRuleStageExecutorContext): TExecutorValidationResult<TRuleStageExecutorContext> {
@@ -77,11 +77,11 @@ export default class RuleStage extends Executor<TRuleStageInputs, TExecutorResul
     return this.node.validateContext(validationContext);
   }
 
-  private getOutputByKey({ output, }: TExecutorResult<any>, key: string): any {
+  private getOutputByKey({ outputs, }: TExecutorResult<any>, key: string): any {
     const pathParts = key.split('.');
     const value = pathParts.reduce(
       (acc, pathPart) => acc[pathPart],
-      output
+      outputs
     );
 
     return value;

@@ -2,15 +2,15 @@ import { BaseNode, WrappedTypes } from '@tripwire/engine';
 
 import { WUserType, TWrappedUserType } from '../input-output-types/user';
 
-type TNodeInput = {
+type TNodeInputs = {
   userId: WrappedTypes.TStringType,
   age: WrappedTypes.TNumberType,
 };
-type TNodeOutput = {
+type TNodeOutputs = {
   user: TWrappedUserType,
 };
 
-export default class GetUserNode extends BaseNode<TNodeInput, TNodeOutput, Record<string, never>> {
+export default class GetUserNode extends BaseNode<TNodeInputs, TNodeOutputs, Record<string, never>> {
   constructor() {
     super({
       id: 'getUser',
@@ -29,12 +29,12 @@ export default class GetUserNode extends BaseNode<TNodeInput, TNodeOutput, Recor
     });
   }
 
-  async execute(input: TNodeInput): Promise<TNodeOutput> {
+  async execute(inputs: TNodeInputs): Promise<TNodeOutputs> {
     return {
       user: WUserType.fromNative({
-        id: input.userId.value,
+        id: inputs.userId.value,
         username: 'username',
-        age: input.age.value,
+        age: inputs.age.value,
         createdAt: new Date(),
       }),
     };

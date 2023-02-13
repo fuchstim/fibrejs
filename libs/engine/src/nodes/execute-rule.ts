@@ -1,15 +1,15 @@
 import { BaseNode } from '../common/base-node';
 import { ENodeMetadataOptionType, TNodeExecutorContext, TNodeMetadataInputOutput, TNodeMetadataOption } from '../types/node';
 
-type TNodeInput = Record<string, any>;
+type TNodeInputs = Record<string, any>;
 
-type TNodeOutput = Record<string, any>;
+type TNodeOutputs = Record<string, any>;
 
 type TNodeOptions = {
   ruleId: string
 };
 
-export default class ExecuteRule extends BaseNode<TNodeInput, TNodeOutput, TNodeOptions> {
+export default class ExecuteRule extends BaseNode<TNodeInputs, TNodeOutputs, TNodeOptions> {
   constructor() {
     super({
       id: 'executeRule',
@@ -63,7 +63,7 @@ export default class ExecuteRule extends BaseNode<TNodeInput, TNodeOutput, TNode
     return rule.exitStage.node.getMetadata(context).outputs;
   }
 
-  execute(inputs: TNodeInput, context: TNodeExecutorContext<TNodeOptions>): TNodeOutput {
+  execute(inputs: TNodeInputs, context: TNodeExecutorContext<TNodeOptions>): TNodeOutputs {
     return {
       result: { value: false, },
     };

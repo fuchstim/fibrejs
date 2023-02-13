@@ -1,5 +1,5 @@
 import type { TExecutorContext, TExecutorResult } from './common';
-import type { TRuleOutput } from './rule';
+import type { TRuleOutputs } from './rule';
 
 export enum ERulePriority {
   LOWEST = 'LOWEST',
@@ -26,7 +26,7 @@ export type TRuleSetInputs = {
 
 export type TRuleSetExecutorContext = TExecutorContext;
 
-export type TRuleSetEntryResult = TExecutorResult<TRuleOutput> & {
+export type TRuleSetEntryResult = TExecutorResult<TRuleOutputs> & {
   ruleId: string,
   priority: ERulePriority,
 };
