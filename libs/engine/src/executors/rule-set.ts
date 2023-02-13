@@ -44,6 +44,21 @@ export default class RuleSet extends Executor<TRuleSetInputs, TRuleSetExecutorRe
   }
 
   override validateContext(context: TRuleSetExecutorContext): TExecutorValidationResult<TRuleSetExecutorContext> {
+    const uniqueEntryNodeIds = Array.from(
+      new Set(
+        ...this.entries.map(
+          ({ ruleId, }) => this.getRuleFromContext(ruleId, context).entryStage.node.id
+        )
+      )
+    );
+    if (uniqueEntryNodeIds.length !== 1) {
+      return {
+        valid: false,
+        reason: `All rule set entries must share the same entry node, but multiple node ids were found: (${uniqueEntryNodeIds.join(', ')})`,
+        actual: context,
+      };
+    }
+
     const invalidEntries = this.entries
       .map(
         entry => {
@@ -51,16 +66,13 @@ export default class RuleSet extends Executor<TRuleSetInputs, TRuleSetExecutorRe
           if (!validPriority) {
             return {
               entry,
-              result: {
-                valid: false,
-                reason: 'Invalid priority',
-              },
+              result: { valid: false, reason: 'Invalid priority', },
             };
           }
 
           return {
             entry,
-            result: this.getRuleFromContext(context, entry.ruleId).validateContext({ ...context, ruleSet: this, }),
+            result: this.getRuleFromContext(entry.ruleId, context).validateContext({ ...context, ruleSet: this, }),
           };
         }
       )
@@ -81,7 +93,7 @@ export default class RuleSet extends Executor<TRuleSetInputs, TRuleSetExecutorRe
     };
   }
 
-  private getRuleFromContext(context: TRuleSetExecutorContext, ruleId: string): Rule {
+  private getRuleFromContext(ruleId: string, context: TRuleSetExecutorContext): Rule {
     const rule = context.rules.find(rule => rule.id === ruleId);
     if (!rule) { throw new Error(`Failed to find rule for id ${ruleId}`); }
 
@@ -89,7 +101,7 @@ export default class RuleSet extends Executor<TRuleSetInputs, TRuleSetExecutorRe
   }
 
   private async executeEntry({ ruleId, priority, }: TRuleSetEntry, inputs: TRuleSetInputs, context: TRuleExecutorContext) {
-    const result = await this.getRuleFromContext(context, ruleId).run(inputs, context);
+    const result = await this.getRuleFromContext(ruleId, context).run(inputs, context);
 
     return { ruleId, priority, ...result, };
   }
