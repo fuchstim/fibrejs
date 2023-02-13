@@ -1,9 +1,9 @@
 import type Engine from '@tripwire/engine';
-
-import { IService } from '../../types';
 import type { Types } from '@tripwire/engine';
 
-export default class RulesService implements IService<Types.Config.TRuleConfig> {
+import { ICRUDService } from '../../types';
+
+export default class RulesService implements ICRUDService<Types.Config.TRuleConfig> {
   private engine: Engine;
 
   constructor(engine: Engine) {

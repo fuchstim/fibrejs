@@ -3,6 +3,7 @@ import express, { NextFunction, Response } from 'express';
 import type Engine from '@tripwire/engine';
 
 import NodesService from './services/nodes';
+import PreviewRuleService from './services/preview-rule';
 import RulesService from './services/rules';
 import RuleSetsService from './services/rulesets';
 
@@ -19,6 +20,7 @@ export default function createApiMiddleware(engine: Engine) {
   });
 
   registerService(app, '/nodes', new NodesService(engine));
+  registerService(app, '/preview-rule', new PreviewRuleService(engine));
   registerService(app, '/rules', new RulesService(engine));
   registerService(app, '/rule-sets', new RuleSetsService(engine));
 
