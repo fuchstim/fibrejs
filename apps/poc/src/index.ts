@@ -52,19 +52,23 @@ async function run() {
   const app = express();
   app.use(express.json());
   app.post(
-    '/run/:ruleSetId',
+    '/run/:type/:id',
     async (req, res) => {
-      const { ruleSetId, } = req.params;
+      const { id, type, } = req.params;
       const inputs = req.body;
-      if (!ruleSetId || !inputs) {
+      if (!id || !type || !inputs) {
         res.status(400);
         res.json({ error: 'Invalid inputs', });
       }
 
       try {
-        const result = await engine.executeRuleSet(ruleSetId, inputs);
-
-        res.json(result);
+        switch (type) {
+          case 'rule': res.json(await engine.executeRule(id, inputs)); break;
+          case 'rule-set': res.json(await engine.executeRuleSet(id, inputs)); break;
+          default:
+            res.status(400);
+            res.json({ message: `Invalid type: ${type}`, });
+        }
       } catch (e: unknown) {
         res.status(500);
 
@@ -77,6 +81,7 @@ async function run() {
       }
     }
   );
+
   app.use(createMiddleware({ engine, }));
   app.listen(
     port,

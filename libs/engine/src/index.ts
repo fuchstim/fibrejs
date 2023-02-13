@@ -4,7 +4,7 @@ export { BaseNode } from './common/base-node';
 export { ConfigProvider } from './storage/config-provider';
 export * as Types from './types';
 
-import uuid from 'uuid';
+import { v4 as uuidV4 } from 'uuid';
 import Logger from '@tripwire/logger';
 
 import { BaseNode } from './common/base-node';
@@ -61,13 +61,35 @@ export default class Engine extends EventEmitter<TEventTypes> {
     await this.loadConfig();
   }
 
+  async executeRule(ruleId: string, inputs: TRuleSetInputs) {
+    const rule = this.rules.find(rule => rule.id === ruleId);
+    if (!rule) {
+      throw new Error(`Cannot execute unknown rule: ${ruleId}`);
+    }
+
+    const executionId = uuidV4();
+    const ruleExecutorContext: TRuleSetExecutorContext = {
+      executionId,
+      logger: new Logger().ns(executionId),
+      rules: this.rules,
+      ruleSets: this.ruleSets,
+    };
+
+    const result = await rule.run(
+      inputs,
+      ruleExecutorContext
+    );
+
+    return result;
+  }
+
   async executeRuleSet(ruleSetId: string, inputs: TRuleSetInputs) {
     const ruleSet = this.ruleSets.find(ruleSet => ruleSet.id === ruleSetId);
     if (!ruleSet) {
-      throw new Error(`Cannot execute unknown RuleSet: ${ruleSetId}`);
+      throw new Error(`Cannot execute unknown rule set: ${ruleSetId}`);
     }
 
-    const executionId = uuid.v4();
+    const executionId = uuidV4();
     const ruleSetExecutorContext: TRuleSetExecutorContext = {
       executionId,
       logger: new Logger().ns(executionId),

@@ -15,6 +15,6 @@ export type TStageOutputs = Record<string, any>;
 export type TRuleExecutorContext = TRuleSetExecutorContext & { ruleSet?: RuleSet };
 
 export type TRuleOutput = {
-  triggered: boolean,
+  exitStageOutput: any,
   ruleStageResults: TRuleStageResults
 };

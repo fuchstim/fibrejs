@@ -33,8 +33,13 @@ export default class RuleSet extends Executor<TRuleSetInputs, TRuleSetExecutorRe
       this.entries.map(entry => this.executeEntry(entry, inputs, ruleContext))
     );
 
+    const orderedResults = results.sort(
+      (a, b) => ORDERED_RULE_PRIORITIES.indexOf(b.priority) - ORDERED_RULE_PRIORITIES.indexOf(a.priority)
+    );
+
     return {
-      ruleResults: results,
+      highestPriorityRuleResult: orderedResults[0] ?? null,
+      ruleResults: orderedResults,
     };
   }
 
@@ -86,6 +91,6 @@ export default class RuleSet extends Executor<TRuleSetInputs, TRuleSetExecutorRe
   private async executeEntry({ ruleId, priority, }: TRuleSetEntry, inputs: TRuleSetInputs, context: TRuleExecutorContext) {
     const result = await this.getRuleFromContext(context, ruleId).run(inputs, context);
 
-    return { ruleId, priority, result, };
+    return { ruleId, priority, ...result, };
   }
 }

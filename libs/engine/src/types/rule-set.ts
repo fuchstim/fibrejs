@@ -26,10 +26,12 @@ export type TRuleSetInputs = {
 
 export type TRuleSetExecutorContext = TExecutorContext;
 
+export type TRuleSetEntryResult = TExecutorResult<TRuleOutput> & {
+  ruleId: string,
+  priority: ERulePriority,
+};
+
 export type TRuleSetExecutorResult = {
-  ruleResults: {
-    ruleId: string,
-    priority: ERulePriority,
-    result: TExecutorResult<TRuleOutput>
-  }[]
+  highestPriorityRuleResult: TRuleSetEntryResult | null,
+  ruleResults: TRuleSetEntryResult[]
 };
