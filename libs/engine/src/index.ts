@@ -25,7 +25,8 @@ import { TRuleSetInputs } from './types/rule-set';
 import { TMultiSerializationContext, TSerializationContext } from './types/serializer';
 import { TEventTypes } from './types/events';
 import { TRuleSetExecutorContext } from './types/rule-set';
-import { TEngineConfig } from './types/config';
+import { TEngineConfig, TRuleConfig } from './types/config';
+import { TRuleInputs } from './types/rule';
 
 export type TEngineOptions = {
   configProvider: ConfigProvider,
@@ -79,6 +80,21 @@ export default class Engine extends EventEmitter<TEventTypes> {
       inputs,
       ruleExecutorContext
     );
+
+    return result;
+  }
+
+  async executeRuleConfig(config: TRuleConfig, inputs: TRuleInputs) {
+    const rule = ConfigParser.parseRule(config, this.nodes);
+
+    const executionId = `preview-${uuidV4()}`;
+    const context = {
+      executionId,
+      logger: new Logger().ns(executionId),
+      rules: this.rules,
+      ruleSets: this.ruleSets,
+    };
+    const result = rule.run(inputs, context);
 
     return result;
   }

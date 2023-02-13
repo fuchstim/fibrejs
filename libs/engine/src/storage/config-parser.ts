@@ -67,7 +67,7 @@ class ConfigParser implements IConfigParser {
     };
   }
 
-  private parseRule(ruleConfig: TRuleConfig, availableNodes: BaseNode<any, any, any>[]): Rule {
+  parseRule(ruleConfig: TRuleConfig, availableNodes: BaseNode<any, any, any>[]): Rule {
     const { id, name, stages, } = ruleConfig;
 
     const duplicateStageIds = detectDuplicates(stages);
@@ -84,7 +84,7 @@ class ConfigParser implements IConfigParser {
     });
   }
 
-  private exportRule(rule: Rule): TRuleConfig {
+  exportRule(rule: Rule): TRuleConfig {
     const { id, name, stages, } = rule;
 
     return {
@@ -96,7 +96,7 @@ class ConfigParser implements IConfigParser {
     };
   }
 
-  private parseRuleStage(ruleStageConfig: TRuleStageConfig, availableNodes: BaseNode<any, any, any>[]): RuleStage {
+  parseRuleStage(ruleStageConfig: TRuleStageConfig, availableNodes: BaseNode<any, any, any>[]): RuleStage {
     const { id, inputs, nodeId, nodeOptions, } = ruleStageConfig;
 
     const node = availableNodes.find(
@@ -112,7 +112,7 @@ class ConfigParser implements IConfigParser {
     });
   }
 
-  private exportRuleStage(ruleStage: RuleStage): TRuleStageConfig {
+  exportRuleStage(ruleStage: RuleStage): TRuleStageConfig {
     const { id, node, inputs, nodeOptions, } = ruleStage;
 
     return {
@@ -123,7 +123,7 @@ class ConfigParser implements IConfigParser {
     };
   }
 
-  private parseRuleSet(ruleSetConfig: TRuleSetConfig): RuleSet {
+  parseRuleSet(ruleSetConfig: TRuleSetConfig): RuleSet {
     const { id, name, entries, } = ruleSetConfig;
 
     return new RuleSet({
@@ -133,7 +133,7 @@ class ConfigParser implements IConfigParser {
     });
   }
 
-  private exportRuleSet(ruleSet: RuleSet): TRuleSetConfig {
+  exportRuleSet(ruleSet: RuleSet): TRuleSetConfig {
     const { id, name, entries, } = ruleSet;
 
     return {
