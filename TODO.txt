@@ -2,3 +2,4 @@
 - Cleanup executor types
 - Support complex input types in rule preview
 - Conditional Nodes
+- Node display options
