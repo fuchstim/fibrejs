@@ -2,7 +2,12 @@ import type { BaseNode } from '../common/base-node';
 import type Rule from '../executors/rule';
 import type { TExecutorResult } from './common';
 import type { TNodeOptions } from './node';
-import type { TRuleExecutorContext, TRuleInputs } from './rule';
+import type { TRuleExecutorContext } from './rule';
+
+export enum ERuleStageReservedId {
+  ENTRY = 'ENTRY',
+  EXIT = 'EXIT'
+}
 
 export type TRuleStageInput = {
   ruleStageId: string,
@@ -20,9 +25,3 @@ export type TRuleStageOptions = {
 export type TRuleStageExecutorContext = TRuleExecutorContext & { rule?: Rule };
 
 export type TRuleStageResults = Record<string, TExecutorResult<any>>;
-
-export type TRuleStageInputs = {
-  ruleInputs: TRuleInputs,
-  previousStageResults: TRuleStageResults
-};
-export type TRuleStageOutputs = Record<string, any>;

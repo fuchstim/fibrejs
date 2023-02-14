@@ -3,10 +3,9 @@ import Executor from '../common/executor';
 import { detectDuplicates } from '../common/util';
 import { TExecutorValidationResult } from '../types/common';
 import { ENodeType, TNodeExecutorContext, TNodeOptions } from '../types/node';
-import { TRuleInputs } from '../types/rule';
-import { TRuleStageExecutorContext, TRuleStageInput, TRuleStageInputs, TRuleStageOptions, TRuleStageOutputs, TRuleStageResults } from '../types/rule-stage';
+import { ERuleStageReservedId, TRuleStageExecutorContext, TRuleStageInput, TRuleStageOptions, TRuleStageResults } from '../types/rule-stage';
 
-export default class RuleStage extends Executor<TRuleStageInputs, TRuleStageOutputs, TRuleStageExecutorContext> {
+export default class RuleStage extends Executor<TRuleStageResults, TRuleStageResults, TRuleStageExecutorContext> {
   readonly id: string;
   readonly node: BaseNode<any, any, any>;
   readonly inputs: TRuleStageInput[];
@@ -36,13 +35,10 @@ export default class RuleStage extends Executor<TRuleStageInputs, TRuleStageOutp
     };
   }
 
-  async execute({ ruleInputs, previousStageResults, }: TRuleStageInputs, context: TRuleStageExecutorContext) {
-    const nodeContext = this.createNodeContext(context);
-
-    const isEntryNode = this.node.type === ENodeType.ENTRY;
+  async execute(previousStageResults: TRuleStageResults, context: TRuleStageExecutorContext) {
     const { outputs: wrappedOutputs, } = await this.node.run(
-      isEntryNode ? this.wrapRuleInputs(ruleInputs, nodeContext) : this.getPreviousOutputs(previousStageResults),
-      nodeContext
+      this.getPreviousOutputs(previousStageResults),
+      this.createNodeContext(context)
     );
 
     return wrappedOutputs;
@@ -50,6 +46,10 @@ export default class RuleStage extends Executor<TRuleStageInputs, TRuleStageOutp
 
   override validateContext(context: TRuleStageExecutorContext): TExecutorValidationResult<TRuleStageExecutorContext> {
     const validationContext = this.createNodeContext(context);
+
+    if (Object.values(ERuleStageReservedId).includes(this.id as ERuleStageReservedId)) {
+      return { valid: false, reason: `${this.id} is a reserved stage id`, actual: context, };
+    }
 
     const duplicateInputsIds = detectDuplicates(this.inputs.map(i => i.inputId));
     if (duplicateInputsIds.length) {
@@ -72,19 +72,11 @@ export default class RuleStage extends Executor<TRuleStageInputs, TRuleStageOutp
     return this.node.validateContext(validationContext);
   }
 
-  private wrapRuleInputs(ruleInputs: TRuleInputs, nodeContext: TNodeExecutorContext<TNodeOptions>) {
-    const nodeInputs = this.node.getMetadata(nodeContext).inputs;
-
-    return nodeInputs.reduce(
-      (acc, input) => ({
-        ...acc,
-        [input.id]: input.type.fromNative(this.getOutputById(ruleInputs, input.id)),
-      }),
-      {}
-    );
-  }
-
   private getPreviousOutputs(previousResults: TRuleStageResults) {
+    if (this.node.type === ENodeType.ENTRY) {
+      return previousResults[ERuleStageReservedId.ENTRY].outputs;
+    }
+
     return this.inputs.reduce(
       (acc, { ruleStageId, inputId, outputId, }) => ({
         ...acc,

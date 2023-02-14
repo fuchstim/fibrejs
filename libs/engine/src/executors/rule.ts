@@ -1,8 +1,8 @@
 import Executor from '../common/executor';
-import { TExecutorValidationResult } from '../types/common';
+import { TExecutorResult, TExecutorValidationResult } from '../types/common';
 import { ENodeType } from '../types/node';
 import { TRuleOptions, TRuleInputs, TRuleOutputs, TRuleExecutorContext } from '../types/rule';
-import { TRuleStageResults } from '../types/rule-stage';
+import { ERuleStageReservedId, TRuleStageResults } from '../types/rule-stage';
 import RuleStage from './rule-stage';
 
 export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecutorContext> {
@@ -40,19 +40,20 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
   }
 
   async execute(ruleInputs: TRuleInputs, context: TRuleExecutorContext): Promise<TRuleOutputs> {
-    const previousStageResults: TRuleStageResults = {};
+    const ruleStageResults: TRuleStageResults = {
+      [ERuleStageReservedId.ENTRY]: this.wrapRuleInputs(ruleInputs, context),
+    };
 
     for (const stage of this.stages) {
-      previousStageResults[stage.id] = await stage.run(
-        { ruleInputs, previousStageResults, },
+      ruleStageResults[stage.id] = await stage.run(
+        ruleStageResults,
         { ...context, rule: this, }
       );
     }
 
-    return {
-      exitStageOutputs: previousStageResults[this.exitStage.id].outputs,
-      ruleStageResults: previousStageResults,
-    };
+    ruleStageResults[ERuleStageReservedId.EXIT] = ruleStageResults[this.exitStage.id];
+
+    return ruleStageResults;
   }
 
   override validateContext(context: TRuleExecutorContext): TExecutorValidationResult<TRuleExecutorContext> {
@@ -105,5 +106,25 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
     return sortedStageIds.map(
       stageId => stages.find(stage => stage.id === stageId)!
     );
+  }
+
+  private wrapRuleInputs(ruleInputs: TRuleInputs, context: TRuleExecutorContext): TExecutorResult<any> {
+    const nodeContext = this.entryStage.createNodeContext(context);
+
+    const wrappedInputs = this.entryStage.node
+      .getMetadata(nodeContext)
+      .inputs
+      .reduce(
+        (acc, input) => ({
+          ...acc,
+          [input.id]: input.type.fromNative(ruleInputs[input.id]),
+        }),
+        {}
+      );
+
+    return {
+      executionTimeMs: 0,
+      outputs: wrappedInputs,
+    };
   }
 }
