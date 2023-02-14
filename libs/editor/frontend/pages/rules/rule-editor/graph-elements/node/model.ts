@@ -227,7 +227,11 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
 
   setPreviewValues(previewValues?: TPreviewValues) {
     if (!previewValues) {
+      if (!this.options.previewValues) { return; }
+
       this.options.previewValues = undefined;
+
+      this.fireEvent({}, 'nodeUpdated');
 
       return;
     }

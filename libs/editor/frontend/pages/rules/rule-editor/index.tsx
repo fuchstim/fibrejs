@@ -4,7 +4,8 @@ import { Button, Col, Popconfirm, Row, Spin, notification } from 'antd';
 
 import {
   CanvasWidget,
-  DiagramEngine
+  DiagramEngine,
+  ListenerHandle
 } from '@projectstorm/react-diagrams';
 
 import './_style.css';
@@ -23,6 +24,9 @@ import PreviewRuleDrawer from './_preview-rule-drawer';
 export default function RuleEditor() {
   const [ loading, setLoading, ] = useState(false);
   const [ rule, setRule, ] = useState<Types.Config.TRuleConfig>();
+  const [ listeners, setListeners, ] = useState<ListenerHandle[]>([]);
+  const [ confirmDiscard, setConfirmDiscard, ] = useState(false);
+  const [ showDiscardPopover, setShowDiscardPopover, ] = useState(false);
   const [ showAddNodeDrawer, setShowAddNodeDrawer, ] = useState(false);
   const [ showPreviewRuleDrawer, setShowPreviewRuleDrawer, ] = useState(false);
   const [ engine, setEngine, ] = useState<DiagramEngine>();
@@ -31,7 +35,11 @@ export default function RuleEditor() {
   const navigate = useNavigate();
 
   useEffect(
-    () => { getRule(); },
+    () => {
+      getRule();
+
+      return () => { listeners.map(l => l.deregister()); };
+    },
     []
   );
 
@@ -46,15 +54,25 @@ export default function RuleEditor() {
       const rule = await client.getRule(ruleId);
       setRule(rule);
 
-      await fetchStages(rule)
-        .then(stages => createDiagramEngine(stages))
-        .then(engine => setEngine(engine));
+      const stages = await fetchStages(rule);
+      const engine = createDiagramEngine(stages);
+      setEngine(engine);
 
-      // TODO: Register change listeners to detect graph changes
-      // model
-      //   .getNodes()
-      //   .forEach(node => node.registerListener({ optionsUpdated }))
-      // model.registerListener({ nodesUpdated, linksUpdated, });
+      const modelListener = engine.getModel().registerListener({
+        nodesUpdated: () => handleGraphUpdated(engine),
+        linksUpdated: () => handleGraphUpdated(engine),
+      });
+
+      const nodeListeners = engine
+        .getModel()
+        .getNodes()
+        .map(
+          node => node.registerListener({
+            optionsUpdated: () => handleGraphUpdated(engine),
+          })
+        );
+
+      setListeners([ ...listeners, modelListener, ...nodeListeners, ]);
     } catch (error) {
       const { message, response, } = error as AxiosError;
       notification.error({ message, });
@@ -123,6 +141,13 @@ export default function RuleEditor() {
       50 + Math.random() * 150
     );
 
+    setListeners([
+      ...listeners,
+      nodeModel.registerListener({
+        optionsUpdated: () => handleGraphUpdated(engine),
+      }),
+    ]);
+
     engine.getModel().addNode(nodeModel);
 
     setTimeout(() => {
@@ -143,15 +168,13 @@ export default function RuleEditor() {
     setTimeout(() => distributeNodes(engine), 50);
   };
 
-  const clearPreviewValues = () => {
-    if (!engine) { return; }
-
+  const handleGraphUpdated = (engine: DiagramEngine) => {
     engine
       .getModel()
       .getNodes()
       .forEach(node => (node as EditorNodeModel).setPreviewValues());
 
-    setTimeout(() => distributeNodes(engine), 50);
+    setConfirmDiscard(true);
   };
 
   const getContent = () => {
@@ -221,8 +244,10 @@ export default function RuleEditor() {
               okText="Yes"
               cancelText="No"
               onConfirm={() => navigate('/rules')}
+              onCancel={() => setShowDiscardPopover(false)}
+              open={showDiscardPopover}
             >
-              <Button disabled={loading}>
+              <Button disabled={loading} onClick={() => confirmDiscard ? setShowDiscardPopover(true) : navigate('/rules')}>
                 Cancel
               </Button>
             </Popconfirm>

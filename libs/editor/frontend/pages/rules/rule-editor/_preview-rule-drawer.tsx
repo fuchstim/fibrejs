@@ -160,8 +160,6 @@ export default function PreviewRuleDrawer({ ruleConfig, open, onPreviewValues, o
           return { [prefix]: output.value, };
         }
 
-        console.log({ output, prefix, value, });
-
         const flattened: Record<string, any> = Object
           .entries(type.fields)
           .reduce(
@@ -179,8 +177,6 @@ export default function PreviewRuleDrawer({ ruleConfig, open, onPreviewValues, o
         (acc, { id, type, }) => ({ ...acc, ...flattenOutputs(id, type, acc), }),
         ruleResult.outputs[stage.id].outputs
       );
-
-      console.log({ outputs, });
 
       const executionTimeMs = ruleResult.outputs[stage.id].executionTimeMs;
 
