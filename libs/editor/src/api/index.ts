@@ -18,7 +18,7 @@ export default function createApiMiddleware(engine: Engine) {
   app.use((_, res: Response, next: NextFunction) => {
     setTimeout(
       () => next(),
-      Math.random() * 2_000
+      Math.random() * 500
     );
   });
 

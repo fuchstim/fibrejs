@@ -132,7 +132,7 @@ export default function RuleEditor() {
       ruleId,
       node,
       inputs: [],
-      nodeOptions: {},
+      nodeOptions: node.defaultOptions,
     };
 
     const nodeModel = new EditorNodeModel({ ruleStage, });

@@ -219,7 +219,7 @@ export default class Engine extends EventEmitter<TEventTypes> {
       ruleSets: this.ruleSets,
       rule: this.rules.find(rule => rule.id === context?.ruleId),
       ruleSet: this.ruleSets.find(ruleSet => ruleSet.id === context?.ruleSetId),
-      nodeOptions: context?.nodeOptions ?? node.getDefaultOptions(),
+      nodeOptions: { ...node.getDefaultOptions(), ...context?.nodeOptions, },
     };
 
     return serializer.serializeNode(node, nodeContext);
