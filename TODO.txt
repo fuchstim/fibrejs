@@ -4,3 +4,4 @@
 - Node display options
 - Return more detailed outputs of executeRule node
 - Fix rule editor link routing
+- Render entry / exit input / output ports but inactive
