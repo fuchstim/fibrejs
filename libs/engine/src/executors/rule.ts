@@ -85,7 +85,7 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
 
     const invalidInputs = requiredInputs
       .map(requiredInput => {
-        if (!inputs[requiredInput.id]) {
+        if (inputs[requiredInput.id] == null) {
           return { input: requiredInput, valid: false, reason: 'Missing', };
         }
 
