@@ -130,22 +130,7 @@ export default class Engine extends EventEmitter<TEventTypes> {
       throw new Error(`Invalid rule set configuration: ${validationResult.reason}`);
     }
 
-    return ruleSet;
-  }
-
-  async previewRuleSet(config: TRuleSetConfig, inputs: TRuleSetInputs) {
-    const ruleSet = ConfigParser.parseRuleSet(config);
-
-    const executionId = `preview-${uuidV4()}`;
-    const context = {
-      executionId,
-      logger: new Logger().ns(executionId),
-      rules: this.rules,
-      ruleSets: this.ruleSets,
-    };
-    const result = ruleSet.run(inputs, context);
-
-    return result;
+    return { valid: true, };
   }
 
   async executeRuleSet(ruleSetId: string, inputs: TRuleSetInputs) {

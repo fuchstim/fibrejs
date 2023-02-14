@@ -3,9 +3,9 @@ import type { Types } from '@tripwire/engine';
 
 import { ERequestMethod, IService } from '../../types';
 
-type TValidateRuleService = {
+type TValidateRuleSetService = {
   [ERequestMethod.CREATE]: {
-    'PAYLOAD': Types.Config.TRuleConfig,
+    'PAYLOAD': Types.Config.TRuleSetConfig,
     'RESULT': { valid: boolean }
   },
   [ERequestMethod.FIND]: { 'PAYLOAD': never, 'RESULT': never },
@@ -14,15 +14,15 @@ type TValidateRuleService = {
   [ERequestMethod.DELETE]: { 'PAYLOAD': never, 'RESULT': never },
 };
 
-export default class RuleValidationService implements IService<TValidateRuleService> {
+export default class RuleSetValidationService implements IService<TValidateRuleSetService> {
   private engine: Engine;
 
   constructor(engine: Engine) {
     this.engine = engine;
   }
 
-  create(config: TValidateRuleService[ERequestMethod.CREATE]['PAYLOAD']) {
-    const result = this.engine.validateRuleConfig(config);
+  create(config: TValidateRuleSetService[ERequestMethod.CREATE]['PAYLOAD']) {
+    const result = this.engine.validateRuleSetConfig(config);
 
     return result;
   }

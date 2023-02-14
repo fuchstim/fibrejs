@@ -3,7 +3,7 @@ import { Types } from '@tripwire/engine';
 import { useNavigate, useParams } from 'react-router-dom';
 import client from '../../common/client';
 import { Button, Col, Form, Popover, Popconfirm, Row, Table, notification, Select } from 'antd';
-import { CaretRightOutlined, DeleteOutlined, PlusOutlined, SaveOutlined } from '@ant-design/icons';
+import { DeleteOutlined, PlusOutlined, SaveOutlined } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
 import Page from '../../components/page';
 import { AxiosError } from 'axios';
@@ -93,7 +93,8 @@ export default function RuleSetEditor() {
 
     setLoading(true);
 
-    await client.updateRuleSet(ruleSet)
+    await client.validateRuleSet(ruleSet)
+      .then(() => client.updateRuleSet(ruleSet))
       .then(() => navigate('/rule-sets'))
       .catch(error => notification.error(error))
       .finally(() => setLoading(false));
@@ -204,14 +205,6 @@ export default function RuleSetEditor() {
                 disabled={loading}
               />
             </Popover>
-          </Col>
-
-          <Col>
-            <Button
-              icon={<CaretRightOutlined/>}
-              disabled={loading}
-              // onClick={() => setShowExecutionDrawer(true)}
-            />
           </Col>
 
           <Col>

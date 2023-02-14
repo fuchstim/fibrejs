@@ -105,7 +105,7 @@ export default function RuleEditor() {
 
     setLoading(true);
 
-    await client.validateRuleConfig(updatedConfig)
+    await client.validateRule(updatedConfig)
       .then(() => client.updateRule(updatedConfig))
       .then(() => navigate('/rules'))
       .catch(error => notification.error(error))

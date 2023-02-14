@@ -1,5 +1,3 @@
 - Support collection data types
 - Cleanup executor types
 - Support complex input types in rule preview
-- Detect graph changes
-  - Clear previews, prompt discard changes

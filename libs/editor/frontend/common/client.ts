@@ -76,7 +76,7 @@ export default {
   createRule: (rule: Omit<Types.Config.TRuleConfig, 'id'>) => wrappedPost<Omit<Types.Config.TRuleConfig, 'id'>, Types.Config.TRuleConfig>('rules', rule),
   updateRule: (rule: Types.Config.TRuleConfig) => wrappedPatch<Types.Config.TRuleConfig, Types.Config.TRuleConfig>(`rules/${rule.id}`, rule),
   deleteRule: (ruleId: string) => wrappedDelete<Types.Config.TRuleConfig>(`rules/${ruleId}`),
-  validateRuleConfig: (config: Types.Config.TRuleConfig) => wrappedPost<Types.Config.TRuleConfig, { valid: boolean }>('rules/validate', config),
+  validateRule: (config: Types.Config.TRuleConfig) => wrappedPost<Types.Config.TRuleConfig, { valid: boolean }>('rules/validate', config),
   previewRule: (payload: TPreviewRuleServicePayload) => wrappedPost<TPreviewRuleServicePayload, Types.Common.TExecutorResult<Types.Rule.TRuleOutputs>>('rules/preview', payload),
 
   getRuleSet: (ruleId: string) => wrappedGet<Types.Config.TRuleSetConfig>(`rule-sets/${ruleId}`),
@@ -84,4 +84,5 @@ export default {
   createRuleSet: (ruleSet: Omit<Types.Config.TRuleSetConfig, 'id'>) => wrappedPost<Omit<Types.Config.TRuleSetConfig, 'id'>, Types.Config.TRuleSetConfig>('rule-sets', ruleSet),
   updateRuleSet: (ruleSet: Types.Config.TRuleSetConfig) => wrappedPatch<Types.Config.TRuleSetConfig, Types.Config.TRuleSetConfig>(`rule-sets/${ruleSet.id}`, ruleSet),
   deleteRuleSet: (ruleSetId: string) => wrappedDelete<Types.Config.TRuleSetConfig>(`rule-sets/${ruleSetId}`),
+  validateRuleSet: (config: Types.Config.TRuleSetConfig) => wrappedPost<Types.Config.TRuleSetConfig, { valid: boolean }>('rule-sets/validate', config),
 };

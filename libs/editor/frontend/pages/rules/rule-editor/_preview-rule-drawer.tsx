@@ -39,7 +39,7 @@ export default function PreviewRuleDrawer({ ruleConfig, open, onPreviewValues, o
     setLoading(true);
 
     try {
-      await client.validateRuleConfig(ruleConfig);
+      await client.validateRule(ruleConfig);
 
       const stages = await fetchStages(ruleConfig);
 
