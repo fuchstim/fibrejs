@@ -142,3 +142,10 @@ export function exportRuleStages(engine: DiagramEngine): Types.Config.TRuleStage
 
   return stages;
 }
+
+export function camelCaseToSentenceCase(input: string) {
+  return [ input.slice(0, 1).toUpperCase(), input.slice(1), ]
+    .join('')
+    .replace(/([A-Z])/g, ' $1')
+    .trim();
+}

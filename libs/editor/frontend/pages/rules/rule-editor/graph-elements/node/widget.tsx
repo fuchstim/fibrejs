@@ -55,9 +55,7 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
     );
   };
 
-  const createInput = (name: string, inputOptions?: Types.Node.TNodeMetadataInputOptions) => {
-    const type = inputOptions?.type ?? WrappedTypes.EPrimitive.STRING;
-
+  const createInput = (name: string, type: WrappedTypes.EPrimitive) => {
     const input = {
       [WrappedTypes.EPrimitive.NUMBER]: {
         valuePropName: 'value',
@@ -73,7 +71,7 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
       },
     };
 
-    return input[type] ?? input[WrappedTypes.EPrimitive.STRING];
+    return input[type];
   };
 
   const createDropDownInput = (name: string, dropDownOptions: Types.Node.TNodeMetadataDropDownOption[] = []) => {
@@ -94,7 +92,7 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
 
     switch (type) {
       case Types.Node.ENodeMetadataOptionType.INPUT:
-        input = createInput(name, nodeOption.inputOptions);
+        input = createInput(name, nodeOption.inputOptions.type);
         break;
       case Types.Node.ENodeMetadataOptionType.DROP_DOWN:
         input = createDropDownInput(name, nodeOption.dropDownOptions);

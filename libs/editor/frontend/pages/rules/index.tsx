@@ -1,7 +1,7 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 
-import RuleList from './rule-list';
+import RuleList from './_rule-list';
 import RuleEditor from './rule-editor';
 
 export default function Rules() {

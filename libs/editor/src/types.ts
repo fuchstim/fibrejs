@@ -1,3 +1,4 @@
+import type { Types } from '@tripwire/engine';
 import { Request, Response } from 'express';
 
 export enum ERequestMethod {
@@ -51,4 +52,9 @@ export type TAuthenticatedUser = {
   id: string,
   name: string,
   avatarUrl?: string,
+};
+
+export type TPreviewRuleServicePayload = {
+  config: Types.Config.TRuleConfig,
+  inputs: Record<string, unknown>
 };

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button, Drawer, Table, notification } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
-import client from '../common/client';
+import client from '../../../common/client';
 import type { Types } from '@tripwire/engine';
 import { ColumnsType } from 'antd/es/table';
 

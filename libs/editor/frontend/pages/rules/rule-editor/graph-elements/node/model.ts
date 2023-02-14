@@ -8,11 +8,12 @@ import {
 } from '@projectstorm/react-diagrams';
 
 import EditorPortModel, { EPortType } from '../port/model';
-import { TRuleStageWithNode } from '../../_types';
+import { TPreviewValues, TRuleStageWithNode } from '../../_types';
 
 import { Types } from '@tripwire/engine';
 
 import client from '../../../../../common/client';
+import { camelCaseToSentenceCase } from '../../_common';
 
 interface OptionsUpdatedEvent extends BaseEvent {
   updatedOptions?: Types.Node.TNodeOptions
@@ -25,7 +26,7 @@ interface EditorNodeModelListener {
 
 interface EditorNodeModelOptions {
   ruleStage: TRuleStageWithNode;
-  previewValues?: Record<string, unknown>;
+  previewValues?: TPreviewValues;
 }
 
 interface EditorNodeModelGenerics extends NodeModelGenerics {
@@ -125,20 +126,13 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
       return [ port, ];
     }
 
-    const formatKey = (key: string) => {
-      return [ key.slice(0, 1).toUpperCase(), key.slice(1), ]
-        .join('')
-        .replace(/([A-Z])/g, ' $1')
-        .trim();
-    };
-
     const fieldPorts = Object
       .entries(config.type.fields)
       .flatMap(
         ([ key, type, ]) => this.generatePortsFromNodeOutput(
           {
             id: [ config.id, key, ].join('.'),
-            name: [ config.name, formatKey(key), ].join(' → '),
+            name: [ config.name, camelCaseToSentenceCase(key), ].join(' → '),
             type,
           },
           level + 1
@@ -231,7 +225,7 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
     this.fireEvent({}, 'nodeUpdated');
   }
 
-  setPreviewValues(previewValues?: Record<string, unknown>) {
+  setPreviewValues(previewValues?: TPreviewValues) {
     this.options.previewValues = previewValues;
 
     this.fireEvent({}, 'nodeUpdated');

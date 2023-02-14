@@ -25,7 +25,7 @@ import { TRuleSetInputs } from './types/rule-set';
 import { TMultiSerializationContext, TSerializationContext } from './types/serializer';
 import { TEventTypes } from './types/events';
 import { TRuleSetExecutorContext } from './types/rule-set';
-import { TEngineConfig, TRuleConfig } from './types/config';
+import { TEngineConfig, TRuleConfig, TRuleSetConfig } from './types/config';
 import { TRuleInputs } from './types/rule';
 
 export type TEngineOptions = {
@@ -62,6 +62,38 @@ export default class Engine extends EventEmitter<TEventTypes> {
     await this.loadConfig();
   }
 
+  validateRuleConfig(config: TRuleConfig) {
+    const rule = ConfigParser.parseRule(config, this.nodes);
+
+    const validationContext = {
+      executionId: 'validation',
+      logger: new Logger('validation'),
+      rules: this.rules,
+      ruleSets: this.ruleSets,
+    };
+    const validationResult = rule.validateContext(validationContext);
+    if (!validationResult.valid) {
+      throw new Error(`Invalid rule configuration: ${validationResult.reason}`);
+    }
+
+    return { valid: true, };
+  }
+
+  async previewRule(config: TRuleConfig, inputs: TRuleInputs) {
+    const rule = ConfigParser.parseRule(config, this.nodes);
+
+    const executionId = `preview-${uuidV4()}`;
+    const context = {
+      executionId,
+      logger: new Logger().ns(executionId),
+      rules: this.rules,
+      ruleSets: this.ruleSets,
+    };
+    const result = rule.run(inputs, context);
+
+    return result;
+  }
+
   async executeRule(ruleId: string, inputs: TRuleSetInputs) {
     const rule = this.rules.find(rule => rule.id === ruleId);
     if (!rule) {
@@ -84,8 +116,25 @@ export default class Engine extends EventEmitter<TEventTypes> {
     return result;
   }
 
-  async executeRuleConfig(config: TRuleConfig, inputs: TRuleInputs) {
-    const rule = ConfigParser.parseRule(config, this.nodes);
+  validateRuleSetConfig(config: TRuleSetConfig) {
+    const ruleSet = ConfigParser.parseRuleSet(config);
+
+    const validationContext = {
+      executionId: 'validation',
+      logger: new Logger('validation'),
+      rules: this.rules,
+      ruleSets: this.ruleSets,
+    };
+    const validationResult = ruleSet.validateContext(validationContext);
+    if (validationResult.valid) {
+      throw new Error(`Invalid rule set configuration: ${validationResult.reason}`);
+    }
+
+    return ruleSet;
+  }
+
+  async previewRuleSet(config: TRuleSetConfig, inputs: TRuleSetInputs) {
+    const ruleSet = ConfigParser.parseRuleSet(config);
 
     const executionId = `preview-${uuidV4()}`;
     const context = {
@@ -94,7 +143,7 @@ export default class Engine extends EventEmitter<TEventTypes> {
       rules: this.rules,
       ruleSets: this.ruleSets,
     };
-    const result = rule.run(inputs, context);
+    const result = ruleSet.run(inputs, context);
 
     return result;
   }

@@ -11,18 +11,20 @@ import './_style.css';
 
 import { createDiagramEngine, distributeNodes, exportRuleStages, fetchStages } from './_common';
 import { CaretRightOutlined, PicCenterOutlined, PlusOutlined, SaveOutlined } from '@ant-design/icons';
-import AddNodeDrawer from '../../../components/add-node-drawer';
+import AddNodeDrawer from './_add-node-drawer';
 import Page from '../../../components/page';
 import EditorNodeModel from './graph-elements/node/model';
 import type { Types } from '@tripwire/engine';
 import { TRuleStageWithNode } from './_types';
 import client from '../../../common/client';
 import { AxiosError } from 'axios';
+import PreviewRuleDrawer from './_preview-rule-drawer';
 
 export default function RuleEditor() {
   const [ loading, setLoading, ] = useState(false);
   const [ rule, setRule, ] = useState<Types.Config.TRuleConfig>();
   const [ showAddNodeDrawer, setShowAddNodeDrawer, ] = useState(false);
+  const [ showPreviewRuleDrawer, setShowPreviewRuleDrawer, ] = useState(false);
   const [ engine, setEngine, ] = useState<DiagramEngine>();
 
   const { ruleId, } = useParams();
@@ -67,6 +69,8 @@ export default function RuleEditor() {
       name: rule.name,
       stages: exportRuleStages(engine),
     };
+
+    setRule(currentConfig);
 
     return currentConfig;
   };
@@ -139,6 +143,12 @@ export default function RuleEditor() {
           onSelected={node => addNodeToGraph(node)}
           onClose={() => setShowAddNodeDrawer(false)}
         />
+        <PreviewRuleDrawer
+          ruleConfig={rule}
+          open={showPreviewRuleDrawer}
+          onPreviewValues={console.log}
+          onClose={() => setShowPreviewRuleDrawer(false)}
+        />
       </>
     );
   };
@@ -161,7 +171,7 @@ export default function RuleEditor() {
             <Button
               icon={<CaretRightOutlined/>}
               disabled={loading}
-              // onClick={() => setShowExecutionDrawer(true)}
+              onClick={() => { getCurrentConfig(); setShowPreviewRuleDrawer(true); }}
             />
           </Col>
 

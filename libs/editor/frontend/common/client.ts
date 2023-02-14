@@ -1,7 +1,7 @@
 import path from 'path';
 import type { Types } from '@tripwire/engine';
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
-import { TAuthenticatedUser } from '../../src/types';
+import { TAuthenticatedUser, TPreviewRuleServicePayload } from '../../src/types';
 
 const client = axios.create({
   baseURL: '/api',
@@ -76,6 +76,8 @@ export default {
   createRule: (rule: Omit<Types.Config.TRuleConfig, 'id'>) => wrappedPost<Omit<Types.Config.TRuleConfig, 'id'>, Types.Config.TRuleConfig>('rules', rule),
   updateRule: (rule: Types.Config.TRuleConfig) => wrappedPatch<Types.Config.TRuleConfig, Types.Config.TRuleConfig>(`rules/${rule.id}`, rule),
   deleteRule: (ruleId: string) => wrappedDelete<Types.Config.TRuleConfig>(`rules/${ruleId}`),
+  validateRuleConfig: (config: Types.Config.TRuleConfig) => wrappedPost<Types.Config.TRuleConfig, { valid: boolean }>('rules/validate', config),
+  previewRule: (payload: TPreviewRuleServicePayload) => wrappedPost<TPreviewRuleServicePayload, Types.Common.TExecutorResult<Types.Rule.TRuleOutputs>>('rule/preview', payload),
 
   getRuleSet: (ruleId: string) => wrappedGet<Types.Config.TRuleSetConfig>(`rule-sets/${ruleId}`),
   findRuleSets: () => wrappedGet<Types.Config.TRuleSetConfig[]>('rule-sets'),

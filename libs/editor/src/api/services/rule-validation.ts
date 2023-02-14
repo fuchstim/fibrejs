@@ -5,11 +5,8 @@ import { ERequestMethod, IService } from '../../types';
 
 type TPreviewRuleService = {
   [ERequestMethod.CREATE]: {
-    'PAYLOAD': {
-      config: Types.Config.TRuleConfig,
-      inputs: Record<string, unknown>
-    },
-    'RESULT': Types.Common.TExecutorResult<Types.Rule.TRuleOutputs>
+    'PAYLOAD': Types.Config.TRuleConfig,
+    'RESULT': { valid: boolean }
   },
   [ERequestMethod.FIND]: { 'PAYLOAD': never, 'RESULT': never },
   [ERequestMethod.GET]: { 'PAYLOAD': never, 'RESULT': never },
@@ -17,15 +14,15 @@ type TPreviewRuleService = {
   [ERequestMethod.DELETE]: { 'PAYLOAD': never, 'RESULT': never },
 };
 
-export default class PreviewRuleService implements IService<TPreviewRuleService> {
+export default class RuleValidationService implements IService<TPreviewRuleService> {
   private engine: Engine;
 
   constructor(engine: Engine) {
     this.engine = engine;
   }
 
-  async create({ config, inputs, }: TPreviewRuleService[ERequestMethod.CREATE]['PAYLOAD']) {
-    const result = await this.engine.executeRuleConfig(config, inputs);
+  create(config: TPreviewRuleService[ERequestMethod.CREATE]['PAYLOAD']) {
+    const result = this.engine.validateRuleConfig(config);
 
     return result;
   }
