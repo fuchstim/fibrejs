@@ -26,7 +26,7 @@ interface EditorNodeModelListener {
 
 interface EditorNodeModelOptions {
   ruleStage: TRuleStageWithNode;
-  previewValues?: TPreviewValues;
+  previewValues?: Record<string, unknown>;
 }
 
 interface EditorNodeModelGenerics extends NodeModelGenerics {
@@ -226,7 +226,30 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
   }
 
   setPreviewValues(previewValues?: TPreviewValues) {
-    this.options.previewValues = previewValues;
+    if (!previewValues) {
+      this.options.previewValues = undefined;
+
+      return;
+    }
+
+    const inputPreviewValues = Object
+      .entries(previewValues.inputs)
+      .reduce(
+        (acc, [ key, value, ]) => ({ ...acc, [this.prefixPortId(key, EPortType.INPUT)]: value, }),
+        {}
+      );
+
+    const outputPreviewValues = Object
+      .entries(previewValues.outputs)
+      .reduce(
+        (acc, [ key, value, ]) => ({ ...acc, [this.prefixPortId(key, EPortType.OUTPUT)]: value, }),
+        {}
+      );
+
+    this.options.previewValues = {
+      ...inputPreviewValues,
+      ...outputPreviewValues,
+    };
 
     this.fireEvent({}, 'nodeUpdated');
   }

@@ -2,4 +2,8 @@ import type { Types } from '@tripwire/engine';
 
 export type TRuleStageWithNode = Types.Config.TRuleStageConfig & { ruleId?: string, node: Types.Serializer.TSerializedNode };
 
-export type TPreviewValues = Record<string, unknown>;
+export type TPreviewValues = {
+  executionTimeMs: number,
+  inputs: Record<string, unknown>,
+  outputs: Record<string, unknown>
+};

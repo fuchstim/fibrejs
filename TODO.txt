@@ -1,5 +1,5 @@
-- Execute rule / rule-set from editor
-  - Show values on rule stages / ports
 - Support collection data types
 - Cleanup executor types
 - Support complex input types in rule preview
+- Detect graph changes
+  - Clear previews, prompt discard changes

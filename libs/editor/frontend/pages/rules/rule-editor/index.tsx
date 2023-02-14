@@ -15,7 +15,7 @@ import AddNodeDrawer from './_add-node-drawer';
 import Page from '../../../components/page';
 import EditorNodeModel from './graph-elements/node/model';
 import type { Types } from '@tripwire/engine';
-import { TRuleStageWithNode } from './_types';
+import { TPreviewValues, TRuleStageWithNode } from './_types';
 import client from '../../../common/client';
 import { AxiosError } from 'axios';
 import PreviewRuleDrawer from './_preview-rule-drawer';
@@ -49,6 +49,12 @@ export default function RuleEditor() {
       await fetchStages(rule)
         .then(stages => createDiagramEngine(stages))
         .then(engine => setEngine(engine));
+
+      // TODO: Register change listeners to detect graph changes
+      // model
+      //   .getNodes()
+      //   .forEach(node => node.registerListener({ optionsUpdated }))
+      // model.registerListener({ nodesUpdated, linksUpdated, });
     } catch (error) {
       const { message, response, } = error as AxiosError;
       notification.error({ message, });
@@ -124,6 +130,26 @@ export default function RuleEditor() {
     }, 100);
   };
 
+  const updatePreviewValues = (stagePreviewValues: { stageId: string, previewValues: TPreviewValues }[]) => {
+    if (!engine) { return; }
+
+    const model = engine.getModel();
+
+    for (const { stageId, previewValues, } of stagePreviewValues) {
+      const node = model.getNode(stageId) as EditorNodeModel;
+      node.setPreviewValues(previewValues);
+    }
+  };
+
+  const clearPreviewValues = () => {
+    if (!engine) { return; }
+
+    engine
+      .getModel()
+      .getNodes()
+      .forEach(node => (node as EditorNodeModel).setPreviewValues());
+  };
+
   const getContent = () => {
     if (loading || !engine) {
       return (
@@ -147,7 +173,7 @@ export default function RuleEditor() {
         <PreviewRuleDrawer
           ruleConfig={rule}
           open={showPreviewRuleDrawer}
-          onPreviewValues={console.log}
+          onPreviewValues={previewValues => updatePreviewValues(previewValues)}
           onClose={() => setShowPreviewRuleDrawer(false)}
         />
       </>

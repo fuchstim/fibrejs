@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react';
 import { Button, Checkbox, Drawer, Form, Input, InputNumber, Spin, Typography, notification } from 'antd';
 
@@ -9,7 +10,7 @@ import { camelCaseToSentenceCase, fetchStages } from './_common';
 type Props = {
   ruleConfig?: Types.Config.TRuleConfig,
   open: boolean
-  onPreviewValues: (previewValues: Record<string, TPreviewValues>) => void;
+  onPreviewValues: (previewValues: { stageId: string, previewValues: TPreviewValues }[]) => void;
   onClose: () => void;
 };
 
@@ -129,45 +130,62 @@ export default function PreviewRuleDrawer({ ruleConfig, open, onPreviewValues, o
         previewRuleForm.resetFields();
         onPreviewValues(previewValues);
       })
-      .catch(e => notification.error({ message: e.emssage, }))
+      .catch(e => notification.error({ message: e.message, }))
       .finally(() => setLoading(false));
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const getOutput = (outputs: Record<string, any>, key: string) => {
-    const keyParts = key.split('.');
-
-    console.log(outputs, key);
-
-    return keyParts.reduce(
+  const getValueByKey = (outputs: Record<string, any>, key: string) => (
+    key.split('.').reduce(
       (acc, keyPart) => acc[keyPart],
       outputs
-    );
-  };
+    )
+  );
 
   const toPreviewValues = async (ruleResult: Types.Common.TExecutorResult<Types.Rule.TRuleOutputs>) => {
     const stages = await fetchStages(ruleConfig);
 
-    return stages.reduce(
-      (acc, stage) => {
-        const inputs = stage.inputs.reduce(
-          (acc, input) => ({
-            ...acc,
-            [input.inputId]: getOutput(ruleResult.outputs[input.ruleStageId].outputs, input.outputId),
-          }),
-          {}
-        );
-
-        const outputs = ruleResult.outputs[stage.id].outputs;
-        const executionTimeMs = ruleResult.outputs[stage.id].executionTimeMs;
-
-        return {
+    return stages.map(stage => {
+      const inputs = stage.inputs.reduce(
+        (acc, input) => ({
           ...acc,
-          [stage.id]: { inputs, outputs, executionTimeMs, },
-        };
-      },
-      {}
-    );
+          [input.inputId]: getValueByKey(ruleResult.outputs[input.ruleStageId].outputs, input.outputId).value,
+        }),
+        {}
+      );
+
+      const flattenOutputs = (prefix: string, type: Types.Serializer.TSerializedType, value: Record<string, any>) => {
+        const output = getValueByKey(value, prefix);
+
+        if (!type.isComplex) {
+          return { [prefix]: output.value, };
+        }
+
+        console.log({ output, prefix, value, });
+
+        const flattened: Record<string, any> = Object
+          .entries(type.fields)
+          .reduce(
+            (acc, [ key, type, ]) => ({
+              ...acc,
+              ...flattenOutputs(`${prefix}.${key}`, type, value),
+            }),
+            { [prefix]: output, }
+          );
+
+        return flattened;
+      };
+
+      const outputs = stage.node.outputs.reduce(
+        (acc, { id, type, }) => ({ ...acc, ...flattenOutputs(id, type, acc), }),
+        ruleResult.outputs[stage.id].outputs
+      );
+
+      console.log({ outputs, });
+
+      const executionTimeMs = ruleResult.outputs[stage.id].executionTimeMs;
+
+      return { stageId: stage.id, previewValues: { inputs, outputs, executionTimeMs, }, };
+    });
   };
 
   return (
