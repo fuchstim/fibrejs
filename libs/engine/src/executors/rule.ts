@@ -78,6 +78,46 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
     };
   }
 
+  override validateInputs(inputs: TRuleInputs, context: TRuleExecutorContext): TExecutorValidationResult<TRuleInputs> {
+    const nodeContext = this.entryStage.createNodeContext(context);
+
+    const { inputs: requiredInputs, } = this.entryStage.node.getMetadata(nodeContext);
+
+    const invalidInputs = requiredInputs
+      .map(requiredInput => {
+        if (!inputs[requiredInput.id]) {
+          return { input: requiredInput, valid: false, reason: 'Missing', };
+        }
+
+        try {
+          requiredInput.type.validate(
+            requiredInput.type.wrap(inputs[requiredInput.id])
+          );
+
+          return { input: requiredInput, valid: true, };
+        } catch (e) {
+          const { message, } = e as Error;
+
+          return { input: requiredInput, valid: false, reason: `Invalid (${message})`, };
+        }
+      })
+      .filter(r => !r.valid);
+
+    if (invalidInputs.length) {
+      return {
+        valid: false,
+        reason: `One or more inputs is invalid: ${invalidInputs.map(i => `${i.input.id} (${i.reason})`).join(', ')}`,
+        actual: inputs,
+      };
+    }
+
+    return {
+      valid: true,
+      reason: null,
+      actual: inputs,
+    };
+  }
+
   private sortStages(stages: RuleStage[]): RuleStage[] {
     const stagesWithoutDependencies = stages.filter(
       stage => stage.dependsOn.length === 0
