@@ -122,6 +122,7 @@ export default function PreviewRuleDrawer({ ruleConfig, open, onPreviewValues, o
     await client.previewRule({ config: ruleConfig, inputs, })
       .then(ruleResult => {
         onClose();
+        previewRuleForm.resetFields();
         onPreviewValues(toPreviewValues(ruleResult));
       })
       .catch(e => notification.error({ message: e.emssage, }))
