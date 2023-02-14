@@ -16,9 +16,10 @@ export default function createApiMiddleware(engine: Engine) {
 
   app.use(express.json());
   app.use((_, res: Response, next: NextFunction) => {
-    res.set('Access-Control-Allow-Origin', '*');
-
-    next();
+    setTimeout(
+      () => next(),
+      Math.random() * 2_000
+    );
   });
 
   registerService(app, '/nodes', new NodesService(engine));

@@ -136,6 +136,7 @@ export default function RuleList() {
           <Button
             type="primary"
             icon={<PlusOutlined />}
+            loading={loading}
           >
             Create
           </Button>

@@ -49,7 +49,7 @@ export default class RuleSet extends Executor<TRuleSetInputs, TRuleSetExecutorRe
         )
       )
     );
-    if (uniqueEntryNodeIds.length !== 1) {
+    if (uniqueEntryNodeIds.length > 1) {
       return {
         valid: false,
         reason: `All rule set entries must share the same entry node, but multiple node ids were found: (${uniqueEntryNodeIds.join(', ')})`,
