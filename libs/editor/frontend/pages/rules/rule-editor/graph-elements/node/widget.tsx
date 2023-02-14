@@ -49,6 +49,7 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
         port={port}
         key={port.getID()}
         onClick={config.type.isComplex ? () => toggleFold() : undefined}
+        expanded={level >= portFoldLevel}
         previewValue={editorNodeOptions.previewValues?.[port.getID()]}
         hideIfUnlinked={level > portFoldLevel}
       />

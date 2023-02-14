@@ -3,7 +3,8 @@ import { DiagramEngine, PortWidget } from '@projectstorm/react-diagrams';
 import {
   RightCircleTwoTone,
   RightCircleFilled,
-  CaretDownOutlined
+  CaretDownOutlined,
+  CaretUpOutlined
 } from '@ant-design/icons';
 
 import EditorPortModel from './model';
@@ -12,12 +13,15 @@ import { Row, Tag, Tooltip, Typography } from 'antd';
 interface EditorPortWidgetProps {
   port: EditorPortModel;
   engine: DiagramEngine;
+  expanded: boolean;
   hideIfUnlinked: boolean;
   previewValue?: unknown;
   onClick?: () => void;
 }
 
-export default function EditorPortWidget({ port, engine, hideIfUnlinked, onClick, previewValue, }: EditorPortWidgetProps) {
+export default function EditorPortWidget(props: EditorPortWidgetProps) {
+  const { port, engine, hideIfUnlinked, onClick, previewValue, expanded, } = props;
+
   const Icon = port.hasLink ? RightCircleFilled : RightCircleTwoTone;
   const iconStyle = port.isInput ? { marginRight: 5, marginLeft: -5, } : { marginRight: -5, marginLeft: 5, };
 
@@ -33,6 +37,7 @@ export default function EditorPortWidget({ port, engine, hideIfUnlinked, onClick
     </PortWidget>
   );
 
+  const labelIcon = expanded ? <CaretDownOutlined /> : <CaretUpOutlined />;
   const labelWidget = (
     <Tooltip
       placement={port.isInput ? 'right' : 'left'}
@@ -42,7 +47,7 @@ export default function EditorPortWidget({ port, engine, hideIfUnlinked, onClick
         <Tag
           closable={false}
           style={{ margin: 0, }}
-          icon={type.isComplex ? <CaretDownOutlined /> : null}
+          icon={type.isComplex ? labelIcon : null}
           onClick={() => onClick?.()}
         >
           {name}
