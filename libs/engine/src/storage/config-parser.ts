@@ -35,12 +35,21 @@ class ConfigParser implements IConfigParser {
       rules,
       ruleSets,
     };
+
+    const invalidRules = rules
+      .map(rule => ({ rule, result: rule.validateContext(validationContext), }))
+      .filter(({ result, }) => !result.valid);
+    if (invalidRules.length) {
+      const invalidReasons = invalidRules.map(r => `${r.rule.id} (${r.result.reason})`).join(', ');
+      throw new Error(`One or more rules are not valid: ${invalidReasons}`);
+    }
+
     const invalidRuleSets = ruleSets
       .map(ruleSet => ({ ruleSet, result: ruleSet.validateContext(validationContext), }))
       .filter(({ result, }) => !result.valid);
     if (invalidRuleSets.length) {
       const invalidReasons = invalidRuleSets.map(rs => `${rs.ruleSet.id} (${rs.result.reason})`).join(', ');
-      throw new Error(`One or more rule sets is not valid: ${invalidReasons}`);
+      throw new Error(`One or more rule sets are not valid: ${invalidReasons}`);
     }
 
     return {
