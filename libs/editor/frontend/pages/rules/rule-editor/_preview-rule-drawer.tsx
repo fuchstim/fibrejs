@@ -9,7 +9,7 @@ import { camelCaseToSentenceCase, fetchStages } from './_common';
 type Props = {
   ruleConfig?: Types.Config.TRuleConfig,
   open: boolean
-  onPreviewValues: (previewValues: TPreviewValues) => void;
+  onPreviewValues: (previewValues: Record<string, TPreviewValues>) => void;
   onClose: () => void;
 };
 
@@ -120,12 +120,16 @@ export default function PreviewRuleDrawer({ ruleConfig, open, onPreviewValues, o
     setLoading(true);
 
     await client.previewRule({ config: ruleConfig, inputs, })
-      .then(previewValues => {
+      .then(ruleResult => {
         onClose();
-        onPreviewValues(previewValues);
+        onPreviewValues(toPreviewValues(ruleResult));
       })
       .catch(e => notification.error({ message: e.emssage, }))
       .finally(() => setLoading(false));
+  };
+
+  const toPreviewValues = (ruleResult: Types.Common.TExecutorResult<Types.Rule.TRuleOutputs>) => {
+    return {};
   };
 
   return (
