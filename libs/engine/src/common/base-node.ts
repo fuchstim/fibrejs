@@ -45,20 +45,6 @@ export abstract class BaseNode<TInputs extends Record<string, any>, TOutputs ext
       }
     }
 
-    if (this.type === ENodeType.ENTRY) {
-      const complexInputs = inputs.filter(
-        input => !Object.values(EPrimitive).includes(input.type.id as EPrimitive)
-      );
-
-      if (complexInputs.length) {
-        return {
-          valid: false,
-          reason: `Entry node inputs cannot be complex (${complexInputs.map(i => i.id).join(', ')})`,
-          actual: context,
-        };
-      }
-    }
-
     const duplicateInputIds = detectDuplicates(inputs);
     if (duplicateInputIds.length) {
       return {

@@ -9,14 +9,14 @@ type TTypeValidationResult = { valid: true, reason: null, } | { valid: false, re
 export type TWrappedType<TNativeType, TCustomType extends Record<string, any>> = {
   id: string,
   name: string,
-  fields: Record<string, TWrappedType<any, any> | TWrappedPrimitive<any, any>>,
+  fields: Record<keyof TCustomType, TWrappedType<any, any> | TWrappedPrimitive<any, any>>,
   validate: (input: TCustomType) => TTypeValidationResult,
   unwrap: (input: TCustomType) => TNativeType,
   wrap: (input: TNativeType) => TCustomType
 };
 
 export type TWrappedPrimitive<TNativeType extends (string | number | boolean), TCustomType extends Record<string, any>> = Omit<TWrappedType<TNativeType, TCustomType>, 'fields'> & {
-  fields: Record<string, EPrimitive>
+  fields: Record<keyof TCustomType, EPrimitive>
 };
 
 function validatePrimitive(value: string | number | boolean, expected: 'string' | 'number' | 'boolean'): TTypeValidationResult {
@@ -99,9 +99,9 @@ export const WDateType: TWrappedType<Date, TDateType> = {
     const validationErrors: string[] = [];
 
     Object
-      .entries(wrappedDate)
-      .forEach(([ key, value, ]) => {
-        const { valid, reason, } = WDateType.fields[key].validate(value);
+      .keys(WDateType.fields)
+      .forEach(key => {
+        const { valid, reason, } = WDateType.fields[key as keyof TDateType].validate(wrappedDate[key as keyof TDateType]);
         if (!valid) {
           validationErrors.push(
             `Invalid ${key} (${reason})`

@@ -2,11 +2,11 @@ import { BaseNode, Types, WrappedTypes } from '@tripwire/engine';
 
 type TNodeInputs = {
   userId: WrappedTypes.TStringType,
-  age: WrappedTypes.TNumberType,
+  dateOfBirth: WrappedTypes.TDateType,
 };
 type TNodeOutputs = {
   userId: WrappedTypes.TStringType,
-  age: WrappedTypes.TNumberType,
+  dateOfBirth: WrappedTypes.TDateType,
 };
 
 export default class EntryTestNode extends BaseNode<TNodeInputs, TNodeOutputs, Record<string, never>> {
@@ -21,11 +21,11 @@ export default class EntryTestNode extends BaseNode<TNodeInputs, TNodeOutputs, R
       options: [],
       inputs: [
         { id: 'userId', name: 'User ID', type: WrappedTypes.WStringType, },
-        { id: 'age', name: 'Age', type: WrappedTypes.WNumberType, },
+        { id: 'dateOfBirth', name: 'Date of Birth', type: WrappedTypes.WDateType, },
       ],
       outputs: [
         { id: 'userId', name: 'User ID', type: WrappedTypes.WStringType, },
-        { id: 'age', name: 'Age', type: WrappedTypes.WNumberType, },
+        { id: 'dateOfBirth', name: 'Date of Birth', type: WrappedTypes.WDateType, },
       ],
     });
   }

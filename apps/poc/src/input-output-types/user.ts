@@ -25,9 +25,9 @@ export const WUserType: WrappedTypes.TWrappedType<TUserType, TWrappedUserType> =
     const validationErrors: string[] = [];
 
     Object
-      .entries(wrappedUser)
-      .forEach(([ key, value, ]) => {
-        const { valid, reason, } = WUserType.fields[key].validate(value);
+      .keys(WUserType.fields)
+      .forEach(key => {
+        const { valid, reason, } = WUserType.fields[key as keyof TUserType].validate(wrappedUser[key as keyof TUserType]);
         if (!valid) {
           validationErrors.push(
             `Invalid ${key} (${reason})`

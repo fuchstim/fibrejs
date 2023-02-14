@@ -1,11 +1,10 @@
 import { BaseNode, WrappedTypes } from '@tripwire/engine';
 
 import { WUserType, TWrappedUserType } from '../input-output-types/user';
-import { WNumberType, WStringType } from '@tripwire/engine/src/common/wrapped-types';
 
 type TNodeInputs = {
   userId: WrappedTypes.TStringType,
-  age: WrappedTypes.TNumberType,
+  dateOfBirth: WrappedTypes.TDateType,
 };
 type TNodeOutputs = {
   user: TWrappedUserType,
@@ -22,7 +21,7 @@ export default class GetUserNode extends BaseNode<TNodeInputs, TNodeOutputs, Rec
       options: [],
       inputs: [
         { id: 'userId', name: 'User ID', type: WrappedTypes.WStringType, },
-        { id: 'age', name: 'Age', type: WrappedTypes.WNumberType, },
+        { id: 'dateOfBirth', name: 'Date of Birth', type: WrappedTypes.WDateType, },
       ],
       outputs: [
         { id: 'user', name: 'User', type: WUserType, },
@@ -33,9 +32,9 @@ export default class GetUserNode extends BaseNode<TNodeInputs, TNodeOutputs, Rec
   async execute(inputs: TNodeInputs): Promise<TNodeOutputs> {
     return {
       user: WUserType.wrap({
-        id: WStringType.unwrap(inputs.userId),
+        id: WrappedTypes.WStringType.unwrap(inputs.userId),
         username: 'username',
-        age: WNumberType.unwrap(inputs.age),
+        age: new Date().getFullYear() - WrappedTypes.WDateType.unwrap(inputs.dateOfBirth).getFullYear(),
         createdAt: new Date(),
       }),
     };
