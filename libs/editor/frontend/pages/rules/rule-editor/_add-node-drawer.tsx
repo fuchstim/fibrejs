@@ -14,7 +14,7 @@ type Props = {
 };
 
 export default function AddNodeDrawer({ ruleId, open, onSelected, onClose, }: Props) {
-  const [ loading, setLoading, ] = useState(false);
+  const [ loading, setLoading, ] = useState(true);
   const [ nodes, setNodes, ] = useState<Types.Serializer.TSerializedNode[]>([]);
 
   const fetchNodes = async () => {
