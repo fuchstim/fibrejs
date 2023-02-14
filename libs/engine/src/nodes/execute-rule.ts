@@ -51,7 +51,7 @@ export default class ExecuteRule extends BaseNode<TNodeInputs, TNodeOutputs, TNo
     );
     if (!rule) { return []; }
 
-    return rule.entryStage.node.getMetadata(context).inputs;
+    return rule.entryStage?.node.getMetadata(context).inputs ?? [];
   }
 
   private getOutputs(context: TNodeExecutorContext<TNodeOptions>): TNodeMetadataInputOutput[] {
@@ -60,7 +60,7 @@ export default class ExecuteRule extends BaseNode<TNodeInputs, TNodeOutputs, TNo
     );
     if (!rule) { return []; }
 
-    return rule.exitStage.node.getMetadata(context).outputs;
+    return rule.exitStage?.node.getMetadata(context).outputs ?? [];
   }
 
   execute(inputs: TNodeInputs, context: TNodeExecutorContext<TNodeOptions>): TNodeOutputs {

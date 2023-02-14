@@ -20,29 +20,25 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
     const entryStages = this.stages.filter(stage => stage.node.type === ENodeType.ENTRY);
     const exitStages = this.stages.filter(stage => stage.node.type === ENodeType.EXIT);
 
-    if (this.stages.length && (entryStages.length !== 1 || exitStages.length !== 1)) {
+    if (entryStages.length > 1 || exitStages.length > 1) {
       throw new Error('Invalid number of entry / exit stages defined');
     }
   }
 
   get entryStage() {
-    const entryStage = this.stages.find(stage => stage.node.type === ENodeType.ENTRY);
-    if (!entryStage) { throw new Error(`Failed to find entry stage for rule ${this.id}`); }
-
-    return entryStage;
+    return this.stages.find(stage => stage.node.type === ENodeType.ENTRY);
   }
 
   get exitStage() {
-    const exitStage = this.stages.find(stage => stage.node.type === ENodeType.EXIT);
-    if (!exitStage) { throw new Error(`Failed to find exit stage for rule ${this.id}`); }
-
-    return exitStage;
+    return this.stages.find(stage => stage.node.type === ENodeType.EXIT);
   }
 
   async execute(ruleInputs: TRuleInputs, context: TRuleExecutorContext): Promise<TRuleOutputs> {
-    const ruleStageResults: TRuleStageResults = {
-      [ERuleStageReservedId.ENTRY]: this.wrapRuleInputs(ruleInputs, context),
-    };
+    const ruleStageResults: TRuleStageResults = {};
+
+    if (this.entryStage) {
+      ruleStageResults[ERuleStageReservedId.ENTRY] = this.wrapRuleInputs(ruleInputs, context);
+    }
 
     for (const stage of this.stages) {
       ruleStageResults[stage.id] = await stage.run(
@@ -51,7 +47,9 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
       );
     }
 
-    ruleStageResults[ERuleStageReservedId.EXIT] = ruleStageResults[this.exitStage.id];
+    if (this.exitStage) {
+      ruleStageResults[ERuleStageReservedId.EXIT] = ruleStageResults[this.exitStage.id];
+    }
 
     return ruleStageResults;
   }
@@ -79,9 +77,17 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
   }
 
   override validateInputs(inputs: TRuleInputs, context: TRuleExecutorContext): TExecutorValidationResult<TRuleInputs> {
-    const nodeContext = this.entryStage.createNodeContext(context);
+    if (!this.entryStage) {
+      return {
+        valid: true,
+        reason: null,
+        actual: inputs,
+      };
+    }
 
-    const { inputs: requiredInputs, } = this.entryStage.node.getMetadata(nodeContext);
+    const { inputs: requiredInputs, } = this.entryStage.node.getMetadata(
+      this.entryStage.createNodeContext(context)
+    );
 
     const invalidInputs = requiredInputs
       .map(requiredInput => {
@@ -135,7 +141,7 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
       );
 
       if (!availableStages.length) {
-        throw new Error('Invalid RuleStage dependencies detected');
+        throw new Error('Invalid rule stage dependencies detected');
       }
 
       sortedStageIds.push(
@@ -149,10 +155,12 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
   }
 
   private wrapRuleInputs(ruleInputs: TRuleInputs, context: TRuleExecutorContext): TExecutorResult<any> {
-    const nodeContext = this.entryStage.createNodeContext(context);
+    if (!this.entryStage) {
+      throw new Error('Cannot wrap inputs for a rule without entry stage');
+    }
 
     const wrappedInputs = this.entryStage.node
-      .getMetadata(nodeContext)
+      .getMetadata(this.entryStage.createNodeContext(context))
       .inputs
       .reduce(
         (acc, input) => ({

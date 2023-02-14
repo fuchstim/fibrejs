@@ -44,7 +44,9 @@ export default function PreviewRuleDrawer({ ruleConfig, open, onPreviewValues, o
       const stages = await fetchStages(ruleConfig);
 
       const entryStage = stages.find(s => s.node.type === Types.Node.ENodeType.ENTRY);
-      if (!entryStage) { return; }
+      if (!entryStage) {
+        return setFormInputs([]);
+      }
 
       const { inputs, } = entryStage.node;
       if (inputs.some(i => i.type.isComplex)) {

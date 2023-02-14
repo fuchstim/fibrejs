@@ -44,15 +44,15 @@ export default class RuleSet extends Executor<TRuleSetInputs, TRuleSetExecutorRe
   override validateContext(context: TRuleSetExecutorContext): TExecutorValidationResult<TRuleSetExecutorContext> {
     const uniqueEntryNodeIds = Array.from(
       new Set(
-        this.entries.map(
-          ({ ruleId, }) => this.getRuleFromContext(ruleId, context).entryStage.node.id
-        )
+        this.entries
+          .map(({ ruleId, }) => this.getRuleFromContext(ruleId, context).entryStage?.node.id)
+          .filter(Boolean)
       )
     );
     if (uniqueEntryNodeIds.length > 1) {
       return {
         valid: false,
-        reason: `All rule set entries must share the same entry node, but multiple node ids were found: (${uniqueEntryNodeIds.join(', ')})`,
+        reason: `All rule set entries must share the same entry node (or have no entry node), but multiple node ids were found: (${uniqueEntryNodeIds.join(', ')})`,
         actual: context,
       };
     }
