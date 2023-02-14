@@ -73,9 +73,9 @@ export default class StaticValueNode extends BaseNode<never, TNodeOutputs, TNode
     const { valueType, value, } = context.nodeOptions;
 
     const wrappedType = {
-      [EPrimitive.STRING]: WStringType.fromNative(value as string),
-      [EPrimitive.NUMBER]: WNumberType.fromNative(value as number),
-      [EPrimitive.BOOLEAN]: WBooleanType.fromNative(value as boolean),
+      [EPrimitive.STRING]: WStringType.wrap(value as string),
+      [EPrimitive.NUMBER]: WNumberType.wrap(value as number),
+      [EPrimitive.BOOLEAN]: WBooleanType.wrap(value as boolean),
     }[valueType];
     if (!wrappedType) {
       throw new Error(`Invalid valueType specified: ${valueType}`);

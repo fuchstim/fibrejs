@@ -42,16 +42,16 @@ export const WUserType: WrappedTypes.TWrappedType<TUserType, TWrappedUserType> =
       reason: validationErrors.join(', '),
     };
   },
-  toNative: user => ({
-    id: user.id.value,
-    username: user.username.value,
-    age: user.age.value,
-    createdAt: WrappedTypes.WDateType.toNative(user.createdAt),
+  unwrap: user => ({
+    id: WrappedTypes.WStringType.unwrap(user.id),
+    username: WrappedTypes.WStringType.unwrap(user.username),
+    age: WrappedTypes.WNumberType.unwrap(user.age),
+    createdAt: WrappedTypes.WDateType.unwrap(user.createdAt),
   }),
-  fromNative: user => ({
-    id: WrappedTypes.WStringType.fromNative(user.id),
-    username: WrappedTypes.WStringType.fromNative(user.username),
-    age: WrappedTypes.WNumberType.fromNative(user.age),
-    createdAt: WrappedTypes.WDateType.fromNative(user.createdAt),
+  wrap: user => ({
+    id: WrappedTypes.WStringType.wrap(user.id),
+    username: WrappedTypes.WStringType.wrap(user.username),
+    age: WrappedTypes.WNumberType.wrap(user.age),
+    createdAt: WrappedTypes.WDateType.wrap(user.createdAt),
   }),
 };

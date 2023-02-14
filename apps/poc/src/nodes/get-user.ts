@@ -1,6 +1,7 @@
 import { BaseNode, WrappedTypes } from '@tripwire/engine';
 
 import { WUserType, TWrappedUserType } from '../input-output-types/user';
+import { WNumberType, WStringType } from '@tripwire/engine/src/common/wrapped-types';
 
 type TNodeInputs = {
   userId: WrappedTypes.TStringType,
@@ -31,10 +32,10 @@ export default class GetUserNode extends BaseNode<TNodeInputs, TNodeOutputs, Rec
 
   async execute(inputs: TNodeInputs): Promise<TNodeOutputs> {
     return {
-      user: WUserType.fromNative({
-        id: inputs.userId.value,
+      user: WUserType.wrap({
+        id: WStringType.unwrap(inputs.userId),
         username: 'username',
-        age: inputs.age.value,
+        age: WNumberType.unwrap(inputs.age),
         createdAt: new Date(),
       }),
     };

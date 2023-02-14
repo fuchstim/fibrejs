@@ -11,8 +11,8 @@ export type TWrappedType<TNativeType, TCustomType extends Record<string, any>> =
   name: string,
   fields: Record<string, TWrappedType<any, any> | TWrappedPrimitive<any, any>>,
   validate: (input: TCustomType) => TTypeValidationResult,
-  toNative: (input: TCustomType) => TNativeType,
-  fromNative: (input: TNativeType) => TCustomType
+  unwrap: (input: TCustomType) => TNativeType,
+  wrap: (input: TNativeType) => TCustomType
 };
 
 export type TWrappedPrimitive<TNativeType extends (string | number | boolean), TCustomType extends Record<string, any>> = Omit<TWrappedType<TNativeType, TCustomType>, 'fields'> & {
@@ -40,8 +40,8 @@ export const WStringType: TWrappedPrimitive<string, TStringType> = {
     value: EPrimitive.STRING,
   },
   validate: ({ value, }) => validatePrimitive(value, 'string'),
-  toNative: ({ value, }) => String(value),
-  fromNative: value => ({ value, }),
+  unwrap: ({ value, }) => String(value),
+  wrap: value => ({ value, }),
 };
 
 export type TNumberType = {
@@ -54,8 +54,8 @@ export const WNumberType: TWrappedPrimitive<number, TNumberType> = {
     value: EPrimitive.NUMBER,
   },
   validate: ({ value, }) => validatePrimitive(value, 'number'),
-  toNative: ({ value, }) => Number(value),
-  fromNative: value => ({ value, }),
+  unwrap: ({ value, }) => Number(value),
+  wrap: value => ({ value, }),
 };
 
 export type TBooleanType = {
@@ -68,8 +68,8 @@ export const WBooleanType: TWrappedPrimitive<boolean, TBooleanType> = {
     value: EPrimitive.BOOLEAN,
   },
   validate: ({ value, }) => validatePrimitive(value, 'boolean'),
-  toNative: ({ value, }) => Boolean(value),
-  fromNative: value => ({ value, }),
+  unwrap: ({ value, }) => Boolean(value),
+  wrap: value => ({ value, }),
 };
 
 export type TDateType = {
@@ -116,19 +116,19 @@ export const WDateType: TWrappedType<Date, TDateType> = {
       reason: validationErrors.join(', '),
     };
   },
-  toNative: ({ timestamp, }) => new Date(WStringType.toNative(timestamp)),
-  fromNative: input => {
+  unwrap: ({ timestamp, }) => new Date(WStringType.unwrap(timestamp)),
+  wrap: input => {
     const date = new Date(input);
 
     return {
-      milliseconds: WNumberType.fromNative(date.getMilliseconds()),
-      seconds: WNumberType.fromNative(date.getSeconds()),
-      minutes: WNumberType.fromNative(date.getMinutes()),
-      hours: WNumberType.fromNative(date.getHours()),
-      days: WNumberType.fromNative(date.getDate()),
-      months: WNumberType.fromNative(date.getMonth() + 1),
-      years: WNumberType.fromNative(date.getFullYear()),
-      timestamp: WStringType.fromNative(date.toISOString()),
+      milliseconds: WNumberType.wrap(date.getMilliseconds()),
+      seconds: WNumberType.wrap(date.getSeconds()),
+      minutes: WNumberType.wrap(date.getMinutes()),
+      hours: WNumberType.wrap(date.getHours()),
+      days: WNumberType.wrap(date.getDate()),
+      months: WNumberType.wrap(date.getMonth() + 1),
+      years: WNumberType.wrap(date.getFullYear()),
+      timestamp: WStringType.wrap(date.toISOString()),
     };
   },
 };

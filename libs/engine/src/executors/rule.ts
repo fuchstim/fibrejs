@@ -117,7 +117,7 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
       .reduce(
         (acc, input) => ({
           ...acc,
-          [input.id]: input.type.fromNative(ruleInputs[input.id]),
+          [input.id]: input.type.wrap(ruleInputs[input.id]),
         }),
         {}
       );
