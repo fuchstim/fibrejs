@@ -11,9 +11,9 @@ import {
   PieChartOutlined,
   TeamOutlined,
   AlertOutlined,
-  OrderedListOutlined,
   MenuUnfoldOutlined,
-  MenuFoldOutlined
+  MenuFoldOutlined,
+  GroupOutlined
 } from '@ant-design/icons';
 
 import { Avatar, Col, Layout, Menu, Row, Skeleton, Typography, notification, theme } from 'antd';
@@ -28,7 +28,7 @@ import { TAuthenticatedUser } from '../src/types';
 
 const menuItems = [
   { label: 'Dashboard', key: 'dashboard', icon: <PieChartOutlined />, },
-  { label: 'Rule Sets', key: 'rule-sets', icon: <OrderedListOutlined />, },
+  { label: 'Rule Sets', key: 'rule-sets', icon: <GroupOutlined />, },
   { label: 'Rules', key: 'rules', icon: <AlertOutlined />, },
   { label: 'Users', key: 'users', icon: <TeamOutlined />, },
 ];
