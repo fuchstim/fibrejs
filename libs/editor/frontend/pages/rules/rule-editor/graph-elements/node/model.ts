@@ -247,6 +247,7 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
       );
 
     this.options.previewValues = {
+      executionTimeMs: previewValues.executionTimeMs,
       ...inputPreviewValues,
       ...outputPreviewValues,
     };

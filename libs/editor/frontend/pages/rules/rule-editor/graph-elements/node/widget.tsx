@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
-import { Card, Checkbox, Col, Divider, Form, Input, InputNumber, Row, Select, theme } from 'antd';
+import { Card, Checkbox, Col, Divider, Form, Input, InputNumber, Row, Select, theme, Typography } from 'antd';
 
 import { Types, WrappedTypes } from '@tripwire/engine';
 
@@ -27,7 +27,7 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
     []
   );
 
-  const ruleStage = props.editorNode.getOptions().ruleStage;
+  const editorNodeOptions = props.editorNode.getOptions();
   const isSelected = props.editorNode.isSelected();
 
   const {
@@ -49,7 +49,7 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
         port={port}
         key={port.getID()}
         onClick={config.type.isComplex ? () => toggleFold() : undefined}
-        previewValue={props.editorNode.getOptions().previewValues?.[port.getID()]}
+        previewValue={editorNodeOptions.previewValues?.[port.getID()]}
         hideIfUnlinked={level > portFoldLevel}
       />
     );
@@ -123,11 +123,11 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
       <Form
         size='small'
         layout='vertical'
-        initialValues={ruleStage.nodeOptions ?? {}}
+        initialValues={editorNodeOptions.ruleStage.nodeOptions ?? {}}
         style={{ padding: '0 24px 24px 24px', width: '190px', }}
         onValuesChange={(_, updatedOptions) => props.editorNode.fireEvent({ updatedOptions, }, 'optionsUpdated')}
       >
-        {ruleStage.node.options.map(option => createFormItem(option))}
+        {editorNodeOptions.ruleStage.node.options.map(option => createFormItem(option))}
       </Form>
 
     </div>
@@ -135,7 +135,17 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
 
   return (
     <Card
-      title={ruleStage.node.name}
+      title={(
+        <Row gutter={8}>
+          <Col>
+            <Typography.Title level={5} style={{ margin: 0, }}>{editorNodeOptions.ruleStage.node.name}</Typography.Title>
+          </Col>
+
+          <Col>
+            { editorNodeOptions.previewValues?.executionTimeMs != null ? (<Typography.Text type="secondary" code>(~{editorNodeOptions.previewValues.executionTimeMs as number} ms)</Typography.Text>) : (<></>)}
+          </Col>
+        </Row>
+      )}
       bordered={false}
       bodyStyle={{ padding: 0, }}
       hoverable={true}
@@ -146,7 +156,7 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
         <Col>{props.editorNode.getOutputPorts().map(port => createPort(port))}</Col>
       </Row>
 
-      { ruleStage.node.options.length ? options : (<></>) }
+      { editorNodeOptions.ruleStage.node.options.length ? options : (<></>) }
     </Card>
   );
 }

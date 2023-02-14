@@ -47,7 +47,7 @@ export default function EditorPortWidget({ port, engine, hideIfUnlinked, onClick
         >
           {name}
         </Tag>
-        {previewValue != null ? (<Typography.Text type="secondary">({ formattedPreviewValue })</Typography.Text>) : <></> }
+        {previewValue != null ? (<Typography.Text type="secondary" code>{ formattedPreviewValue }</Typography.Text>) : <></> }
       </div>
     </Tooltip>
   );
