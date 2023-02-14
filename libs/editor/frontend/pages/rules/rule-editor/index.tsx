@@ -139,6 +139,8 @@ export default function RuleEditor() {
       const node = model.getNode(stageId) as EditorNodeModel;
       node.setPreviewValues(previewValues);
     }
+
+    setTimeout(() => distributeNodes(engine), 50);
   };
 
   const clearPreviewValues = () => {
@@ -148,6 +150,8 @@ export default function RuleEditor() {
       .getModel()
       .getNodes()
       .forEach(node => (node as EditorNodeModel).setPreviewValues());
+
+    setTimeout(() => distributeNodes(engine), 50);
   };
 
   const getContent = () => {
