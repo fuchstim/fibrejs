@@ -17,7 +17,9 @@ type Row = {
 
 export default function RuleSetEditor() {
   const [ loading, setLoading, ] = useState(false);
-  const [ showPopover, setShowPopover, ] = useState(false);
+  const [ showCreatePopover, setShowCreatePopover, ] = useState(false);
+  const [ showDiscardPopover, setShowDiscardPopover, ] = useState(false);
+  const [ confirmDiscard, setConfirmDiscard, ] = useState(false);
   const [ ruleSet, setRuleSet, ] = useState<Types.Config.TRuleSetConfig>();
   const [ rules, setRules, ] = useState<Types.Config.TRuleConfig[]>([]);
 
@@ -66,8 +68,22 @@ export default function RuleSetEditor() {
       ],
     });
 
-    setShowPopover(false);
+    setShowCreatePopover(false);
+    setConfirmDiscard(true);
     createEntryForm.resetFields();
+  };
+
+  const updateEntry = (index: number, priority: Types.RuleSet.ERulePriority) => {
+    if (!ruleSet) { return; }
+
+    setRuleSet({
+      ...ruleSet,
+      entries: ruleSet.entries.map(
+        (entry, id) => id === index ? { ...entry, priority, } : entry
+      ),
+    });
+
+    setConfirmDiscard(true);
   };
 
   const deleteEntry = (index: number) => {
@@ -79,6 +95,8 @@ export default function RuleSetEditor() {
       ...ruleSet,
       entries: [ ...ruleSet.entries, ],
     });
+
+    setConfirmDiscard(true);
   };
 
   const getRuleForId = (ruleId: string) => {
@@ -100,6 +118,11 @@ export default function RuleSetEditor() {
       .finally(() => setLoading(false));
   };
 
+  const generatePriorityOptions = () => (
+    Object.values(Types.RuleSet.ERulePriority)
+      .map(priority => (<Select.Option key={priority} value={priority}>{priority}</Select.Option>))
+  );
+
   const columns: ColumnsType<Row> = [
     {
       title: 'Rule ID',
@@ -117,6 +140,16 @@ export default function RuleSetEditor() {
       title: 'Priority',
       dataIndex: 'priority',
       key: 'priority',
+      render: (_, row) => (
+        <Select
+          placeholder="Priority"
+          style={{ width: '150px', }}
+          value={row.priority}
+          onChange={updatedPriority => updateEntry(row.id, updatedPriority)}
+        >
+          { generatePriorityOptions() }
+        </Select>
+      ),
     },
     {
       key: 'edit',
@@ -176,10 +209,7 @@ export default function RuleSetEditor() {
                     rules={[ { required: true, message: 'Please select a priority', }, ]}
                   >
                     <Select placeholder="Select a Priority">
-                      {
-                        Object.values(Types.RuleSet.ERulePriority)
-                          .map(priority => (<Select.Option key={priority} value={priority}>{priority}</Select.Option>))
-                      }
+                      { generatePriorityOptions() }
                     </Select>
                   </Form.Item>
 
@@ -197,8 +227,8 @@ export default function RuleSetEditor() {
               title="Create new Entry"
               trigger="click"
               placement="bottomRight"
-              open={showPopover}
-              onOpenChange={setShowPopover}
+              open={showCreatePopover}
+              onOpenChange={setShowCreatePopover}
             >
               <Button
                 icon={<PlusOutlined/>}
@@ -214,8 +244,10 @@ export default function RuleSetEditor() {
               okText="Yes"
               cancelText="No"
               onConfirm={() => navigate('/rule-sets')}
+              onCancel={() => setShowDiscardPopover(false)}
+              open={showDiscardPopover}
             >
-              <Button disabled={loading}>
+              <Button disabled={loading} onClick={() => confirmDiscard ? setShowDiscardPopover(true) : navigate('/rule-sets')}>
                 Cancel
               </Button>
             </Popconfirm>
