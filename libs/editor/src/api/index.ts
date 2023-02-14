@@ -1,4 +1,4 @@
-import express, { NextFunction, Response } from 'express';
+import express from 'express';
 
 import type Engine from '@tripwire/engine';
 
