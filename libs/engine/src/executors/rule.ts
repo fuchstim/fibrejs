@@ -33,11 +33,11 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
     return this.stages.find(stage => stage.node.type === ENodeType.EXIT);
   }
 
-  async execute(ruleInputs: TRuleInputs, context: TRuleExecutorContext): Promise<TRuleOutputs> {
+  async execute(unwrappedRuleInputs: TRuleInputs, context: TRuleExecutorContext): Promise<TRuleOutputs> {
     const ruleStageResults: TRuleStageResults = {};
 
     if (this.entryStage) {
-      ruleStageResults[ERuleStageReservedId.ENTRY] = this.wrapRuleInputs(ruleInputs, context);
+      ruleStageResults[ERuleStageReservedId.ENTRY] = this.wrapRuleInputs(unwrappedRuleInputs, context);
     }
 
     for (const stage of this.stages) {

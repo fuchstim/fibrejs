@@ -1,5 +1,6 @@
 import { BaseNode } from '../common/base-node';
 import { ENodeMetadataOptionType, TNodeExecutorContext, TNodeMetadataInputOutput, TNodeMetadataOption } from '../types/node';
+import { ERuleStageReservedId } from '../types/rule-stage';
 
 type TNodeInputs = Record<string, any>;
 
@@ -46,26 +47,38 @@ export default class ExecuteRule extends BaseNode<TNodeInputs, TNodeOutputs, TNo
   }
 
   private getInputs(context: TNodeExecutorContext<TNodeOptions>): TNodeMetadataInputOutput[] {
-    const rule = context.rules.find(
-      rule => rule.id === context.nodeOptions.ruleId
-    );
+    const rule = context.rules.find(rule => rule.id === context.nodeOptions.ruleId);
     if (!rule) { return []; }
 
     return rule.entryStage?.node.getMetadata(context).inputs ?? [];
   }
 
   private getOutputs(context: TNodeExecutorContext<TNodeOptions>): TNodeMetadataInputOutput[] {
-    const rule = context.rules.find(
-      rule => rule.id === context.nodeOptions.ruleId
-    );
+    const rule = context.rules.find(rule => rule.id === context.nodeOptions.ruleId);
     if (!rule) { return []; }
 
     return rule.exitStage?.node.getMetadata(context).outputs ?? [];
   }
 
-  execute(inputs: TNodeInputs, context: TNodeExecutorContext<TNodeOptions>): TNodeOutputs {
-    return {
-      result: { value: false, },
-    };
+  async execute(inputs: TNodeInputs, context: TNodeExecutorContext<TNodeOptions>): Promise<TNodeOutputs> {
+    const rule = context.rules.find(rule => rule.id === context.nodeOptions.ruleId);
+    if (!rule) {
+      throw new Error(`Cannot execute unknown rule: ${context.nodeOptions.ruleId}`);
+    }
+
+    const unwrappedInputs = this
+      .getMetadata(context)
+      .inputs
+      .reduce(
+        (acc, input) => ({
+          ...acc,
+          [input.id]: input.type.unwrap(inputs[input.id]),
+        }),
+        {}
+      );
+
+    const result = await rule.execute(unwrappedInputs, context);
+
+    return result[ERuleStageReservedId.EXIT]?.outputs ?? {};
   }
 }
