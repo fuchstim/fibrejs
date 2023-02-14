@@ -15,12 +15,6 @@ export default function createApiMiddleware(engine: Engine) {
   const app = express();
 
   app.use(express.json());
-  app.use((_, res: Response, next: NextFunction) => {
-    setTimeout(
-      () => next(),
-      Math.random() * 500
-    );
-  });
 
   registerService(app, '/nodes', new NodesService(engine));
   registerService(app, '/rules/preview', new RulePreviewService(engine));
