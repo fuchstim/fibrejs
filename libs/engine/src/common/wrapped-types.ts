@@ -117,14 +117,18 @@ export const WDateType: TWrappedType<Date, TDateType> = {
     };
   },
   toNative: ({ timestamp, }) => new Date(WStringType.toNative(timestamp)),
-  fromNative: date => ({
-    milliseconds: WNumberType.fromNative(date.getMilliseconds()),
-    seconds: WNumberType.fromNative(date.getSeconds()),
-    minutes: WNumberType.fromNative(date.getMinutes()),
-    hours: WNumberType.fromNative(date.getHours()),
-    days: WNumberType.fromNative(date.getDate()),
-    months: WNumberType.fromNative(date.getMonth() + 1),
-    years: WNumberType.fromNative(date.getFullYear()),
-    timestamp: WStringType.fromNative(date.toISOString()),
-  }),
+  fromNative: input => {
+    const date = new Date(input);
+
+    return {
+      milliseconds: WNumberType.fromNative(date.getMilliseconds()),
+      seconds: WNumberType.fromNative(date.getSeconds()),
+      minutes: WNumberType.fromNative(date.getMinutes()),
+      hours: WNumberType.fromNative(date.getHours()),
+      days: WNumberType.fromNative(date.getDate()),
+      months: WNumberType.fromNative(date.getMonth() + 1),
+      years: WNumberType.fromNative(date.getFullYear()),
+      timestamp: WStringType.fromNative(date.toISOString()),
+    };
+  },
 };

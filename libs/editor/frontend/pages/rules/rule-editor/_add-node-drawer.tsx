@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Drawer, Table, notification } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
@@ -17,17 +17,14 @@ export default function AddNodeDrawer({ ruleId, open, onSelected, onClose, }: Pr
   const [ loading, setLoading, ] = useState(false);
   const [ nodes, setNodes, ] = useState<Types.Serializer.TSerializedNode[]>([]);
 
-  useEffect(
-    () => {
-      setLoading(true);
+  const fetchNodes = async () => {
+    setLoading(true);
 
-      client.findNodes({ ruleId, })
-        .then(nodes => setNodes(nodes))
-        .catch(e => notification.error({ message: e.message, }))
-        .finally(() => setLoading(false));
-    },
-    []
-  );
+    await client.findNodes({ ruleId, })
+      .then(nodes => setNodes(nodes))
+      .catch(e => notification.error({ message: e.message, }))
+      .finally(() => setLoading(false));
+  };
 
   const columns: ColumnsType<Types.Serializer.TSerializedNode> = [
     {
@@ -59,6 +56,7 @@ export default function AddNodeDrawer({ ruleId, open, onSelected, onClose, }: Pr
       placement="right"
       closable={true}
       onClose={onClose}
+      afterOpenChange={fetchNodes}
       open={open}
       size="large"
     >
