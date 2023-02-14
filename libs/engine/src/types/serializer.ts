@@ -58,5 +58,3 @@ export type TSerializationContext = {
   ruleId?: string,
   ruleSetId?: string,
 };
-
-export type TMultiSerializationContext = Omit<TSerializationContext, 'nodeOptions'> & { nodeOptions?: Record<string, TNodeOptions> };

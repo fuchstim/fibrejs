@@ -69,7 +69,8 @@ export default {
   getUser: () => wrappedGet<TAuthenticatedUser>('user'),
 
   getNode: (nodeId: string, context?: Types.Serializer.TSerializationContext) => wrappedGet<Types.Serializer.TSerializedNode>(`nodes/${nodeId}`, { context, }),
-  findNodes: (context?: Types.Serializer.TMultiSerializationContext) => wrappedGet<Types.Serializer.TSerializedNode[]>('nodes', { context, }),
+  batchGetNode: (context: Record<string, { nodeId: string, context: Types.Serializer.TSerializationContext}>) => wrappedGet<Record<string, Types.Serializer.TSerializedNode>>('nodes', { context, batchGet: true, }),
+  findNodes: (context?: Types.Serializer.TSerializationContext) => wrappedGet<Types.Serializer.TSerializedNode[]>('nodes', { context, batchGet: false, }),
 
   getRule: (ruleId: string) => wrappedGet<Types.Config.TRuleConfig>(`rules/${ruleId}`),
   findRules: () => wrappedGet<Types.Config.TRuleConfig[]>('rules'),

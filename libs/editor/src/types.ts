@@ -9,7 +9,7 @@ export enum ERequestMethod {
   DELETE = 'delete'
 }
 
-export type TContext = {
+export type TRequestContext = {
   req: Request,
   res: Response,
   user: TAuthenticatedUser
@@ -41,11 +41,11 @@ type TCRUDService<T> = {
 export type ICRUDService<T> = IService<TCRUDService<T>>;
 
 export interface IService<T extends Record<ERequestMethod, Record<'PAYLOAD' | 'RESULT', unknown>>> {
-  [ERequestMethod.FIND]?: (context: TContext) => Promise<T[ERequestMethod.FIND]['RESULT'] | void> | T[ERequestMethod.FIND]['RESULT'] | void,
-  [ERequestMethod.GET]?: (id: string, context: TContext) => Promise<T[ERequestMethod.GET]['RESULT'] | void> | T[ERequestMethod.GET]['RESULT'] | void,
-  [ERequestMethod.CREATE]?: (data: T[ERequestMethod.CREATE]['PAYLOAD'], context: TContext) => Promise<T[ERequestMethod.CREATE]['RESULT'] | void> | T[ERequestMethod.CREATE]['RESULT'] | void,
-  [ERequestMethod.PATCH]?: (id: string, data: T[ERequestMethod.PATCH]['PAYLOAD'], context: TContext) => Promise<T[ERequestMethod.PATCH]['RESULT'] | void> | T[ERequestMethod.PATCH]['RESULT'] | void,
-  [ERequestMethod.DELETE]?: (id: string, context: TContext) => Promise<T[ERequestMethod.DELETE]['RESULT'] | void> | T[ERequestMethod.DELETE]['RESULT'] | void,
+  [ERequestMethod.FIND]?: (context: TRequestContext) => Promise<T[ERequestMethod.FIND]['RESULT'] | void> | T[ERequestMethod.FIND]['RESULT'] | void,
+  [ERequestMethod.GET]?: (id: string, context: TRequestContext) => Promise<T[ERequestMethod.GET]['RESULT'] | void> | T[ERequestMethod.GET]['RESULT'] | void,
+  [ERequestMethod.CREATE]?: (data: T[ERequestMethod.CREATE]['PAYLOAD'], context: TRequestContext) => Promise<T[ERequestMethod.CREATE]['RESULT'] | void> | T[ERequestMethod.CREATE]['RESULT'] | void,
+  [ERequestMethod.PATCH]?: (id: string, data: T[ERequestMethod.PATCH]['PAYLOAD'], context: TRequestContext) => Promise<T[ERequestMethod.PATCH]['RESULT'] | void> | T[ERequestMethod.PATCH]['RESULT'] | void,
+  [ERequestMethod.DELETE]?: (id: string, context: TRequestContext) => Promise<T[ERequestMethod.DELETE]['RESULT'] | void> | T[ERequestMethod.DELETE]['RESULT'] | void,
 }
 
 export type TAuthenticatedUser = {

@@ -21,15 +21,18 @@ const dagreEngine = new DagreEngine({
 });
 
 export async function fetchStages(rule: Types.Config.TRuleConfig): Promise<TRuleStageWithNode[]> {
-  const nodeOptions = rule.stages.reduce(
-    (acc, { nodeId, nodeOptions, }) => ({ ...acc, [nodeId]: nodeOptions, }),
-    {} as Record<string, Types.Node.TNodeOptions>
+  const serializationContexts = rule.stages.reduce(
+    (acc, stage) => ({
+      ...acc,
+      [stage.id]: { nodeId: stage.nodeId, context: { ruleId: rule.id, nodeOptions: stage.nodeOptions, }, },
+    }),
+    {}
   );
 
-  const nodes = await client.findNodes({ ruleId: rule.id, nodeOptions, });
+  const nodes = await client.batchGetNode(serializationContexts);
 
   return rule.stages.map<TRuleStageWithNode>(
-    stage => ({ ...stage, ruleId: rule.id, node: nodes.find(node => node.id === stage.nodeId)!, })
+    stage => ({ ...stage, ruleId: rule.id, node: nodes[stage.id], })
   );
 }
 

@@ -1,12 +1,12 @@
 import { Application, Request, Response } from 'express';
-import { ERequestMethod, IService, TContext } from '../types';
+import { ERequestMethod, IService, TRequestContext } from '../types';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function registerService(app: Application, path: string, service: IService<any>) {
   const cleanPath = path.endsWith('/') ? path.slice(0, path.length -1) : path;
 
   const createHandler = (method: ERequestMethod) => async (req: Request, res: Response) => {
-    const context: TContext = {
+    const context: TRequestContext = {
       req,
       res,
       user: res.locals.user,

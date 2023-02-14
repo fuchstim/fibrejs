@@ -1,16 +1,24 @@
 import type Engine from '@tripwire/engine';
 import type { Types } from '@tripwire/engine';
 
-import { ICRUDService, TContext } from '../../types';
+import { ERequestMethod, IService, TRequestContext } from '../../types';
 
-export default class NodesService implements ICRUDService<Types.Serializer.TSerializedNode> {
+type TNodesService = {
+  [ERequestMethod.CREATE]: { 'PAYLOAD': never, 'RESULT': never },
+  [ERequestMethod.FIND]: { 'PAYLOAD': never, 'RESULT': Types.Serializer.TSerializedNode[] | Record<string, Types.Serializer.TSerializedNode> },
+  [ERequestMethod.GET]: { 'PAYLOAD': never, 'RESULT': Types.Serializer.TSerializedNode },
+  [ERequestMethod.PATCH]: { 'PAYLOAD': never, 'RESULT': never },
+  [ERequestMethod.DELETE]: { 'PAYLOAD': never, 'RESULT': never },
+};
+
+export default class NodesService implements IService<TNodesService> {
   private engine: Engine;
 
   constructor(engine: Engine) {
     this.engine = engine;
   }
 
-  get(nodeId: string, context: TContext) {
+  get(nodeId: string, context: TRequestContext) {
     const serializationContext = this.parseContext<Types.Serializer.TSerializationContext>(context.req.query);
 
     const node = this.engine.exportSerializedNode(nodeId, serializationContext);
@@ -18,8 +26,26 @@ export default class NodesService implements ICRUDService<Types.Serializer.TSeri
     return node;
   }
 
-  find(context: TContext) {
-    const serializationContext = this.parseContext<Types.Serializer.TMultiSerializationContext>(context.req.query);
+  find(context: TRequestContext) {
+    if (context.req.query.batchGet === 'true') {
+      const serializationContexts = this.parseContext<
+        Record<string, { nodeId: string, context: Types.Serializer.TSerializationContext }>
+      >(context.req.query);
+
+      if (!serializationContexts) { return {}; }
+
+      return Object
+        .entries(serializationContexts)
+        .reduce(
+          (acc, [ key, { nodeId, context: serializationContext, }, ]) => ({
+            ...acc,
+            [key]: this.engine.exportSerializedNode(nodeId, serializationContext),
+          }),
+          {} as Record<string, Types.Serializer.TSerializedNode>
+        );
+    }
+
+    const serializationContext = this.parseContext<Types.Serializer.TSerializationContext>(context.req.query);
 
     const nodes = this.engine.exportSerializedNodes(serializationContext);
 

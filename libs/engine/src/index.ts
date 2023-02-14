@@ -22,7 +22,7 @@ import RuleSet from './executors/rule-set';
 import ConfigParser from './storage/config-parser';
 import { ConfigProvider } from './storage/config-provider';
 import { TRuleSetInputs } from './types/rule-set';
-import { TMultiSerializationContext, TSerializationContext } from './types/serializer';
+import { TSerializationContext } from './types/serializer';
 import { TEventTypes } from './types/events';
 import { TRuleSetExecutorContext } from './types/rule-set';
 import { TEngineConfig, TRuleConfig, TRuleSetConfig } from './types/config';
@@ -225,9 +225,9 @@ export default class Engine extends EventEmitter<TEventTypes> {
     return serializer.serializeNode(node, nodeContext);
   }
 
-  exportSerializedNodes(context?: TMultiSerializationContext) {
+  exportSerializedNodes(limitedContext?: { ruleId?: string, ruleSetId?: string }) {
     return this.nodes.map(
-      node => this.exportSerializedNode(node.id, { ...context, nodeOptions: context?.nodeOptions?.[node.id], })
+      node => this.exportSerializedNode(node.id, limitedContext)
     );
   }
 

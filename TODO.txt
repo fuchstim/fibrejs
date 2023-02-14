@@ -1,3 +1,4 @@
 - Support collection data types
 - Cleanup executor types
 - Support complex input types in rule preview
+- Conditional Nodes
