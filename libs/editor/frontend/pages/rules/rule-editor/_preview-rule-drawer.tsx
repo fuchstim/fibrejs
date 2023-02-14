@@ -123,17 +123,51 @@ export default function PreviewRuleDrawer({ ruleConfig, open, onPreviewValues, o
     setLoading(true);
 
     await client.previewRule({ config: ruleConfig, inputs, })
-      .then(ruleResult => {
+      .then(ruleResult => toPreviewValues(ruleResult))
+      .then(previewValues => {
         onClose();
         previewRuleForm.resetFields();
-        onPreviewValues(toPreviewValues(ruleResult));
+        onPreviewValues(previewValues);
       })
       .catch(e => notification.error({ message: e.emssage, }))
       .finally(() => setLoading(false));
   };
 
-  const toPreviewValues = (ruleResult: Types.Common.TExecutorResult<Types.Rule.TRuleOutputs>) => {
-    return {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const getOutput = (outputs: Record<string, any>, key: string) => {
+    const keyParts = key.split('.');
+
+    console.log(outputs, key);
+
+    return keyParts.reduce(
+      (acc, keyPart) => acc[keyPart],
+      outputs
+    );
+  };
+
+  const toPreviewValues = async (ruleResult: Types.Common.TExecutorResult<Types.Rule.TRuleOutputs>) => {
+    const stages = await fetchStages(ruleConfig);
+
+    return stages.reduce(
+      (acc, stage) => {
+        const inputs = stage.inputs.reduce(
+          (acc, input) => ({
+            ...acc,
+            [input.inputId]: getOutput(ruleResult.outputs[input.ruleStageId].outputs, input.outputId),
+          }),
+          {}
+        );
+
+        const outputs = ruleResult.outputs[stage.id].outputs;
+        const executionTimeMs = ruleResult.outputs[stage.id].executionTimeMs;
+
+        return {
+          ...acc,
+          [stage.id]: { inputs, outputs, executionTimeMs, },
+        };
+      },
+      {}
+    );
   };
 
   return (
