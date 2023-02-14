@@ -1,11 +1,11 @@
 import { BaseNode } from '../common/base-node';
 import Executor from '../common/executor';
 import { detectDuplicates } from '../common/util';
-import { TExecutorResult, TExecutorValidationResult } from '../types/common';
+import { TExecutorValidationResult } from '../types/common';
 import { ENodeType, TNodeExecutorContext, TNodeOptions } from '../types/node';
-import { TRuleStageExecutorContext, TRuleStageInput, TRuleStageInputs as TRuleStageExecutorInputs, TRuleStageOptions } from '../types/rule-stage';
+import { TRuleStageExecutorContext, TRuleStageInput, TRuleStageInputs, TRuleStageOptions, TRuleStageOutputs } from '../types/rule-stage';
 
-export default class RuleStage extends Executor<TRuleStageExecutorInputs, TExecutorResult<any>, TRuleStageExecutorContext> {
+export default class RuleStage extends Executor<TRuleStageInputs, TRuleStageOutputs, TRuleStageExecutorContext> {
   readonly id: string;
   readonly node: BaseNode<any, any, any>;
   readonly inputs: TRuleStageInput[];
@@ -35,22 +35,32 @@ export default class RuleStage extends Executor<TRuleStageExecutorInputs, TExecu
     };
   }
 
-  async execute({ previousResults, additionalNodeInputs, }: TRuleStageExecutorInputs, context: TRuleStageExecutorContext) {
-    const nodeInputs = this.inputs.reduce(
-      (acc, { ruleStageId, inputId, outputId, }) => ({
-        ...acc,
-        [inputId]: this.getOutputByKey(previousResults[ruleStageId], outputId),
-      }),
-      additionalNodeInputs ?? {}
-    );
-
+  async execute(inputs: TRuleStageInputs, context: TRuleStageExecutorContext) {
     const nodeContext = this.createNodeContext(context);
-    const result = await this.node.run(
-      nodeInputs,
+    const nodeMetadata = this.node.getMetadata(nodeContext);
+
+    const wrappedInputs = nodeMetadata.inputs
+      .reduce(
+        (acc, input) => ({
+          ...acc,
+          [input.id]: input.type.fromNative(inputs[input.id]),
+        }),
+        {}
+      );
+
+    const { outputs: wrappedOutputs, } = await this.node.run(
+      wrappedInputs,
       nodeContext
     );
 
-    return result.outputs;
+    return nodeMetadata.outputs
+      .reduce(
+        (acc, output) => ({
+          ...acc,
+          [output.id]: output.type.toNative(wrappedOutputs[output.id]),
+        }),
+        {}
+      );
   }
 
   override validateContext(context: TRuleStageExecutorContext): TExecutorValidationResult<TRuleStageExecutorContext> {
@@ -75,15 +85,5 @@ export default class RuleStage extends Executor<TRuleStageExecutorInputs, TExecu
     }
 
     return this.node.validateContext(validationContext);
-  }
-
-  private getOutputByKey({ outputs, }: TExecutorResult<any>, key: string): any {
-    const pathParts = key.split('.');
-    const value = pathParts.reduce(
-      (acc, pathPart) => acc[pathPart],
-      outputs
-    );
-
-    return value;
   }
 }

@@ -27,10 +27,8 @@ export default class RuleSet extends Executor<TRuleSetInputs, TRuleSetExecutorRe
   }
 
   async execute(inputs: TRuleSetInputs, context: TRuleSetExecutorContext): Promise<TRuleSetExecutorResult> {
-    const ruleContext = { ...context, ruleSet: this, };
-
     const results = await Promise.all(
-      this.entries.map(entry => this.executeEntry(entry, inputs, ruleContext))
+      this.entries.map(entry => this.executeEntry(entry, inputs, { ...context, ruleSet: this, }))
     );
 
     const orderedResults = results.sort(

@@ -2,7 +2,7 @@ import Executor from '../common/executor';
 import { TExecutorValidationResult } from '../types/common';
 import { ENodeType } from '../types/node';
 import { TRuleOptions, TRuleInputs, TRuleOutputs, TRuleExecutorContext } from '../types/rule';
-import { TRuleStageResults } from '../types/rule-stage';
+import { TRuleStageInputs, TRuleStageResults } from '../types/rule-stage';
 import RuleStage from './rule-stage';
 
 export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecutorContext> {
@@ -15,7 +15,7 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
 
     this.id = options.id;
     this.name = options.name;
-    this.stages = this._sortStages(options.stages);
+    this.stages = this.sortStages(options.stages);
 
     const entryStages = this.stages.filter(stage => stage.node.type === ENodeType.ENTRY);
     const exitStages = this.stages.filter(stage => stage.node.type === ENodeType.EXIT);
@@ -42,28 +42,12 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
   async execute(inputs: TRuleInputs, context: TRuleExecutorContext): Promise<TRuleOutputs> {
     const ruleStageResults: TRuleStageResults = {};
 
-    const ruleStageContext = { ...context, rule: this, };
-
-    const entryStageInputs = this.entryStage.node
-      .getMetadata(this.entryStage.createNodeContext(ruleStageContext))
-      .inputs
-      .reduce(
-        (acc, input) => ({
-          ...acc,
-          [input.id]: input.type.fromNative(inputs[input.id]),
-        }),
-        {}
-      );
-
     for (const stage of this.stages) {
-      const ruleStageInputs = {
-        previousResults: ruleStageResults,
-        additionalNodeInputs: stage.node.type === ENodeType.ENTRY ? entryStageInputs : {},
-      };
+      const isEntryStage = stage.node.type === ENodeType.ENTRY;
 
       ruleStageResults[stage.id] = await stage.run(
-        ruleStageInputs,
-        ruleStageContext
+        isEntryStage ? this.getEntryStageInputs(stage, inputs, context) : this.getRuleStageInputs(stage, ruleStageResults),
+        { ...context, rule: this, }
       );
     }
 
@@ -95,7 +79,7 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
     };
   }
 
-  private _sortStages(stages: RuleStage[]): RuleStage[] {
+  private sortStages(stages: RuleStage[]): RuleStage[] {
     const stagesWithoutDependencies = stages.filter(
       stage => stage.dependsOn.length === 0
     );
@@ -123,5 +107,37 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
     return sortedStageIds.map(
       stageId => stages.find(stage => stage.id === stageId)!
     );
+  }
+
+  private getEntryStageInputs(stage: RuleStage, ruleInputs: TRuleInputs, context: TRuleExecutorContext): TRuleStageInputs {
+    const nodeInputs = stage.node.getMetadata(stage.createNodeContext(context)).inputs;
+
+    return nodeInputs.reduce(
+      (acc, input) => ({
+        ...acc,
+        [input.id]: this.getOutputById(ruleInputs, input.id),
+      }),
+      {}
+    );
+  }
+
+  private getRuleStageInputs(stage: RuleStage, previousResults: TRuleStageResults): TRuleStageInputs {
+    return stage.inputs.reduce(
+      (acc, { ruleStageId, inputId, outputId, }) => ({
+        ...acc,
+        [inputId]: this.getOutputById(previousResults[ruleStageId].outputs, outputId),
+      }),
+      {}
+    );
+  }
+
+  private getOutputById(outputs: Record<string, any>, id: string): any {
+    const pathParts = id.split('.');
+    const value = pathParts.reduce(
+      (acc, pathPart) => acc?.[pathPart],
+      outputs
+    );
+
+    return value;
   }
 }
