@@ -21,7 +21,9 @@ export default class RuleSetsService implements ICRUDService<Types.Config.TRuleS
   find() {
     const config = this.engine.getActiveConfig();
 
-    return config.ruleSets;
+    return config.ruleSets.sort(
+      (a, b) => a.name.localeCompare(b.name)
+    );
   }
 
   async create(ruleSet: Omit<Types.Config.TRuleSetConfig, 'id'>) {

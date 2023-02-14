@@ -23,7 +23,9 @@ export default class NodesService implements ICRUDService<Types.Serializer.TSeri
 
     const nodes = this.engine.exportSerializedNodes(serializationContext);
 
-    return nodes;
+    return nodes.sort(
+      (a, b) => a.name.localeCompare(b.name)
+    );
   }
 
   private parseContext<TContext>(query: { context?: string }) {
