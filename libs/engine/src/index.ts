@@ -126,7 +126,7 @@ export default class Engine extends EventEmitter<TEventTypes> {
       ruleSets: this.ruleSets,
     };
     const validationResult = ruleSet.validateContext(validationContext);
-    if (validationResult.valid) {
+    if (!validationResult.valid) {
       throw new Error(`Invalid rule set configuration: ${validationResult.reason}`);
     }
 
