@@ -1,8 +1,9 @@
 import { BaseNode, Types, WrappedTypes } from '@tripwire/engine';
+import { WDateType, WNumberType } from '@tripwire/engine/src/common/wrapped-types';
 
 type TNodeInputs = {
   userId: WrappedTypes.TStringType,
-  dateOfBirth: WrappedTypes.TDateType,
+  age: WrappedTypes.TNumberType,
 };
 type TNodeOutputs = {
   userId: WrappedTypes.TStringType,
@@ -21,7 +22,7 @@ export default class EntryTestNode extends BaseNode<TNodeInputs, TNodeOutputs, R
       options: [],
       inputs: [
         { id: 'userId', name: 'User ID', type: WrappedTypes.WStringType, },
-        { id: 'dateOfBirth', name: 'Date of Birth', type: WrappedTypes.WDateType, },
+        { id: 'age', name: 'Age', type: WrappedTypes.WNumberType, },
       ],
       outputs: [
         { id: 'userId', name: 'User ID', type: WrappedTypes.WStringType, },
@@ -31,6 +32,16 @@ export default class EntryTestNode extends BaseNode<TNodeInputs, TNodeOutputs, R
   }
 
   execute(inputs: TNodeInputs): TNodeOutputs {
-    return inputs;
+    const age = WNumberType.unwrap(inputs.age);
+
+    const dateOfBirth = new Date();
+    dateOfBirth.setFullYear(
+      dateOfBirth.getFullYear() - age
+    );
+
+    return {
+      userId: inputs.userId,
+      dateOfBirth: WDateType.wrap(dateOfBirth),
+    };
   }
 }

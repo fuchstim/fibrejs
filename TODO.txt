@@ -2,4 +2,4 @@
   - Show values on rule stages / ports
 - Support collection data types
 - Cleanup executor types
-- Support complex input types for entry nodes
+- Support complex input types in rule preview

@@ -46,6 +46,9 @@ export default function PreviewRuleDrawer({ ruleConfig, open, onPreviewValues, o
       if (!entryStage) { return; }
 
       const { inputs, } = entryStage.node;
+      if (inputs.some(i => i.type.isComplex)) {
+        throw new Error('Previewing rules with complex inputs is not yet supported'); // TODO: support
+      }
 
       setFormInputs(
         inputs.flatMap(input => toFormInputs(input))
