@@ -1,5 +1,6 @@
 - Support collection data types
 - Cleanup executor types
 - Support complex input types in rule preview
-- Conditional Nodes
 - Node display options
+- Return more detailed outputs of executeRule node
+- Fix rule editor link routing
