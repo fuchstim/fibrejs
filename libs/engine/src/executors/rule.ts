@@ -2,7 +2,7 @@ import Executor from '../common/executor';
 import { TExecutorValidationResult } from '../types/common';
 import { ENodeType } from '../types/node';
 import { TRuleOptions, TRuleInputs, TRuleOutputs, TRuleExecutorContext } from '../types/rule';
-import { TRuleStageInputs, TRuleStageResults } from '../types/rule-stage';
+import { TRuleStageResults } from '../types/rule-stage';
 import RuleStage from './rule-stage';
 
 export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecutorContext> {
@@ -39,21 +39,19 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
     return exitStage;
   }
 
-  async execute(inputs: TRuleInputs, context: TRuleExecutorContext): Promise<TRuleOutputs> {
-    const ruleStageResults: TRuleStageResults = {};
+  async execute(ruleInputs: TRuleInputs, context: TRuleExecutorContext): Promise<TRuleOutputs> {
+    const previousStageResults: TRuleStageResults = {};
 
     for (const stage of this.stages) {
-      const isEntryStage = stage.node.type === ENodeType.ENTRY;
-
-      ruleStageResults[stage.id] = await stage.run(
-        isEntryStage ? this.getEntryStageInputs(stage, inputs, context) : this.getRuleStageInputs(stage, ruleStageResults),
+      previousStageResults[stage.id] = await stage.run(
+        { ruleInputs, previousStageResults, },
         { ...context, rule: this, }
       );
     }
 
     return {
-      exitStageOutputs: ruleStageResults[this.exitStage.id].outputs,
-      ruleStageResults,
+      exitStageOutputs: previousStageResults[this.exitStage.id].outputs,
+      ruleStageResults: previousStageResults,
     };
   }
 
@@ -107,37 +105,5 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
     return sortedStageIds.map(
       stageId => stages.find(stage => stage.id === stageId)!
     );
-  }
-
-  private getEntryStageInputs(stage: RuleStage, ruleInputs: TRuleInputs, context: TRuleExecutorContext): TRuleStageInputs {
-    const nodeInputs = stage.node.getMetadata(stage.createNodeContext(context)).inputs;
-
-    return nodeInputs.reduce(
-      (acc, input) => ({
-        ...acc,
-        [input.id]: this.getOutputById(ruleInputs, input.id),
-      }),
-      {}
-    );
-  }
-
-  private getRuleStageInputs(stage: RuleStage, previousResults: TRuleStageResults): TRuleStageInputs {
-    return stage.inputs.reduce(
-      (acc, { ruleStageId, inputId, outputId, }) => ({
-        ...acc,
-        [inputId]: this.getOutputById(previousResults[ruleStageId].outputs, outputId),
-      }),
-      {}
-    );
-  }
-
-  private getOutputById(outputs: Record<string, any>, id: string): any {
-    const pathParts = id.split('.');
-    const value = pathParts.reduce(
-      (acc, pathPart) => acc?.[pathPart],
-      outputs
-    );
-
-    return value;
   }
 }
