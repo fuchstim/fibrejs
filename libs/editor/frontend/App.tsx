@@ -10,10 +10,10 @@ import {
 import {
   PieChartOutlined,
   TeamOutlined,
-  AlertOutlined,
   MenuUnfoldOutlined,
   MenuFoldOutlined,
-  GroupOutlined
+  GroupOutlined,
+  PartitionOutlined
 } from '@ant-design/icons';
 
 import { Avatar, Col, Layout, Menu, Row, Skeleton, Typography, notification, theme } from 'antd';
@@ -29,7 +29,7 @@ import { TAuthenticatedUser } from '../src/types';
 const menuItems = [
   { label: 'Dashboard', key: 'dashboard', icon: <PieChartOutlined />, },
   { label: 'Rule Sets', key: 'rule-sets', icon: <GroupOutlined />, },
-  { label: 'Rules', key: 'rules', icon: <AlertOutlined />, },
+  { label: 'Rules', key: 'rules', icon: <PartitionOutlined />, },
   { label: 'Users', key: 'users', icon: <TeamOutlined />, },
 ];
 
