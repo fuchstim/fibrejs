@@ -8,7 +8,7 @@ import {
 } from '@ant-design/icons';
 
 import EditorPortModel from './model';
-import { Row, Tag, Tooltip, Typography } from 'antd';
+import { Row, Tag, Tooltip, Typography, theme } from 'antd';
 
 interface EditorPortWidgetProps {
   port: EditorPortModel;
@@ -22,6 +22,10 @@ interface EditorPortWidgetProps {
 export default function EditorPortWidget(props: EditorPortWidgetProps) {
   const { port, engine, hideIfUnlinked, onClick, previewValue, expanded, } = props;
 
+  const {
+    token: { colorPrimary, },
+  } = theme.useToken();
+
   const Icon = port.hasLink ? RightCircleFilled : RightCircleTwoTone;
   const iconStyle = port.isInput ? { marginRight: 5, marginLeft: -5, } : { marginRight: -5, marginLeft: 5, };
 
@@ -33,7 +37,7 @@ export default function EditorPortWidget(props: EditorPortWidgetProps) {
 
   const portWidget = (
     <PortWidget engine={engine} port={port}>
-      <Icon style={iconStyle} />
+      <Icon style={iconStyle} twoToneColor={colorPrimary} />
     </PortWidget>
   );
 

@@ -4,13 +4,13 @@ import { BrowserRouter } from 'react-router-dom';
 
 import './public/base.css';
 import App from './App';
-import { ConfigProvider, Row, Spin, notification, theme } from 'antd';
+import { ConfigProvider, Row, Spin, ThemeConfig, notification, theme } from 'antd';
 import client from './common/client';
 
 function BasePathWrapper() {
   const [ loading, setLoading, ] = useState(true);
   const [ basePath, setBasePath, ] = useState('/');
-  const [ darkMode, setDarkMode, ] = useState<boolean>(true);
+  const [ darkMode, setDarkMode, ] = useState(false);
 
   useEffect(
     () => {
@@ -44,8 +44,19 @@ function BasePathWrapper() {
     );
   };
 
+  const themeConfig: ThemeConfig = {
+    token: {
+      colorPrimary: '#007fcc',
+      colorError: '#f1356e',
+      colorSuccess: '#20c090',
+      colorWarning: '#ffaa5a',
+      colorInfo: '#c0cbd4',
+    },
+    algorithm: darkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,
+  };
+
   return (
-    <ConfigProvider theme={{ algorithm: darkMode ? theme.darkAlgorithm : theme.defaultAlgorithm, }}>
+    <ConfigProvider theme={themeConfig}>
       { getContent() }
     </ConfigProvider>
   );
