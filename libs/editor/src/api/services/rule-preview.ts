@@ -6,7 +6,7 @@ import { ERequestMethod, IService, TPreviewRuleServicePayload } from '../../type
 type TPreviewRuleService = {
   [ERequestMethod.CREATE]: {
     'PAYLOAD': TPreviewRuleServicePayload,
-    'RESULT': Types.Common.TExecutorResult<Types.Rule.TRuleOutputs>
+    'RESULT': Types.Common.TExecutorResult<Types.Rule.TRuleInputs, Types.Rule.TRuleOutputs>
   },
   [ERequestMethod.FIND]: { 'PAYLOAD': never, 'RESULT': never },
   [ERequestMethod.GET]: { 'PAYLOAD': never, 'RESULT': never },

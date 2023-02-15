@@ -143,7 +143,7 @@ export default function PreviewRuleDrawer({ ruleConfig, open, onPreviewValues, o
     )
   );
 
-  const toPreviewValues = async (ruleResult: Types.Common.TExecutorResult<Types.Rule.TRuleOutputs>) => {
+  const toPreviewValues = async (ruleResult: Types.Common.TExecutorResult<Types.Rule.TRuleInputs, Types.Rule.TRuleOutputs>) => {
     const stages = await fetchStages(ruleConfig);
 
     return stages.map(stage => {
