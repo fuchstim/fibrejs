@@ -1,6 +1,6 @@
 - Support collection data types
-- Cleanup executor types
 - Support complex input types in rule preview
 - Node display options
 - Fix rule editor link routing
-- Render entry / exit input / output ports but inactive
+- Update rule preview to use executor input fields instead of inferring from previous outputs
+
