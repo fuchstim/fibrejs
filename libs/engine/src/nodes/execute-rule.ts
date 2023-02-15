@@ -84,7 +84,7 @@ export default class ExecuteRule extends BaseNode<TNodeInputs, TNodeOutputs, TNo
       throw new Error(`Cannot execute unknown rule: ${context.nodeOptions.ruleId}`);
     }
 
-    if (!WBooleanType.unwrap(inputs.executeRule)) {
+    if (context.nodeOptions.isConditional && !WBooleanType.unwrap(inputs.executeRule)) {
       return {};
     }
 
