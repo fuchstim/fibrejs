@@ -11,7 +11,7 @@ export default abstract class Executor<TInputs, TOutputs, TContext extends TExec
 
   protected abstract execute(inputs: TInputs, context: TContext): Promise<TOutputs> | TOutputs;
 
-  async run(inputs: TInputs, parentContext: TContext): Promise<TExecutorResult<TOutputs>> {
+  async run(inputs: TInputs, parentContext: TContext): Promise<TExecutorResult<TInputs, TOutputs>> {
     const context = {
       ...parentContext,
       logger: parentContext.logger.ns(this.executorId),
@@ -51,6 +51,7 @@ export default abstract class Executor<TInputs, TOutputs, TContext extends TExec
 
     return {
       executionTimeMs,
+      inputs,
       outputs,
     };
   }

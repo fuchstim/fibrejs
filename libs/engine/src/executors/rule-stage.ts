@@ -3,9 +3,9 @@ import Executor from '../common/executor';
 import { detectDuplicates } from '../common/util';
 import { TExecutorValidationResult } from '../types/common';
 import { ENodeType, TNodeExecutorContext, TNodeOptions } from '../types/node';
-import { ERuleStageReservedId, TRuleStageExecutorContext, TRuleStageInput, TRuleStageOptions, TRuleStageResults } from '../types/rule-stage';
+import { ERuleStageReservedId, TRuleStageExecutorContext, TRuleStageInput, TRuleStageInputs, TRuleStageOptions, TRuleStageResults } from '../types/rule-stage';
 
-export default class RuleStage extends Executor<TRuleStageResults, TRuleStageResults, TRuleStageExecutorContext> {
+export default class RuleStage extends Executor<TRuleStageInputs, TRuleStageResults, TRuleStageExecutorContext> {
   readonly id: string;
   readonly node: BaseNode<any, any, any>;
   readonly inputs: TRuleStageInput[];
@@ -35,9 +35,9 @@ export default class RuleStage extends Executor<TRuleStageResults, TRuleStageRes
     };
   }
 
-  async execute(previousStageResults: TRuleStageResults, context: TRuleStageExecutorContext) {
+  async execute(inputs: TRuleStageInputs, context: TRuleStageExecutorContext) {
     const { outputs: wrappedOutputs, } = await this.node.run(
-      this.getPreviousOutputs(previousStageResults),
+      inputs,
       this.createNodeContext(context)
     );
 
@@ -70,29 +70,5 @@ export default class RuleStage extends Executor<TRuleStageResults, TRuleStageRes
     }
 
     return this.node.validateContext(validationContext);
-  }
-
-  private getPreviousOutputs(previousResults: TRuleStageResults) {
-    if (this.node.type === ENodeType.ENTRY) {
-      return previousResults[ERuleStageReservedId.ENTRY].outputs;
-    }
-
-    return this.inputs.reduce(
-      (acc, { ruleStageId, inputId, outputId, }) => ({
-        ...acc,
-        [inputId]: this.getOutputById(previousResults[ruleStageId].outputs, outputId),
-      }),
-      {}
-    );
-  }
-
-  private getOutputById(outputs: Record<string, any>, id: string): any {
-    const pathParts = id.split('.');
-    const value = pathParts.reduce(
-      (acc, pathPart) => acc?.[pathPart],
-      outputs
-    );
-
-    return value;
   }
 }

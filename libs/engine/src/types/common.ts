@@ -5,8 +5,9 @@ import type RuleSet from '../executors/rule-set';
 export type TGetter<TContext, TReturnType> = (context: TContext) => TReturnType;
 export type TOptionalGetter<TContext, TReturnType> = TReturnType | TGetter<TContext, TReturnType>;
 
-export type TExecutorResult<TOutputs> = {
+export type TExecutorResult<TInputs, TOutputs> = {
   executionTimeMs: number,
+  inputs: TInputs,
   outputs: TOutputs
 };
 

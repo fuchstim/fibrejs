@@ -41,8 +41,10 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
     }
 
     for (const stage of this.stages) {
+      const stageInputs = this.getStageInputs(stage, ruleStageResults);
+
       ruleStageResults[stage.id] = await stage.run(
-        ruleStageResults,
+        stageInputs,
         { ...context, rule: this, }
       );
     }
@@ -154,7 +156,7 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
     );
   }
 
-  private wrapRuleInputs(ruleInputs: TRuleInputs, context: TRuleExecutorContext): TExecutorResult<any> {
+  private wrapRuleInputs(ruleInputs: TRuleInputs, context: TRuleExecutorContext): TExecutorResult<any, any> {
     if (!this.entryStage) {
       throw new Error('Cannot wrap inputs for a rule without entry stage');
     }
@@ -172,7 +174,32 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
 
     return {
       executionTimeMs: 0,
+      inputs: wrappedInputs,
       outputs: wrappedInputs,
     };
+  }
+
+  private getStageInputs(stage: RuleStage, previousStageResults: TRuleStageResults) {
+    if (stage.node.type === ENodeType.ENTRY) {
+      return previousStageResults[ERuleStageReservedId.ENTRY].outputs;
+    }
+
+    return stage.inputs.reduce(
+      (acc, { ruleStageId, inputId, outputId, }) => ({
+        ...acc,
+        [inputId]: this.getOutputById(previousStageResults[ruleStageId].outputs, outputId),
+      }),
+      {}
+    );
+  }
+
+  private getOutputById(outputs: Record<string, any>, id: string): any {
+    const pathParts = id.split('.');
+    const value = pathParts.reduce(
+      (acc, pathPart) => acc?.[pathPart],
+      outputs
+    );
+
+    return value;
   }
 }

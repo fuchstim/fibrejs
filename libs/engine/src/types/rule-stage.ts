@@ -24,4 +24,5 @@ export type TRuleStageOptions = {
 
 export type TRuleStageExecutorContext = TRuleExecutorContext & { rule?: Rule };
 
-export type TRuleStageResults = Record<string, TExecutorResult<any>>;
+export type TRuleStageInputs = Record<string, any>;
+export type TRuleStageResults = Record<string, TExecutorResult<any, any>>;
