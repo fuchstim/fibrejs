@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Button, Col, Popconfirm, Row, Spin, notification } from 'antd';
+import { Button, Col, Popconfirm, Row, Spin, notification, theme } from 'antd';
 
 import {
   CanvasWidget,
@@ -30,6 +30,8 @@ export default function RuleEditor() {
   const [ showAddNodeDrawer, setShowAddNodeDrawer, ] = useState(false);
   const [ showPreviewRuleDrawer, setShowPreviewRuleDrawer, ] = useState(false);
   const [ engine, setEngine, ] = useState<DiagramEngine>();
+
+  const { token: { colorBgLayout, }, } = theme.useToken();
 
   const { ruleId, } = useParams();
   const navigate = useNavigate();
@@ -265,6 +267,7 @@ export default function RuleEditor() {
           </Col>
         </Row>
       )}
+      contentStyle={{ background: colorBgLayout, }}
       content={getContent()}
     />
   );

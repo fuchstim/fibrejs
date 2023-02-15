@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 
 import { Row, Col, Typography, Layout } from 'antd';
 
@@ -7,10 +7,10 @@ type Props = {
   subtitle: string,
   headerExtra?: JSX.Element,
 
-  content: JSX.Element
+  content: JSX.Element,
+  contentStyle?: CSSProperties,
 };
 export default function Page(props: Props) {
-
   return (
     <div
       style={{
@@ -47,6 +47,7 @@ export default function Page(props: Props) {
         style={{
           margin: '0 24px 24px 24px',
           borderRadius: '6px',
+          ...props.contentStyle,
         }}
       >
         { props.content }

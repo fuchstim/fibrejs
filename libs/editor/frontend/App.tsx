@@ -13,10 +13,11 @@ import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
   GroupOutlined,
-  PartitionOutlined
+  PartitionOutlined,
+  BulbOutlined
 } from '@ant-design/icons';
 
-import { Avatar, Col, Layout, Menu, Row, Skeleton, Typography, notification, theme } from 'antd';
+import { Avatar, Button, Col, Layout, Menu, Row, Skeleton, Typography, notification, theme } from 'antd';
 
 const { Header, Content, Sider, } = Layout;
 
@@ -33,7 +34,11 @@ const menuItems = [
   { label: 'Users', key: 'users', icon: <TeamOutlined />, },
 ];
 
-export default function App() {
+type Props = {
+  toggleDarkMode: () => void
+};
+
+export default function App({ toggleDarkMode, }: Props) {
   const [ collapsed, setCollapsed, ] = useState(true);
   const [ loading, setLoading, ] = useState(false);
   const [ user, setUser, ] = useState<TAuthenticatedUser>();
@@ -63,7 +68,11 @@ export default function App() {
   );
 
   const {
-    token: { colorBgContainer, boxShadow, },
+    token: {
+      colorBgContainer,
+      boxShadow,
+      colorText,
+    },
   } = theme.useToken();
 
   const toggleCollapse = () => setCollapsed(!collapsed);
@@ -101,7 +110,13 @@ export default function App() {
   return (
     <Layout style={{ minHeight: '100vh', }} hasSider={true}>
 
-      <Sider trigger={null} collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
+      <Sider
+        trigger={null}
+        collapsible
+        collapsed={collapsed}
+        onCollapse={(value) => setCollapsed(value)}
+        theme="light"
+      >
         <Row
           justify='center'
           align='middle'
@@ -114,7 +129,7 @@ export default function App() {
             level={2}
             style={{
               margin: 0,
-              color: 'white',
+              color: colorText,
               whiteSpace: 'nowrap',
             }}
           >
@@ -123,7 +138,7 @@ export default function App() {
         </Row>
 
         <Menu
-          theme="dark"
+          style={{ border: 'none', }}
           items={menuItems}
           selectedKeys={[ selectedKey, ]}
           onSelect={({ key, }) => onMenuSelect(key)}
@@ -143,6 +158,15 @@ export default function App() {
             <Col flex="auto" />
 
             { createUserHeaderComponent() }
+
+            <Col>
+              <Button
+                icon={<BulbOutlined />}
+                shape="circle"
+                type="ghost"
+                onClick={toggleDarkMode}
+              />
+            </Col>
           </Row>
         </Header>
 
