@@ -2,6 +2,5 @@
 - Cleanup executor types
 - Support complex input types in rule preview
 - Node display options
-- Return more detailed outputs of executeRule node
 - Fix rule editor link routing
 - Render entry / exit input / output ports but inactive
