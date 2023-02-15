@@ -1,3 +1,4 @@
+import type Executor from '../common/executor';
 import { TWrappedPrimitive, TWrappedType } from '../common/wrapped-types';
 import type Rule from '../executors/rule';
 import type RuleSet from '../executors/rule-set';
@@ -31,4 +32,5 @@ export type TExecutorContext = {
   logger: IExecutorLogger,
   rules: Rule[],
   ruleSets: RuleSet[],
+  callStack?: Executor<any, any, any>[]
 };

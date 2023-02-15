@@ -1,5 +1,7 @@
 import { TExecutorResult, TExecutorContext, TExecutorValidationResult } from '../types/common';
 
+const MAX_CALL_STACK_SIZE = 100;
+
 export default abstract class Executor<TInputs, TOutputs, TContext extends TExecutorContext> {
   private executorId: string;
   private executorType: string;
@@ -15,7 +17,12 @@ export default abstract class Executor<TInputs, TOutputs, TContext extends TExec
     const context = {
       ...parentContext,
       logger: parentContext.logger.ns(this.executorId),
+      callStack: (parentContext.callStack ?? []).concat(this),
     };
+
+    if (context.callStack.length > MAX_CALL_STACK_SIZE) {
+      throw new Error(`Maximum executor call stack size (${100}) exceeded`);
+    }
 
     context.logger.info(`Executing ${this.executorType}...`);
 
