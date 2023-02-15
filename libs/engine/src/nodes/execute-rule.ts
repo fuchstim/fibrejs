@@ -101,7 +101,7 @@ export default class ExecuteRule extends BaseNode<TNodeInputs, TNodeOutputs, TNo
 
     const result = await rule.execute(unwrappedInputs, context);
 
-    return Object
+    const ruleOutputs = Object
       .entries(result[ERuleStageReservedId.EXIT]?.outputs ?? {})
       .filter(
         ([ outputId, ]) => metadata.outputs.map(output => output.id).includes(outputId)
@@ -110,5 +110,10 @@ export default class ExecuteRule extends BaseNode<TNodeInputs, TNodeOutputs, TNo
         (acc, [ id, value, ]) => ({ ...acc, [id]: value, }),
         {}
       );
+
+    return {
+      ...ruleOutputs,
+      fullRuleResults: result,
+    };
   }
 }
