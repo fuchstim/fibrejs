@@ -57,10 +57,12 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
   };
 
   const createInput = (name: string, type: WrappedTypes.EPrimitive) => {
+    const onInputFocus = () => props.editorNode.setSelected(false);
+
     const input = {
       [WrappedTypes.EPrimitive.NUMBER]: {
         valuePropName: 'value',
-        element: (<InputNumber placeholder={name} style={{ width: '100%', }} />),
+        element: (<InputNumber onFocus={onInputFocus} placeholder={name} style={{ width: '100%', }} />),
       },
       [WrappedTypes.EPrimitive.BOOLEAN]: {
         valuePropName: 'checked',
@@ -68,7 +70,7 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
       },
       [WrappedTypes.EPrimitive.STRING]: {
         valuePropName: 'value',
-        element: (<Input placeholder={name} style={{ width: '100%', }} />),
+        element: (<Input onFocus={onInputFocus} placeholder={name} style={{ width: '100%', }} />),
       },
     };
 
