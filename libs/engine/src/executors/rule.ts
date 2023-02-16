@@ -8,17 +8,17 @@ import RuleStage from './rule-stage';
 export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecutorContext> {
   readonly id: string;
   readonly name: string;
-  readonly stages: RuleStage[];
+  readonly sortedStages: RuleStage[][];
 
   constructor(options: TRuleOptions) {
     super(options.id, 'rule');
 
     this.id = options.id;
     this.name = options.name;
-    this.stages = this.sortStages(options.stages);
+    this.sortedStages = this.sortStages(options.stages);
 
-    const entryStages = this.stages.filter(stage => stage.node.type === ENodeType.ENTRY);
-    const exitStages = this.stages.filter(stage => stage.node.type === ENodeType.EXIT);
+    const entryStages = this.sortedStages.flat().filter(stage => stage.node.type === ENodeType.ENTRY);
+    const exitStages = this.sortedStages.flat().filter(stage => stage.node.type === ENodeType.EXIT);
 
     if (entryStages.length > 1 || exitStages.length > 1) {
       throw new Error('Invalid number of entry / exit stages defined');
@@ -26,11 +26,11 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
   }
 
   get entryStage() {
-    return this.stages.find(stage => stage.node.type === ENodeType.ENTRY);
+    return this.sortedStages.flat().find(stage => stage.node.type === ENodeType.ENTRY);
   }
 
   get exitStage() {
-    return this.stages.find(stage => stage.node.type === ENodeType.EXIT);
+    return this.sortedStages.flat().find(stage => stage.node.type === ENodeType.EXIT);
   }
 
   async execute(unwrappedRuleInputs: TRuleInputs, context: TRuleExecutorContext): Promise<TRuleOutputs> {
@@ -40,12 +40,18 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
       ruleStageResults[ERuleStageReservedId.ENTRY] = this.wrapRuleInputs(unwrappedRuleInputs, context);
     }
 
-    for (const stage of this.stages) {
-      const stageInputs = this.getStageInputs(stage, ruleStageResults);
+    for (const stages of this.sortedStages) {
+      await Promise.all(
+        stages.map(
+          async stage => {
+            const stageInputs = this.getStageInputs(stage, ruleStageResults);
 
-      ruleStageResults[stage.id] = await stage.run(
-        stageInputs,
-        { ...context, rule: this, }
+            ruleStageResults[stage.id] = await stage.run(
+              stageInputs,
+              { ...context, rule: this, }
+            );
+          }
+        )
       );
     }
 
@@ -57,7 +63,8 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
   }
 
   override validateContext(context: TRuleExecutorContext): TExecutorValidationResult<TRuleExecutorContext> {
-    const invalidStages = this.stages
+    const invalidStages = this.sortedStages
+      .flat()
       .map(
         stage => ({ stage, result: stage.validateContext({ ...context, rule: this, }), })
       )
@@ -126,18 +133,20 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
     };
   }
 
-  private sortStages(stages: RuleStage[]): RuleStage[] {
+  private sortStages(stages: RuleStage[]): RuleStage[][] {
     const stagesWithoutDependencies = stages.filter(
       stage => stage.dependsOn.length === 0
     );
 
-    const sortedStageIds = stagesWithoutDependencies.map(s => s.id);
-    while (sortedStageIds.length !== stages.length) {
+    const sortedStageIds = [ stagesWithoutDependencies.map(s => s.id), ];
+    while (sortedStageIds.flat().length !== stages.length) {
+      const flatSortedStageIds = sortedStageIds.flat();
+
       const availableStages = stages.filter(
         stage => (
-          !sortedStageIds.includes(stage.id)
+          !flatSortedStageIds.includes(stage.id)
           && stage.dependsOn.every(
-            stageId => sortedStageIds.includes(stageId)
+            stageId => flatSortedStageIds.includes(stageId)
           )
         )
       );
@@ -147,12 +156,12 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
       }
 
       sortedStageIds.push(
-        ...availableStages.map(stage => stage.id)
+        availableStages.map(stage => stage.id)
       );
     }
 
     return sortedStageIds.map(
-      stageId => stages.find(stage => stage.id === stageId)!
+      stageIds => stages.filter(stage => stageIds.includes(stage.id))
     );
   }
 
