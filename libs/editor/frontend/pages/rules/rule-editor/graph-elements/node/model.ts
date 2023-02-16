@@ -109,9 +109,30 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
       portType: EPortType.INPUT,
       config,
       level,
+      labelOnly: level > 0,
     });
 
-    return [ port, ];
+    if (!config.type.isComplex) {
+      return [ port, ];
+    }
+
+    const fieldPorts = Object
+      .entries(config.type.fields)
+      .flatMap(
+        ([ key, type, ]) => this.generatePortsFromNodeInput(
+          {
+            id: [ config.id, key, ].join('.'),
+            name: [ config.name, camelCaseToSentenceCase(key), ].join(' → '),
+            type,
+          },
+          level + 1
+        )
+      );
+
+    return [
+      port,
+      ...fieldPorts,
+    ];
   }
 
   private generatePortsFromNodeOutput(config: Types.Serializer.TSerializedNodeInputOutput, level = 0): EditorPortModel[] {

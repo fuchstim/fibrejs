@@ -27,7 +27,8 @@ export default function EditorPortWidget(props: EditorPortWidgetProps) {
   } = theme.useToken();
 
   const Icon = port.hasLink ? RightCircleFilled : RightCircleTwoTone;
-  const iconStyle = port.isInput ? { marginRight: 5, marginLeft: -5, } : { marginRight: -5, marginLeft: 5, };
+  const portMargin = port.isInput ? { marginRight: 5, marginLeft: -5, } : { marginRight: -5, marginLeft: 5, };
+  const iconStyle = { ...portMargin, opacity: port.getOptions().labelOnly ? 0 : 1, };
 
   const {
     config: { name, type, },

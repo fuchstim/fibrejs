@@ -1,5 +1,4 @@
 - Support collection data types
 - Support complex input types in rule preview
 - Node display options
-- Update rule preview to use executor input fields instead of inferring from previous outputs
 - Write tests

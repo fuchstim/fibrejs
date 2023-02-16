@@ -21,6 +21,7 @@ interface EditorPortModelOptions {
   portType: EPortType,
   config: Types.Serializer.TSerializedNodeInputOutput,
   level: number,
+  labelOnly?: boolean,
 }
 
 interface EditorPortModelGenerics extends PortModelGenerics {
@@ -28,7 +29,7 @@ interface EditorPortModelGenerics extends PortModelGenerics {
 }
 
 export default class EditorPortModel extends PortModel<EditorPortModelGenerics> {
-  constructor({ id, portType, config, level, }: EditorPortModelOptions) {
+  constructor({ id, portType, config, level, labelOnly, }: EditorPortModelOptions) {
     super({
       id,
       name: id,
@@ -38,6 +39,7 @@ export default class EditorPortModel extends PortModel<EditorPortModelGenerics> 
       config,
       level,
       maximumLinks: portType === EPortType.INPUT ? 1 : undefined,
+      labelOnly,
     });
   }
 
@@ -54,6 +56,10 @@ export default class EditorPortModel extends PortModel<EditorPortModelGenerics> 
     const { config: targetConfig, portType: targetPortType, } = targetPort.getOptions();
 
     if (!ignoreExistingLink && targetPort.hasLink) {
+      return false;
+    }
+
+    if (targetPort.getOptions().labelOnly) {
       return false;
     }
 

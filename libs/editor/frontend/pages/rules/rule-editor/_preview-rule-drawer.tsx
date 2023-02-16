@@ -143,40 +143,37 @@ export default function PreviewRuleDrawer({ ruleConfig, open, onPreviewValues, o
     )
   );
 
+  const flattenInputOutput = (prefix: string, type: Types.Serializer.TSerializedType, values: Record<string, any>) => {
+    const value = getValueByKey(values, prefix);
+
+    if (!type.isComplex) {
+      return { [prefix]: value.value, };
+    }
+
+    const flattened: Record<string, any> = Object
+      .entries(type.fields)
+      .reduce(
+        (acc, [ key, type, ]) => ({
+          ...acc,
+          ...flattenInputOutput(`${prefix}.${key}`, type, values),
+        }),
+        { [prefix]: value, }
+      );
+
+    return flattened;
+  };
+
   const toPreviewValues = async (ruleResult: Types.Common.TExecutorResult<Types.Rule.TRuleInputs, Types.Rule.TRuleOutputs>) => {
     const stages = await fetchStages(ruleConfig);
 
     return stages.map(stage => {
-      const inputs = stage.inputs.reduce(
-        (acc, input) => ({
-          ...acc,
-          [input.inputId]: getValueByKey(ruleResult.outputs[input.ruleStageId].outputs, input.outputId).value,
-        }),
-        {}
+      const inputs = stage.node.inputs.reduce(
+        (acc, { id, type, }) => ({ ...acc, ...flattenInputOutput(id, type, acc), }),
+        ruleResult.outputs[stage.id].inputs
       );
 
-      const flattenOutputs = (prefix: string, type: Types.Serializer.TSerializedType, value: Record<string, any>) => {
-        const output = getValueByKey(value, prefix);
-
-        if (!type.isComplex) {
-          return { [prefix]: output.value, };
-        }
-
-        const flattened: Record<string, any> = Object
-          .entries(type.fields)
-          .reduce(
-            (acc, [ key, type, ]) => ({
-              ...acc,
-              ...flattenOutputs(`${prefix}.${key}`, type, value),
-            }),
-            { [prefix]: output, }
-          );
-
-        return flattened;
-      };
-
       const outputs = stage.node.outputs.reduce(
-        (acc, { id, type, }) => ({ ...acc, ...flattenOutputs(id, type, acc), }),
+        (acc, { id, type, }) => ({ ...acc, ...flattenInputOutput(id, type, acc), }),
         ruleResult.outputs[stage.id].outputs
       );
 
