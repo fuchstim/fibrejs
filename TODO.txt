@@ -1,6 +1,6 @@
 - Support collection data types
 - Support complex input types in rule preview
 - Node display options
-- Fix rule editor link routing
+- Fix node input delete bug
 - Update rule preview to use executor input fields instead of inferring from previous outputs
-
+- Write tests

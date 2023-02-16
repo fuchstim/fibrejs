@@ -77,6 +77,8 @@ export function distributeNodes(engine: DiagramEngine) {
   dagreEngine.redistribute(model);
   dagreEngine.refreshLinks(model);
 
+  model.getLinks().forEach(l => l.removeMiddlePoints());
+
   engine
     .getLinkFactories()
     .getFactory<PathFindingLinkFactory>(PathFindingLinkFactory.NAME)
