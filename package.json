@@ -7,7 +7,7 @@
     "rebuild": "npm run clean && npm run build",
     "clean": "npm run --workspaces --if-present clean",
     "build": "npm run build -w packages/logger -w packages/engine -w packages/editor",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npm run --workspaces --if-present test"
   },
   "keywords": [],
   "author": "",
