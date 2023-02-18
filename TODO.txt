@@ -2,5 +2,4 @@
 - Support complex input types in rule preview
 - Node display options
 - Write tests
-- Unwrap rule outputs
 - Write README
