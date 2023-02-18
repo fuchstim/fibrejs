@@ -169,15 +169,15 @@ export default function PreviewRuleDrawer({ ruleConfig, open, onPreviewValues, o
     return stages.map(stage => {
       const inputs = stage.node.inputs.reduce(
         (acc, { id, type, }) => ({ ...acc, ...flattenInputOutput(id, type, acc), }),
-        ruleResult.outputs[stage.id].inputs
+        ruleResult.outputs.stageResults[stage.id].inputs
       );
 
       const outputs = stage.node.outputs.reduce(
         (acc, { id, type, }) => ({ ...acc, ...flattenInputOutput(id, type, acc), }),
-        ruleResult.outputs[stage.id].outputs
+        ruleResult.outputs.stageResults[stage.id].outputs
       );
 
-      const executionTimeMs = ruleResult.outputs[stage.id].executionTimeMs;
+      const executionTimeMs = ruleResult.outputs.stageResults[stage.id].executionTimeMs;
 
       return { stageId: stage.id, previewValues: { inputs, outputs, executionTimeMs, }, };
     });

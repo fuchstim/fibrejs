@@ -88,6 +88,7 @@ export default class Engine extends EventEmitter<TEventTypes> {
       logger: new Logger().ns(executionId),
       rules: this.rules,
       ruleSets: this.ruleSets,
+      isPreview: true,
     };
     const result = rule.run(inputs, context);
 

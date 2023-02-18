@@ -100,6 +100,13 @@ export default class ExecuteRule extends BaseNode<TNodeInputs, TNodeOutputs, TNo
 
     const result = await rule.execute(unwrappedInputs, context);
 
+    if (context.isPreview) {
+      return {
+        ...result.exitStageOutputs,
+        stageResults: result.stageResults,
+      };
+    }
+
     const wrappedOutputs = metadata.outputs
       .reduce(
         (acc, output) => ({

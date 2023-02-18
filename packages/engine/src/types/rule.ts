@@ -11,7 +11,7 @@ export type TRuleOptions = {
 
 export type TRuleInputs = Record<string, any>;
 
-export type TRuleExecutorContext = TRuleSetExecutorContext & { ruleSet?: RuleSet };
+export type TRuleExecutorContext = TRuleSetExecutorContext & { isPreview?: boolean, ruleSet?: RuleSet };
 
 export type TRuleOutputs = {
   exitStageOutputs: Record<string, any>;

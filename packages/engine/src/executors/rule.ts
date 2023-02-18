@@ -57,6 +57,13 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
       );
     }
 
+    if (context.isPreview) {
+      return {
+        exitStageOutputs: this.exitStage ? ruleStageResults[this.exitStage.id].outputs : {},
+        stageResults: ruleStageResults,
+      };
+    }
+
     const unwrappedRuleStageResults = this.unwrapRuleStageResults(ruleStageResults, context);
 
     return {
