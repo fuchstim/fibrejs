@@ -4,9 +4,9 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "rebuild": "npm run --workspaces --if-present rebuild",
+    "rebuild": "npm run clean && npm run build",
     "clean": "npm run --workspaces --if-present clean",
-    "build": "npm run --workspaces --if-present build",
+    "build": "npm run build -w packages/logger -w packages/engine -w packages/editor",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
