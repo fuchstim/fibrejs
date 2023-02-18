@@ -4,11 +4,6 @@ import type { TExecutorResult } from './common';
 import type { TNodeOptions } from './node';
 import type { TRuleExecutorContext } from './rule';
 
-export enum ERuleStageReservedId {
-  ENTRY = 'ENTRY',
-  EXIT = 'EXIT'
-}
-
 export type TRuleStageInput = {
   ruleStageId: string,
   outputId: string,

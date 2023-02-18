@@ -1,7 +1,6 @@
 import { BaseNode } from '../common/base-node';
 import { EPrimitive, WBooleanType } from '../common/wrapped-types';
 import { ENodeMetadataOptionType, TNodeExecutorContext, TNodeMetadataInputOutput, TNodeMetadataOption } from '../types/node';
-import { ERuleStageReservedId } from '../types/rule-stage';
 
 type TNodeInputs = Record<string, any>;
 
@@ -101,19 +100,15 @@ export default class ExecuteRule extends BaseNode<TNodeInputs, TNodeOutputs, TNo
 
     const result = await rule.execute(unwrappedInputs, context);
 
-    const ruleOutputs = Object
-      .entries(result[ERuleStageReservedId.EXIT]?.outputs ?? {})
-      .filter(
-        ([ outputId, ]) => metadata.outputs.map(output => output.id).includes(outputId)
-      )
+    const wrappedOutputs = metadata.outputs
       .reduce(
-        (acc, [ id, value, ]) => ({ ...acc, [id]: value, }),
-        {}
+        (acc, output) => ({
+          ...acc,
+          [output.id]: output.type.wrap(result[output.id]),
+        }),
+        result
       );
 
-    return {
-      ...ruleOutputs,
-      fullRuleResults: result,
-    };
+    return wrappedOutputs;
   }
 }
