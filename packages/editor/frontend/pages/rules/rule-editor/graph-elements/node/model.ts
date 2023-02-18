@@ -10,7 +10,7 @@ import {
 import EditorPortModel, { EPortType } from '../port/model';
 import { TPreviewValues, TRuleStageWithNode } from '../../_types';
 
-import { Types } from '@fibre/engine';
+import { Types } from '@fibrejs/engine';
 
 import client from '../../../../../common/client';
 import { camelCaseToSentenceCase } from '../../_common';

@@ -1,4 +1,4 @@
-import type { Types } from '@fibre/engine';
+import type { Types } from '@fibrejs/engine';
 import { Request, Response } from 'express';
 
 export enum ERequestMethod {

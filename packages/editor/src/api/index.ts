@@ -1,6 +1,6 @@
 import express from 'express';
 
-import type Engine from '@fibre/engine';
+import type Engine from '@fibrejs/engine';
 
 import NodesService from './services/nodes';
 import RulePreviewService from './services/rule-preview';

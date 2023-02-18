@@ -1,5 +1,5 @@
-import type Engine from '@fibre/engine';
-import type { Types } from '@fibre/engine';
+import type Engine from '@fibrejs/engine';
+import type { Types } from '@fibrejs/engine';
 
 import { ICRUDService } from '../../types';
 

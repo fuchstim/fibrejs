@@ -3,7 +3,7 @@ import { TRuleStageWithNode } from './_types';
 import client from '../../../common/client';
 
 import EditorNodeModel from './graph-elements/node/model';
-import type { Types } from '@fibre/engine';
+import type { Types } from '@fibrejs/engine';
 import EditorNodeFactory from './graph-elements/node/factory';
 import EditorPortFactory from './graph-elements/port/factory';
 import EditorPortModel from './graph-elements/port/model';

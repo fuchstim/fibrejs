@@ -1,5 +1,5 @@
 {
-  "name": "@fibre/editor",
+  "name": "@fibrejs/editor",
   "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {
@@ -14,8 +14,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@fibre/engine": "^1.0.0",
-    "@fibre/logger": "^1.0.0",
+    "@fibrejs/engine": "^1.0.0",
+    "@fibrejs/logger": "^1.0.0",
     "express": "^4.18.2"
   },
   "devDependencies": {

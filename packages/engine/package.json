@@ -1,5 +1,5 @@
 {
-  "name": "@fibre/engine",
+  "name": "@fibrejs/engine",
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
@@ -13,7 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@fibre/logger": "^1.0.0",
+    "@fibrejs/logger": "^1.0.0",
     "@types/uuid": "^9.0.0",
     "uuid": "^9.0.0"
   },

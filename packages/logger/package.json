@@ -1,5 +1,5 @@
 {
-  "name": "@fibre/logger",
+  "name": "@fibrejs/logger",
   "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {

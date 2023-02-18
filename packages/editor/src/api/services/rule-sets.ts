@@ -1,7 +1,7 @@
-import type Engine from '@fibre/engine';
+import type Engine from '@fibrejs/engine';
 
 import { ICRUDService } from '../../types';
-import type { Types } from '@fibre/engine';
+import type { Types } from '@fibrejs/engine';
 
 export default class RuleSetsService implements ICRUDService<Types.Config.TRuleSetConfig> {
   private engine: Engine;

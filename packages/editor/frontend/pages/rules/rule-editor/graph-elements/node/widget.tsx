@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { DiagramEngine } from '@projectstorm/react-diagrams';
 import { Card, Checkbox, Col, Divider, Form, Input, InputNumber, Row, Select, theme, Typography } from 'antd';
 
-import { Types, WrappedTypes } from '@fibre/engine';
+import { Types, WrappedTypes } from '@fibrejs/engine';
 
 import EditorNodeModel from './model';
 import EditorPortModel, { EPortType } from '../port/model';

@@ -3,7 +3,7 @@ import { Button, Drawer, Table, notification } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
 import client from '../../../common/client';
-import type { Types } from '@fibre/engine';
+import type { Types } from '@fibrejs/engine';
 import { ColumnsType } from 'antd/es/table';
 
 type Props = {

@@ -7,7 +7,7 @@ import {
   DeserializeEvent,
   LinkModel
 } from '@projectstorm/react-diagrams';
-import type { Types } from '@fibre/engine';
+import type { Types } from '@fibrejs/engine';
 import { notification } from 'antd';
 import EditorNodeModel from '../node/model';
 
