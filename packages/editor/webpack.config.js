@@ -13,11 +13,6 @@ module.exports = {
     path: path.resolve(__dirname, 'dist/html'),
     publicPath: prod ? undefined : '/',
   },
-  resolve: {
-    fallback: {
-      path: require.resolve('path-browserify'),
-    },
-  },
   module: {
     rules: [
       {
@@ -49,8 +44,8 @@ module.exports = {
   devServer: {
     historyApiFallback: true,
     proxy: {
-      '/base-path': 'http://localhost:3030',
-      '**/base-path': 'http://localhost:3030',
+      '/config': 'http://localhost:3030',
+      '**/config': 'http://localhost:3030',
       '/api/*': 'http://localhost:3030',
       '**/api/*': 'http://localhost:3030',
     },

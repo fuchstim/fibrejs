@@ -1,21 +1,25 @@
-import path from 'path';
 import type { Types } from '@fibrejs/engine';
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
-import { TAuthenticatedUser, TPreviewRuleServicePayload } from '../../src/types';
+import { TAuthenticatedUser, TConfig, TPreviewRuleServicePayload } from '../../src/types';
 
-const client = axios.create({
-  baseURL: '/api',
-});
+let CACHED_CONFIG: TConfig | null = null;
+const CLIENT = axios.create();
 
-const updateBasePath = async () => {
-  const result = await axios.get<{ basePath: string }>('base-path');
+const getConfig = async () => {
+  if (CACHED_CONFIG !== null) {
+    return CACHED_CONFIG;
+  }
 
-  const basePath = result?.data?.basePath;
-  if (!basePath) { throw new Error('Failed to fetch base path');}
+  const config = await wrappedGet<TConfig>('config')
+    .catch(e => {
+      throw new Error(`Failed to fetch config: ${e.message}`);
+    });
 
-  client.defaults.baseURL = path.join(basePath, 'api');
+  CACHED_CONFIG = config;
 
-  return basePath;
+  CLIENT.defaults.baseURL = config.apiBasePath;
+
+  return config;
 };
 
 const handleError = (error: AxiosError<{ message: string }>) => {
@@ -33,7 +37,7 @@ const wrappedGet = async <TResult>(url: string, data: Record<string, unknown> = 
       {}
     );
 
-  const result = await client.get(url, { params, ...config, })
+  const result = await CLIENT.get(url, { params, ...config, })
     .catch(handleError);
 
   return result.data as TResult;
@@ -41,7 +45,7 @@ const wrappedGet = async <TResult>(url: string, data: Record<string, unknown> = 
 
 // eslint-disable-next-line max-len
 const wrappedPost = async <TPayload, TResult>(url: string, data: TPayload, config?: AxiosRequestConfig) => {
-  const result = await client.post(url, data, config)
+  const result = await CLIENT.post(url, data, config)
     .catch(handleError);
 
   return result.data as TResult;
@@ -49,22 +53,22 @@ const wrappedPost = async <TPayload, TResult>(url: string, data: TPayload, confi
 
 // eslint-disable-next-line max-len
 const wrappedPatch = async <TPayload, TResult>(url: string, data: TPayload, config?: AxiosRequestConfig) => {
-  const result = await client.patch(url, data, config)
+  const result = await CLIENT.patch(url, data, config)
     .catch(handleError);
 
   return result.data as TResult;
 };
 
 const wrappedDelete = async <TResult>(url: string, config?: AxiosRequestConfig) => {
-  const result = await client.delete(url, config)
+  const result = await CLIENT.delete(url, config)
     .catch(handleError);
 
   return result.data as TResult;
 };
 
 export default {
-  client,
-  updateBasePath,
+  client: CLIENT,
+  getConfig,
 
   getUser: () => wrappedGet<TAuthenticatedUser>('user'),
 

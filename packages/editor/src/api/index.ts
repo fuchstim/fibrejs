@@ -23,6 +23,7 @@ export default function createApiMiddleware(engine: Engine) {
   registerService(app, '/rule-sets', new RuleSetsService(engine));
   registerService(app, '/rule-sets/validate', new RuleSetValidationService(engine));
 
+  app.get('/config', (_, res) => res.json(res.locals.config));
   app.get('/user', (_, res) => res.json(res.locals.user));
 
   app.get(

@@ -16,8 +16,8 @@ function BasePathWrapper() {
     () => {
       setLoading(true);
 
-      client.updateBasePath()
-        .then(basePath => setBasePath(basePath))
+      client.getConfig()
+        .then(config => setBasePath(config.basePath))
         .then(() => setLoading(false))
         .catch(error => notification.error({ message: error.message, }));
     },

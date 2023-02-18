@@ -25,7 +25,7 @@ import Rules from './pages/rules/';
 import NotFound from './pages/NotFound';
 import RuleSets from './pages/rule-sets';
 import client from './common/client';
-import { TAuthenticatedUser } from '../src/types';
+import { TAuthenticatedUser, TConfig } from '../src/types';
 
 const menuItems = [
   { label: 'Dashboard', key: 'dashboard', icon: <PieChartOutlined />, },
@@ -41,6 +41,7 @@ type Props = {
 export default function App({ toggleDarkMode, }: Props) {
   const [ collapsed, setCollapsed, ] = useState(true);
   const [ loading, setLoading, ] = useState(false);
+  const [ config, setConfig, ] = useState<TConfig>();
   const [ user, setUser, ] = useState<TAuthenticatedUser>();
   const [ selectedKey, setSelectedKey, ] = useState('dashboard');
 
@@ -59,7 +60,9 @@ export default function App({ toggleDarkMode, }: Props) {
 
       setLoading(true);
 
-      client.getUser()
+      client.getConfig()
+        .then(config => setConfig(config))
+        .then(() => client.getUser())
         .then(user => setUser(user))
         .then(() => setLoading(false))
         .catch(e => notification.error({ message: e.message, }));
@@ -125,16 +128,18 @@ export default function App({ toggleDarkMode, }: Props) {
             margin: 16,
           }}
         >
-          <Typography.Title
-            level={2}
-            style={{
-              margin: 0,
-              color: colorText,
-              whiteSpace: 'nowrap',
-            }}
-          >
-            { collapsed ? 't_' : 'fibre_'}
-          </Typography.Title>
+          <Skeleton paragraph={false} active={loading} loading={loading}>
+            <Typography.Title
+              level={2}
+              style={{
+                margin: 0,
+                color: colorText,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              { collapsed ? config?.nameShort : config?.name}
+            </Typography.Title>
+          </Skeleton>
         </Row>
 
         <Menu

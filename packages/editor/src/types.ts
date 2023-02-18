@@ -58,3 +58,10 @@ export type TPreviewRuleServicePayload = {
   config: Types.Config.TRuleConfig,
   inputs: Record<string, unknown>
 };
+
+export type TConfig = {
+  name: string,
+  nameShort: string,
+  basePath: string,
+  apiBasePath: string,
+};
