@@ -21,12 +21,14 @@ module.exports = {
         resolve: {
           extensions: [ '.ts', '.tsx', '.js', '.json', ],
         },
-        use: [ {
-          loader: 'ts-loader',
-          options: {
-            configFile: '../tsconfig.webpack.json',
+        use: [
+          {
+            loader: 'ts-loader',
+            options: {
+              configFile: '../tsconfig.webpack.json',
+            },
           },
-        }, ],
+        ],
       },
       {
         test: /\.css$/,
