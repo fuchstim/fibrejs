@@ -3,7 +3,7 @@ export { AuthenticationProvider } from './authentication-provider';
 import express from 'express';
 import path from 'path';
 
-import type Engine from '@tripwire/engine';
+import type Engine from '@fibre/engine';
 
 import createApiMiddleware from './api';
 import { AuthenticationProvider, AnonymousAuthenticationProvider } from './authentication-provider';

@@ -1,4 +1,4 @@
-import { WrappedTypes } from '@tripwire/engine';
+import { WrappedTypes } from '@fibre/engine';
 
 export type TUserType = {
   id: string,

@@ -2,8 +2,8 @@ import fs from 'fs';
 import express from 'express';
 import path from 'path';
 
-import Engine, { ConfigProvider as BaseConfigProvider, Types } from '@tripwire/engine';
-import createMiddleware from '@tripwire/editor';
+import Engine, { ConfigProvider as BaseConfigProvider, Types } from '@fibre/engine';
+import createMiddleware from '@fibre/editor';
 
 import GetUserNode from './nodes/get-user';
 import EntryTestNode from './nodes/entry-test';

@@ -15,7 +15,7 @@ import { CaretRightOutlined, PicCenterOutlined, PlusOutlined, SaveOutlined } fro
 import AddNodeDrawer from './_add-node-drawer';
 import Page from '../../../components/page';
 import EditorNodeModel from './graph-elements/node/model';
-import type { Types } from '@tripwire/engine';
+import type { Types } from '@fibre/engine';
 import { TPreviewValues, TRuleStageWithNode } from './_types';
 import client from '../../../common/client';
 import { AxiosError } from 'axios';

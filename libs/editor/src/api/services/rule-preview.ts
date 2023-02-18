@@ -1,5 +1,5 @@
-import type Engine from '@tripwire/engine';
-import type { Types } from '@tripwire/engine';
+import type Engine from '@fibre/engine';
+import type { Types } from '@fibre/engine';
 
 import { ERequestMethod, IService, TPreviewRuleServicePayload } from '../../types';
 

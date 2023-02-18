@@ -1,4 +1,4 @@
-import type { Types } from '@tripwire/engine';
+import type { Types } from '@fibre/engine';
 import { Request, Response } from 'express';
 
 export enum ERequestMethod {

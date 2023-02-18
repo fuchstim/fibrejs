@@ -1,5 +1,5 @@
-import { BaseNode, Types, WrappedTypes } from '@tripwire/engine';
-import { WDateType, WNumberType } from '@tripwire/engine/src/common/wrapped-types';
+import { BaseNode, Types, WrappedTypes } from '@fibre/engine';
+import { WDateType, WNumberType } from '@fibre/engine/src/common/wrapped-types';
 
 type TNodeInputs = {
   userId: WrappedTypes.TStringType,

@@ -1,4 +1,4 @@
-import { BaseNode, WrappedTypes } from '@tripwire/engine';
+import { BaseNode, WrappedTypes } from '@fibre/engine';
 
 import { WUserType, TWrappedUserType } from '../input-output-types/user';
 

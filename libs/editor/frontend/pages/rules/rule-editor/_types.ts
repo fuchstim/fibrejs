@@ -1,4 +1,4 @@
-import type { Types } from '@tripwire/engine';
+import type { Types } from '@fibre/engine';
 
 export type TRuleStageWithNode = Types.Config.TRuleStageConfig & { ruleId?: string, node: Types.Serializer.TSerializedNode };
 

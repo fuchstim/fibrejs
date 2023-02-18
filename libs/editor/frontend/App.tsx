@@ -133,7 +133,7 @@ export default function App({ toggleDarkMode, }: Props) {
               whiteSpace: 'nowrap',
             }}
           >
-            { collapsed ? 't_' : 'tripwire_'}
+            { collapsed ? 't_' : 'fibre_'}
           </Typography.Title>
         </Row>
 

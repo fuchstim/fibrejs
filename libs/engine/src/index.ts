@@ -5,7 +5,7 @@ export { ConfigProvider } from './storage/config-provider';
 export * as Types from './types';
 
 import { v4 as uuidV4 } from 'uuid';
-import Logger from '@tripwire/logger';
+import Logger from '@fibre/logger';
 
 import { BaseNode } from './common/base-node';
 import eventBus from './common/event-bus';

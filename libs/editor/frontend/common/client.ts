@@ -1,5 +1,5 @@
 import path from 'path';
-import type { Types } from '@tripwire/engine';
+import type { Types } from '@fibre/engine';
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import { TAuthenticatedUser, TPreviewRuleServicePayload } from '../../src/types';
 

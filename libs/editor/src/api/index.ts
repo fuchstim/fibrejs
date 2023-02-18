@@ -1,6 +1,6 @@
 import express from 'express';
 
-import type Engine from '@tripwire/engine';
+import type Engine from '@fibre/engine';
 
 import NodesService from './services/nodes';
 import RulePreviewService from './services/rule-preview';

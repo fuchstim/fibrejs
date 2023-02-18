@@ -1,5 +1,5 @@
 {
-  "name": "@tripwire/logger",
+  "name": "@fibre/logger",
   "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {

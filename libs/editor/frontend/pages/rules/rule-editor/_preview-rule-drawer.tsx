@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button, Checkbox, Drawer, Form, Input, InputNumber, Spin, Typography, notification } from 'antd';
 
 import client from '../../../common/client';
-import { Types, WrappedTypes } from '@tripwire/engine';
+import { Types, WrappedTypes } from '@fibre/engine';
 import { TPreviewValues } from './_types';
 import { camelCaseToSentenceCase, fetchStages } from './_common';
 

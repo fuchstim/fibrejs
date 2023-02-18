@@ -1,7 +1,7 @@
-import type Engine from '@tripwire/engine';
+import type Engine from '@fibre/engine';
 
 import { ICRUDService } from '../../types';
-import type { Types } from '@tripwire/engine';
+import type { Types } from '@fibre/engine';
 
 export default class RuleSetsService implements ICRUDService<Types.Config.TRuleSetConfig> {
   private engine: Engine;

@@ -1,5 +1,5 @@
 {
-  "name": "@tripwire/engine",
+  "name": "@fibre/engine",
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
@@ -13,7 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@tripwire/logger": "^1.0.0",
+    "@fibre/logger": "^1.0.0",
     "@types/uuid": "^9.0.0",
     "uuid": "^9.0.0"
   },

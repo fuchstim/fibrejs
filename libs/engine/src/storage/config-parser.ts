@@ -1,4 +1,4 @@
-import Logger from '@tripwire/logger';
+import Logger from '@fibre/logger';
 import { BaseNode } from '../common/base-node';
 import Rule from '../executors/rule';
 import RuleSet from '../executors/rule-set';

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import type { Types } from '@tripwire/engine';
+import type { Types } from '@fibre/engine';
 import { useNavigate } from 'react-router-dom';
 import client from '../../common/client';
 import { Button, Col, Form, Input, Popconfirm, Popover, Row, Table, notification } from 'antd';
