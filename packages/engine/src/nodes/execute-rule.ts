@@ -104,9 +104,9 @@ export default class ExecuteRule extends BaseNode<TNodeInputs, TNodeOutputs, TNo
       .reduce(
         (acc, output) => ({
           ...acc,
-          [output.id]: output.type.wrap(result[output.id]),
+          [output.id]: output.type.wrap(result.exitStageOutputs[output.id]),
         }),
-        result
+        { stageResults: result.stageResults, }
       );
 
     return wrappedOutputs;

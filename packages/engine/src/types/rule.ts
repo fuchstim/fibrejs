@@ -13,6 +13,7 @@ export type TRuleInputs = Record<string, any>;
 
 export type TRuleExecutorContext = TRuleSetExecutorContext & { ruleSet?: RuleSet };
 
-export type TRuleOutputs = Record<string, any> & {
+export type TRuleOutputs = {
+  exitStageOutputs: Record<string, any>;
   stageResults: TRuleStageResults;
 };
