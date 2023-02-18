@@ -3,3 +3,4 @@
 - Node display options
 - Write tests
 - Unwrap rule outputs
+- Write README
