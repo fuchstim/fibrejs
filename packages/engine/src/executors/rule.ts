@@ -1,5 +1,5 @@
 import Executor from '../common/executor';
-import { TExecutorValidationResult } from '../types/common';
+import { TValidationResult } from '../types/common';
 import { ENodeType, TNodeMetadataInputOutput } from '../types/node';
 import { TRuleOptions, TRuleInputs, TRuleOutputs, TRuleExecutorContext } from '../types/rule';
 import { TRuleStageResults } from '../types/rule-stage';
@@ -72,7 +72,7 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
     };
   }
 
-  override validateContext(context: TRuleExecutorContext): TExecutorValidationResult<TRuleExecutorContext> {
+  override validateContext(context: TRuleExecutorContext): TValidationResult {
     const invalidStages = this.stages
       .map(
         stage => ({ stage, result: stage.validateContext({ ...context, rule: this, }), })
@@ -83,23 +83,20 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
       return {
         valid: false,
         reason: `Invalid stages: ${invalidStages.map(e => `${e.stage.id} (${e.result.reason})`).join(', ')}`,
-        actual: context,
       };
     }
 
     return {
       valid: true,
       reason: null,
-      actual: context,
     };
   }
 
-  override validateInputs(inputs: TRuleInputs, context: TRuleExecutorContext): TExecutorValidationResult<TRuleInputs> {
+  override validateInputs(inputs: TRuleInputs, context: TRuleExecutorContext): TValidationResult {
     if (!this.entryStage) {
       return {
         valid: true,
         reason: null,
-        actual: inputs,
       };
     }
 
@@ -131,14 +128,12 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
       return {
         valid: false,
         reason: `One or more inputs is invalid: ${invalidInputs.map(i => `${i.input.id} (${i.reason})`).join(', ')}`,
-        actual: inputs,
       };
     }
 
     return {
       valid: true,
       reason: null,
-      actual: inputs,
     };
   }
 

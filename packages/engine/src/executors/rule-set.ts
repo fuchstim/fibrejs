@@ -1,5 +1,5 @@
 import Executor from '../common/executor';
-import { TExecutorValidationResult } from '../types/common';
+import { TValidationResult } from '../types/common';
 import { TRuleExecutorContext } from '../types/rule';
 import { TRuleSetExecutorContext, ERulePriority } from '../types/rule-set';
 import { TRuleSetEntry, TRuleSetOptions, TRuleSetInputs, TRuleSetExecutorResult } from '../types/rule-set';
@@ -41,7 +41,7 @@ export default class RuleSet extends Executor<TRuleSetInputs, TRuleSetExecutorRe
     };
   }
 
-  override validateContext(context: TRuleSetExecutorContext): TExecutorValidationResult<TRuleSetExecutorContext> {
+  override validateContext(context: TRuleSetExecutorContext): TValidationResult {
     const uniqueEntryNodeIds = Array.from(
       new Set(
         this.entries
@@ -53,7 +53,6 @@ export default class RuleSet extends Executor<TRuleSetInputs, TRuleSetExecutorRe
       return {
         valid: false,
         reason: `All rule set entries must share the same entry node (or have no entry node), but multiple node ids were found: (${uniqueEntryNodeIds.join(', ')})`,
-        actual: context,
       };
     }
 
@@ -80,14 +79,12 @@ export default class RuleSet extends Executor<TRuleSetInputs, TRuleSetExecutorRe
       return {
         valid: false,
         reason: `Invalid entries: ${invalidEntries.map(e => `${e.entry.ruleId} - ${e.entry.priority} (${e.result.reason})`).join(', ')}`,
-        actual: context,
       };
     }
 
     return {
       valid: true,
       reason: null,
-      actual: context,
     };
   }
 

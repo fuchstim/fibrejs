@@ -1,4 +1,4 @@
-import { TExecutorResult, TExecutorContext, TExecutorValidationResult } from '../types/common';
+import { TExecutorResult, TExecutorContext, TValidationResult } from '../types/common';
 
 const MAX_CALL_STACK_SIZE = 100;
 
@@ -63,15 +63,15 @@ export default abstract class Executor<TInputs, TOutputs, TContext extends TExec
     };
   }
 
-  validateContext(context: TContext): TExecutorValidationResult<TContext> {
-    return { valid: true, reason: null, actual: context, };
+  validateContext(context: TContext): TValidationResult {
+    return { valid: true, reason: null, };
   }
 
-  validateInputs(inputs: TInputs, context: TContext): TExecutorValidationResult<TInputs> {
-    return { valid: true, reason: null, actual: inputs, };
+  validateInputs(inputs: TInputs, context: TContext): TValidationResult {
+    return { valid: true, reason: null, };
   }
 
-  validateOutputs(outputs: TOutputs, context: TContext): TExecutorValidationResult<TOutputs> {
-    return { valid: true, reason: null, actual: outputs, };
+  validateOutputs(outputs: TOutputs, context: TContext): TValidationResult {
+    return { valid: true, reason: null, };
   }
 }

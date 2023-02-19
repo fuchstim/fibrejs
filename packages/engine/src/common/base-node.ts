@@ -1,4 +1,4 @@
-import { TExecutorValidationResult } from '../types/common';
+import { TValidationResult } from '../types/common';
 import { TNodeOptions, TNodeConfig, TNodeExecutorContext, TNodeMetadata, ENodeType } from '../types/node';
 import Executor from './executor';
 import { detectDuplicates } from './util';
@@ -26,10 +26,11 @@ export abstract class BaseNode<TInputs extends Record<string, any>, TOutputs ext
     this.metadata = metadata;
   }
 
-  override validateContext(context: TNodeExecutorContext<TOptions>): TExecutorValidationResult<TNodeExecutorContext<TOptions>> {
+  override validateContext(context: TNodeExecutorContext<TOptions>): TValidationResult {
     const { options: optionConfigs, inputs, outputs, } = this.getMetadata(context);
 
     if (this.type === ENodeType.EXIT) {
+      // TODO: Support more flexible exit node output types
       const validExitNodeOutputConfig = (
         outputs.length === 1
         && outputs[0].id === 'result'
@@ -40,7 +41,6 @@ export abstract class BaseNode<TInputs extends Record<string, any>, TOutputs ext
         return {
           valid: false,
           reason: 'Invalid exit node output config',
-          actual: context,
         };
       }
     }
@@ -50,7 +50,6 @@ export abstract class BaseNode<TInputs extends Record<string, any>, TOutputs ext
       return {
         valid: false,
         reason: `Duplicate input ids: ${duplicateInputIds.join(', ')}`,
-        actual: context,
       };
     }
 
@@ -59,7 +58,6 @@ export abstract class BaseNode<TInputs extends Record<string, any>, TOutputs ext
       return {
         valid: false,
         reason: `Duplicate output ids: ${duplicateOutputIds.join(', ')}`,
-        actual: context,
       };
     }
 
@@ -70,18 +68,16 @@ export abstract class BaseNode<TInputs extends Record<string, any>, TOutputs ext
       return {
         valid: false,
         reason: `Invalid option configs: ${invalidOptionConfigs.map(c => `${c.name} (${c.id})`).join(', ')}`,
-        actual: context,
       };
     }
 
     return {
       valid: true,
       reason: null,
-      actual: context,
     };
   }
 
-  override validateInputs(inputValues: TInputs, context: TNodeExecutorContext<TOptions>): TExecutorValidationResult<TInputs> {
+  override validateInputs(inputValues: TInputs, context: TNodeExecutorContext<TOptions>): TValidationResult {
     const { inputs, } = this.getMetadata(context);
 
     const inputValidationErrors = inputs
@@ -94,26 +90,16 @@ export abstract class BaseNode<TInputs extends Record<string, any>, TOutputs ext
       return {
         valid: false,
         reason: `Invalid inputs for values: ${inputValidationErrors.map(e => `${e.input.id} (${e.result.reason})`).join(', ')}}`,
-        actual: inputValues,
-        expected: inputs.reduce(
-          (acc, { id, type, }) => ({ ...acc, [id]: type, }),
-          {}
-        ),
       };
     }
 
     return {
       valid: true,
       reason: null,
-      actual: inputValues,
-      expected: inputs.reduce(
-        (acc, { id, type, }) => ({ ...acc, [id]: type, }),
-        {}
-      ),
     };
   }
 
-  override validateOutputs(outputValues: TOutputs, context: TNodeExecutorContext<TOptions>): TExecutorValidationResult<TOutputs> {
+  override validateOutputs(outputValues: TOutputs, context: TNodeExecutorContext<TOptions>): TValidationResult {
     const { outputs, } = this.getMetadata(context);
 
     const outputValidationErrors = outputs
@@ -126,22 +112,12 @@ export abstract class BaseNode<TInputs extends Record<string, any>, TOutputs ext
       return {
         valid: false,
         reason: `Invalid outputs for values: ${outputValidationErrors.map(e => `${e.output.id} (${e.result.reason})`).join(', ')}}`,
-        actual: outputValues,
-        expected: outputs.reduce(
-          (acc, { id, type, }) => ({ ...acc, [id]: type, }),
-          {}
-        ),
       };
     }
 
     return {
       valid: true,
       reason: null,
-      actual: outputValues,
-      expected: outputs.reduce(
-        (acc, { id, type, }) => ({ ...acc, [id]: type, }),
-        {}
-      ),
     };
   }
 

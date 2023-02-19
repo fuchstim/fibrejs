@@ -1,7 +1,7 @@
 import { BaseNode } from '../common/base-node';
 import Executor from '../common/executor';
 import { detectDuplicates } from '../common/util';
-import { TExecutorValidationResult } from '../types/common';
+import { TValidationResult } from '../types/common';
 import { ENodeType, TNodeExecutorContext, TNodeOptions } from '../types/node';
 import { TRuleStageExecutorContext, TRuleStageInput, TRuleStageInputs, TRuleStageOptions, TRuleStageResults } from '../types/rule-stage';
 
@@ -44,16 +44,16 @@ export default class RuleStage extends Executor<TRuleStageInputs, TRuleStageResu
     return wrappedOutputs;
   }
 
-  override validateContext(context: TRuleStageExecutorContext): TExecutorValidationResult<TRuleStageExecutorContext> {
+  override validateContext(context: TRuleStageExecutorContext): TValidationResult {
     const validationContext = this.createNodeContext(context);
 
     const duplicateInputsIds = detectDuplicates(this.inputs.map(i => i.inputId));
     if (duplicateInputsIds.length) {
-      return { valid: false, reason: `Multiple values to same inputs: ${duplicateInputsIds.join(', ')}`, actual: context, };
+      return { valid: false, reason: `Multiple values to same inputs: ${duplicateInputsIds.join(', ')}`, };
     }
 
     if (this.node.type === ENodeType.ENTRY && this.inputs.length > 0) {
-      return { valid: false, reason: 'Entry node stage cannot have inputs', actual: context, };
+      return { valid: false, reason: 'Entry node stage cannot have inputs', };
     }
 
     const nodeInputs = this.node.getMetadata(validationContext).inputs;
@@ -62,7 +62,7 @@ export default class RuleStage extends Executor<TRuleStageInputs, TRuleStageResu
         nodeInput => !this.inputs.map(i => i.inputId).includes(nodeInput.id)
       );
 
-      return { valid: false, reason: `Missing inputs: ${missingInputs.map(i => i.id)}`, actual: context, };
+      return { valid: false, reason: `Missing inputs: ${missingInputs.map(i => i.id)}`, };
     }
 
     return this.node.validateContext(validationContext);

@@ -1,3 +1,5 @@
+import { TValidationResult } from '../types/common';
+
 export enum EPrimitive {
   STRING = 'STRING',
   NUMBER = 'NUMBER',
@@ -9,8 +11,6 @@ export enum ETypeCategory {
   COMPLEX = 'COMPLEX',
   COLLECTION = 'COLLECTION'
 }
-
-type TTypeValidationResult = { valid: true, reason: null, } | { valid: false, reason: string };
 
 type TWrappedTypeOptions = {
   id: string;
@@ -29,14 +29,14 @@ export abstract class WrappedType<TNative, TWrapped> {
   }
 
   get collection() {
-    return new WrappedCollection<TNative, TWrapped>({
-      id: `COLLECTION.${this.id}`,
-      name: `Collection (${this.name})`,
-      WEntryType: this,
-    });
+    return new WrappedCollection<TNative, TWrapped>(this);
   }
 
-  public abstract validate(input: TWrapped): TTypeValidationResult;
+  get nullable() {
+    return new WrappedNullable<TNative, TWrapped>(this);
+  }
+
+  public abstract validate(input: TWrapped): TValidationResult;
   public abstract wrap(input: TNative): TWrapped;
   public abstract unwrap(input: TWrapped): TNative;
 }
@@ -53,7 +53,7 @@ export class WrappedPrimitive<TNative extends (string | number | boolean)> exten
     this.id = options.id;
   }
 
-  public override validate(value: TNative): TTypeValidationResult {
+  public override validate(value: TNative): TValidationResult {
     const expected = {
       [EPrimitive.STRING]: 'string',
       [EPrimitive.NUMBER]: 'number',
@@ -107,7 +107,7 @@ export class WrappedComplex<TNative extends Record<string, any>, TWrapped extend
     this.fields = options.fields;
   }
 
-  public override validate(input: TWrapped): TTypeValidationResult {
+  public override validate(input: TWrapped): TValidationResult {
     const validationErrors: string[] = [];
 
     Object
@@ -148,27 +148,25 @@ export class WrappedComplex<TNative extends Record<string, any>, TWrapped extend
   }
 }
 
-type TWrappedCollectionOptions<TNative, TWrapped> = Omit<TWrappedTypeOptions, 'category'> & {
-  WEntryType: WrappedType<TNative, TWrapped>
-};
 export class WrappedCollection<TNative, TWrapped> extends WrappedType<TNative[], TWrapped[]> {
   private WEntryType: WrappedType<TNative, TWrapped>;
   public fields: Record<string, WrappedType<any, any>>;
 
-  constructor(options: TWrappedCollectionOptions<TNative, TWrapped>) {
+  constructor(WEntryType: WrappedType<TNative, TWrapped>) {
     super({
-      ...options,
+      id: `${WEntryType.id}.COLLECTION`,
+      name: `${WEntryType.name} (Collection)`,
       category: ETypeCategory.COLLECTION,
     });
 
-    this.WEntryType = options.WEntryType;
+    this.WEntryType = WEntryType;
 
     this.fields = {
       length: WNumberType,
     };
   }
 
-  public override validate(entries: TWrapped[]): TTypeValidationResult {
+  public override validate(entries: TWrapped[]): TValidationResult {
     const validationErrors: string[] = [];
 
     entries.forEach((entry, index) => {
@@ -198,6 +196,40 @@ export class WrappedCollection<TNative, TWrapped> extends WrappedType<TNative[],
 
   public override unwrap(entries: TWrapped[]): TNative[] {
     return entries.map(e => this.WEntryType.unwrap(e));
+  }
+}
+
+export class WrappedNullable<TNative, TWrapped> extends WrappedType<TNative | null, TWrapped | null> {
+  private WType: WrappedType<TNative, TWrapped>;
+
+  constructor(WType: WrappedType<TNative, TWrapped>) {
+    super({
+      id: `${WType.id}.NULLABLE`,
+      name: `${WType.name} (Nullable)`,
+      category: WType.category,
+    });
+
+    this.WType = WType;
+  }
+
+  public override validate(input: TWrapped | null): TValidationResult {
+    if (input === null) {
+      return { valid: true, reason: null, };
+    }
+
+    return this.WType.validate(input);
+  }
+
+  public override wrap(input: TNative | null): TWrapped | null {
+    if (input === null) { return null; }
+
+    return this.WType.wrap(input);
+  }
+
+  public override unwrap(input: TWrapped | null): TNative | null {
+    if (input === null) { return null; }
+
+    return this.WType.unwrap(input);
   }
 }
 
