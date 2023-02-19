@@ -84,7 +84,7 @@ export default class StaticValueNode extends BaseNode<never, TNodeOutputs, TNode
 
     const wrappedOutputValue = this.getWrappedOutputValue({ ...nodeOptions, value, });
     if (!Array.isArray(wrappedOutputValue)) {
-      return typeof value === nativeValueType;
+      return typeof wrappedOutputValue === nativeValueType;
     }
 
     const validCollectionInput = (wrappedOutputValue as (string | number)[])
