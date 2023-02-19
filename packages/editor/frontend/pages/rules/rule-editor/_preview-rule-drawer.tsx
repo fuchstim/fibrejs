@@ -156,7 +156,7 @@ export default function PreviewRuleDrawer({ ruleConfig, open, onPreviewValues, o
   const flattenInputOutput = (prefix: string, type: Types.Serializer.TSerializedType, values: Record<string, any>) => {
     const value = getValueByKey(values, prefix);
 
-    if (type.category !== WrappedTypes.ETypeCategory.COMPLEX) { // TODO: Handle collection types
+    if (type.category === WrappedTypes.ETypeCategory.PRIMITIVE) {
       return { [prefix]: value, };
     }
 
