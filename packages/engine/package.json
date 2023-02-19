@@ -7,7 +7,8 @@
     "clean": "rm -rf ./dist && rm -rf tsconfig.tsbuildinfo",
     "build": "tsc -p ./tsconfig.json",
     "rebuild": "npm run clean && npm run build",
-    "watch": "tsc -b -w"
+    "watch": "tsc -b -w",
+    "test": "mocha ./test"
   },
   "keywords": [],
   "author": "",
