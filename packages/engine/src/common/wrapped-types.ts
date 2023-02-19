@@ -12,135 +12,195 @@ export enum ETypeCategory {
 
 type TTypeValidationResult = { valid: true, reason: null, } | { valid: false, reason: string };
 
-type TWrappedTypeOptions<TNative, TWrapped> = {
+type TWrappedTypeOptions = {
   id: string;
   name: string;
   category: ETypeCategory;
-  validate: (input: TWrapped) => TTypeValidationResult;
-  unwrap: (input: TWrapped) => TNative;
-  wrap: (input: TNative) => TWrapped;
 };
-export class WrappedType<TNative, TWrapped> {
-  public id: TWrappedTypeOptions<TNative, TWrapped>['id'];
-  public name: TWrappedTypeOptions<TNative, TWrapped>['name'];
-  public category: TWrappedTypeOptions<TNative, TWrapped>['category'];
-  public validate: TWrappedTypeOptions<TNative, TWrapped>['validate'];
-  public unwrap: TWrappedTypeOptions<TNative, TWrapped>['unwrap'];
-  public wrap: TWrappedTypeOptions<TNative, TWrapped>['wrap'];
+export abstract class WrappedType<TNative, TWrapped> {
+  public id: TWrappedTypeOptions['id'];
+  public name: TWrappedTypeOptions['name'];
+  public category: TWrappedTypeOptions['category'];
 
-  constructor({ id, name, category, validate, unwrap, wrap, }: TWrappedTypeOptions<TNative, TWrapped>) {
+  constructor({ id, name, category, }: TWrappedTypeOptions) {
     this.id = id;
     this.name = name;
     this.category = category;
-    this.validate = validate;
-    this.unwrap = unwrap;
-    this.wrap = wrap;
   }
 
   get collection() {
     return new WrappedCollection<TNative, TWrapped>({
       id: `COLLECTION.${this.id}`,
       name: `Collection (${this.name})`,
-      validate: entries => {
-        const validationErrors: string[] = [];
-
-        entries.forEach((entry, index) => {
-          const { valid, reason, } = this.validate(entry);
-          if (!valid) {
-            validationErrors.push(
-              `Invalid entry at index ${index} (${reason})`
-            );
-          }
-        });
-
-        if (validationErrors.length === 0) { return { valid: true, reason: null, }; }
-
-        return {
-          valid: false,
-          reason: validationErrors.join(', '),
-        };
-      },
-      unwrap: wrappedEntries => wrappedEntries.map(this.unwrap),
-      wrap: unwrappedEntries => unwrappedEntries.map(this.wrap),
+      WEntryType: this,
     });
   }
+
+  public abstract validate(input: TWrapped): TTypeValidationResult;
+  public abstract wrap(input: TNative): TWrapped;
+  public abstract unwrap(input: TWrapped): TNative;
 }
 
-type TWrappedPrimitiveOptions<TNative> = Omit<TWrappedTypeOptions<TNative, TNative>, 'category'>;
 export class WrappedPrimitive<TNative extends (string | number | boolean)> extends WrappedType<TNative, TNative> {
-  constructor(options: TWrappedPrimitiveOptions<TNative>) {
+  public override id: EPrimitive;
+
+  constructor(options: Omit<TWrappedTypeOptions, 'category'> & { id: EPrimitive }) {
     super({
       ...options,
       category: ETypeCategory.PRIMITIVE,
     });
+
+    this.id = options.id;
   }
+
+  public override validate(value: TNative): TTypeValidationResult {
+    const expected = {
+      [EPrimitive.STRING]: 'string',
+      [EPrimitive.NUMBER]: 'number',
+      [EPrimitive.BOOLEAN]: 'boolean',
+    }[this.id];
+
+    if (typeof value !== expected) {
+      return {
+        valid: false,
+        reason: `\`${JSON.stringify(value)}\` is not a ${expected}`,
+      };
+    }
+
+    return { valid: true, reason: null, };
+  }
+
+  public override wrap(value: TNative): TNative { return value; }
+  public override unwrap(value: TNative): TNative { return value; }
 }
 
-type TWrappedComplexOptions<TNative, TWrapped> = Omit<TWrappedTypeOptions<TNative, TWrapped>, 'category'> & {
+type TWrappedComplexOptions<TNative, TWrapped> = Omit<TWrappedTypeOptions, 'category'> & {
+  validate?: WrappedType<TNative, TWrapped>['validate'],
+  wrap?: WrappedType<TNative, TWrapped>['wrap'],
+  unwrap?: WrappedType<TNative, TWrapped>['unwrap'],
+
   fields: Record<keyof TWrapped, WrappedType<any, any>>,
 };
-export class WrappedComplex<TNative, TWrapped extends Record<string, any>> extends WrappedType<TNative, TWrapped> {
+// eslint-disable-next-line max-len
+export class WrappedComplex<TNative extends Record<string, any>, TWrapped extends Record<string, any>> extends WrappedType<TNative, TWrapped> {
   public fields: TWrappedComplexOptions<TNative, TWrapped>['fields'];
 
   constructor(options: TWrappedComplexOptions<TNative, TWrapped>) {
     super({
       ...options,
-      category: ETypeCategory.PRIMITIVE,
+      category: ETypeCategory.COMPLEX,
     });
+
+    this.validate = options.validate ?? this.validate;
+    this.wrap = options.wrap ?? this.wrap;
+    this.unwrap = options.unwrap ?? this.unwrap;
 
     this.fields = options.fields;
   }
+
+  public override validate(input: TWrapped): TTypeValidationResult {
+    const validationErrors: string[] = [];
+
+    Object
+      .keys(this.fields)
+      .forEach(key => {
+        const { valid, reason, } = this.fields[key].validate(input[key]);
+        if (!valid) {
+          validationErrors.push(
+            `Invalid ${key} (${reason})`
+          );
+        }
+      });
+
+    if (validationErrors.length === 0) { return { valid: true, reason: null, }; }
+
+    return {
+      valid: false,
+      reason: validationErrors.join(', '),
+    };
+  }
+
+  public override wrap(input: TNative): TWrapped {
+    return Object
+      .entries(this.fields)
+      .reduce(
+        (acc, [ key, type, ]) => ({ ...acc, [key]: type.wrap(input[key]), }),
+        {} as TWrapped
+      );
+  }
+
+  public override unwrap(input: TWrapped): TNative {
+    return Object
+      .entries(this.fields)
+      .reduce(
+        (acc, [ key, type, ]) => ({ ...acc, [key]: type.unwrap(input[key]), }),
+        {} as TNative
+      );
+  }
 }
 
-type TWrappedCollectionOptions<TNative, TWrapped> = Omit<TWrappedTypeOptions<TNative, TWrapped>, 'category'>;
+type TWrappedCollectionOptions<TNative, TWrapped> = Omit<TWrappedTypeOptions, 'category'> & {
+  WEntryType: WrappedType<TNative, TWrapped>
+};
 export class WrappedCollection<TNative, TWrapped> extends WrappedType<TNative[], TWrapped[]> {
+  private WEntryType: WrappedType<TNative, TWrapped>;
   public fields: Record<string, WrappedType<any, any>>;
 
-  constructor(options: TWrappedCollectionOptions<TNative[], TWrapped[]>) {
+  constructor(options: TWrappedCollectionOptions<TNative, TWrapped>) {
     super({
       ...options,
       category: ETypeCategory.COLLECTION,
     });
 
+    this.WEntryType = options.WEntryType;
+
     this.fields = {
       length: WNumberType,
     };
   }
-}
 
-function validatePrimitive(value: string | number | boolean, expected: 'string' | 'number' | 'boolean'): TTypeValidationResult {
-  if (typeof value !== expected) {
+  public override validate(entries: TWrapped[]): TTypeValidationResult {
+    const validationErrors: string[] = [];
+
+    entries.forEach((entry, index) => {
+      const { valid, reason, } = this.WEntryType.validate(entry);
+      if (!valid) {
+        validationErrors.push(
+          `Invalid entry at index ${index} (${reason})`
+        );
+      }
+    });
+
+    if (validationErrors.length === 0) { return { valid: true, reason: null, }; }
+
     return {
       valid: false,
-      reason: `\`${JSON.stringify(value)}\` is not a ${expected}`,
+      reason: validationErrors.join(', '),
     };
   }
 
-  return { valid: true, reason: null, };
+  public override wrap(entries: TNative[]): TWrapped[] {
+    return entries.map(e => this.WEntryType.wrap(e));
+  }
+
+  public override unwrap(entries: TWrapped[]): TNative[] {
+    return entries.map(e => this.WEntryType.unwrap(e));
+  }
 }
 
 export const WStringType = new WrappedPrimitive<string>({
   id: EPrimitive.STRING,
   name: 'String',
-  validate: value => validatePrimitive(value, 'string'),
-  unwrap: value => String(value),
-  wrap: value => value,
 });
 
 export const WNumberType = new WrappedPrimitive<number>({
   id: EPrimitive.NUMBER,
   name: 'Number',
-  validate: value => validatePrimitive(value, 'number'),
-  unwrap: value => Number(value),
-  wrap: value => value,
 });
 
 export const WBooleanType = new WrappedPrimitive<boolean>({
   id: EPrimitive.BOOLEAN,
   name: 'Boolean',
-  validate: value => validatePrimitive(value, 'boolean'),
-  unwrap: value => Boolean(value),
-  wrap: value => value,
 });
 
 export type TDateType = {

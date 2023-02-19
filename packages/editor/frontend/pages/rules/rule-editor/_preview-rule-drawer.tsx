@@ -50,7 +50,7 @@ export default function PreviewRuleDrawer({ ruleConfig, open, onPreviewValues, o
 
       const { inputs, } = entryStage.node;
       if (inputs.some(i => i.type.category !== WrappedTypes.ETypeCategory.PRIMITIVE)) {
-        throw new Error('Previewing rules with complex inputs is not yet supported'); // TODO: support
+        throw new Error('Previewing rules with complex inputs is not yet supported'); // TODO: support complex / collection input types
       }
 
       setFormInputs(
