@@ -34,9 +34,6 @@ Please refer to the installation and usage guides in the [project wiki](https://
 - [ ] Support complex input types in rule preview
 - [ ] Customizable node display
 
-See the [open issues](https://github.com/fuchstim/fibrejs/issues)for a full list
-of proposed features (and known issues).
-
 [contributors-shield]: https://img.shields.io/github/contributors/fuchstim/fibrejs.svg?style=for-the-badge
 [contributors-url]: https://github.com/fuchstim/fibrejs/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/fuchstim/fibrejs.svg?style=for-the-badge
