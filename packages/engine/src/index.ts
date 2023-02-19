@@ -12,6 +12,7 @@ import eventBus from './common/event-bus';
 import EventEmitter from './common/event-emitter';
 import serializer from './common/serializer';
 import CompareBooleansNode from './nodes/compare-booleans';
+import CompareCollectionsNode from './nodes/compare-collections';
 import CompareNumbersNode from './nodes/compare-numbers';
 import CompareStringsNode from './nodes/compare-strings';
 import ExecuteRuleNode from './nodes/execute-rule';
@@ -48,6 +49,7 @@ export default class Engine extends EventEmitter<TEventTypes> {
     this.nodes = [
       ...options.customNodes ?? [],
       new CompareBooleansNode(),
+      new CompareCollectionsNode(),
       new CompareNumbersNode(),
       new CompareStringsNode(),
       new ExecuteRuleNode(),
