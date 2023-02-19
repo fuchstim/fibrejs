@@ -48,7 +48,7 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
         engine={props.engine}
         port={port}
         key={port.getID()}
-        onClick={config.type.category === WrappedTypes.ETypeCategory.COMPLEX ? () => toggleFold() : undefined}
+        onClick={config.type.category !== WrappedTypes.ETypeCategory.PRIMITIVE ? () => toggleFold() : undefined}
         expanded={level >= portFoldLevel}
         previewValue={editorNodeOptions.previewValues?.[port.getID()]}
         hideIfUnlinked={level > portFoldLevel}

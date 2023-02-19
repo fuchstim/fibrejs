@@ -53,7 +53,7 @@ export default function EditorPortWidget(props: EditorPortWidgetProps) {
         <Tag
           closable={false}
           style={{ margin: 0, }}
-          icon={type.category === WrappedTypes.ETypeCategory.COMPLEX ? labelIcon : null}
+          icon={type.category !== WrappedTypes.ETypeCategory.PRIMITIVE ? labelIcon : null}
           onClick={() => onClick?.()}
         >
           {name}

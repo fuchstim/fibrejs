@@ -61,7 +61,7 @@ class Serializer {
       return {
         id: type.id,
         name: type.name,
-        category: ETypeCategory.COMPLEX,
+        category: type.category,
         fields: Object
           .entries(type.fields)
           .reduce(
