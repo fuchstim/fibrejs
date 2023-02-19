@@ -30,7 +30,7 @@ Please refer to the installation and usage guides in the [project wiki](https://
 
 ## Roadmap
 
-- [ ] Support complex / collection input types in rule preview
+- [ ] Support collection input types in rule preview
 - [ ] Customizable node display
 - [ ] Extensible dashboard pages
 
