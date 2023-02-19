@@ -10,7 +10,7 @@ import {
 import EditorPortModel, { EPortType } from '../port/model';
 import { TPreviewValues, TRuleStageWithNode } from '../../_types';
 
-import { Types } from '@fibrejs/engine';
+import { Types, WrappedTypes } from '@fibrejs/engine';
 
 import client from '../../../../../common/client';
 import { camelCaseToSentenceCase } from '../../_common';
@@ -112,7 +112,7 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
       labelOnly: level > 0,
     });
 
-    if (!config.type.isComplex) {
+    if (config.type.category === WrappedTypes.ETypeCategory.PRIMITIVE) {
       return [ port, ];
     }
 
@@ -143,7 +143,7 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
       level,
     });
 
-    if (!config.type.isComplex) {
+    if (config.type.category === WrappedTypes.ETypeCategory.PRIMITIVE) {
       return [ port, ];
     }
 

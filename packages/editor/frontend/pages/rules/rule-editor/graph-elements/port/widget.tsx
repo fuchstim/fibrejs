@@ -9,6 +9,7 @@ import {
 
 import EditorPortModel from './model';
 import { Row, Tag, Tooltip, Typography, theme } from 'antd';
+import { WrappedTypes } from '@fibrejs/engine';
 
 interface EditorPortWidgetProps {
   port: EditorPortModel;
@@ -34,7 +35,7 @@ export default function EditorPortWidget(props: EditorPortWidgetProps) {
     config: { name, type, },
   } = port.getOptions();
 
-  const formattedPreviewValue = type.isComplex ? `{${type.name}}` : String(previewValue);
+  const formattedPreviewValue = type.category === WrappedTypes.ETypeCategory.COMPLEX ? `{${type.name}}` : String(previewValue);
 
   const portWidget = (
     <PortWidget engine={engine} port={port}>
@@ -52,7 +53,7 @@ export default function EditorPortWidget(props: EditorPortWidgetProps) {
         <Tag
           closable={false}
           style={{ margin: 0, }}
-          icon={type.isComplex ? labelIcon : null}
+          icon={type.category === WrappedTypes.ETypeCategory.COMPLEX ? labelIcon : null}
           onClick={() => onClick?.()}
         >
           {name}

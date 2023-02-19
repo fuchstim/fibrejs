@@ -49,7 +49,7 @@ export default function PreviewRuleDrawer({ ruleConfig, open, onPreviewValues, o
       }
 
       const { inputs, } = entryStage.node;
-      if (inputs.some(i => i.type.isComplex)) {
+      if (inputs.some(i => i.type.category !== WrappedTypes.ETypeCategory.PRIMITIVE)) {
         throw new Error('Previewing rules with complex inputs is not yet supported'); // TODO: support
       }
 
@@ -67,7 +67,7 @@ export default function PreviewRuleDrawer({ ruleConfig, open, onPreviewValues, o
   };
 
   const toFormInputs = ({ id, name, type, }: Types.Serializer.TSerializedNodeInputOutput): FormInput[] => {
-    if (!type.isComplex) {
+    if (type.category === WrappedTypes.ETypeCategory.PRIMITIVE) {
       return [
         {
           id,
@@ -146,8 +146,8 @@ export default function PreviewRuleDrawer({ ruleConfig, open, onPreviewValues, o
   const flattenInputOutput = (prefix: string, type: Types.Serializer.TSerializedType, values: Record<string, any>) => {
     const value = getValueByKey(values, prefix);
 
-    if (!type.isComplex) {
-      return { [prefix]: value.value, };
+    if (type.category === WrappedTypes.ETypeCategory.PRIMITIVE) {
+      return { [prefix]: value, };
     }
 
     const flattened: Record<string, any> = Object
