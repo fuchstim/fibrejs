@@ -30,9 +30,9 @@ Please refer to the installation and usage guides in the [project wiki](https://
 
 ## Roadmap
 
-- [ ] Support collection data types
-- [ ] Support complex input types in rule preview
+- [ ] Support complex / collection input types in rule preview
 - [ ] Customizable node display
+- [ ] Extensible dashboard pages
 
 [contributors-shield]: https://img.shields.io/github/contributors/fuchstim/fibrejs.svg?style=for-the-badge
 [contributors-url]: https://github.com/fuchstim/fibrejs/graphs/contributors
