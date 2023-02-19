@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react';
 import { Button, Checkbox, Drawer, Form, Input, InputNumber, Spin, Typography, notification } from 'antd';
+import * as lodash from 'lodash';
 
 import client from '../../../common/client';
 import { Types, WrappedTypes } from '@fibrejs/engine';
@@ -48,13 +49,8 @@ export default function PreviewRuleDrawer({ ruleConfig, open, onPreviewValues, o
         return setFormInputs([]);
       }
 
-      const { inputs, } = entryStage.node;
-      if (inputs.some(i => i.type.category !== WrappedTypes.ETypeCategory.PRIMITIVE)) {
-        throw new Error('Previewing rules with complex inputs is not yet supported'); // TODO: support complex / collection input types
-      }
-
       setFormInputs(
-        inputs.flatMap(input => toFormInputs(input))
+        entryStage.node.inputs.flatMap(input => toFormInputs(input))
       );
     } catch (error) {
       const { message, } = error as Error;
@@ -78,10 +74,20 @@ export default function PreviewRuleDrawer({ ruleConfig, open, onPreviewValues, o
     }
 
     if (type.category === WrappedTypes.ETypeCategory.COLLECTION) { // TODO: Implement collection input form
-      return [];
+      throw new Error('Previewing rules with collection type inputs is not yet supported');
     }
 
     if (type.category === WrappedTypes.ETypeCategory.COMPLEX) {
+      if (type.id === 'DATE') {
+        return [
+          {
+            id,
+            name,
+            type: WrappedTypes.EPrimitive.STRING,
+          },
+        ];
+      }
+
       return Object
         .entries(type.fields)
         .flatMap(
@@ -135,7 +141,15 @@ export default function PreviewRuleDrawer({ ruleConfig, open, onPreviewValues, o
   const fetchRulePreview = async (inputs: Record<string, string | number | boolean>) => {
     setLoading(true);
 
-    await client.previewRule({ config: ruleConfig, inputs, })
+    await client.previewRule({
+      config: ruleConfig,
+      inputs: Object
+        .entries(inputs)
+        .reduce(
+          (acc, [ key, value, ]) => lodash.set(acc, key, value),
+          {} as Record<string, any>
+        ),
+    })
       .then(ruleResult => toPreviewValues(ruleResult))
       .then(previewValues => {
         onClose();
@@ -146,15 +160,8 @@ export default function PreviewRuleDrawer({ ruleConfig, open, onPreviewValues, o
       .finally(() => setLoading(false));
   };
 
-  const getValueByKey = (outputs: Record<string, any>, key: string) => (
-    key.split('.').reduce(
-      (acc, keyPart) => acc[keyPart],
-      outputs
-    )
-  );
-
   const flattenInputOutput = (prefix: string, type: Types.Serializer.TSerializedType, values: Record<string, any>) => {
-    const value = getValueByKey(values, prefix);
+    const value = lodash.get(values, prefix);
 
     if (type.category === WrappedTypes.ETypeCategory.PRIMITIVE) {
       return { [prefix]: value, };
