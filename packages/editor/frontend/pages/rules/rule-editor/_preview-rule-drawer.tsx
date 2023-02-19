@@ -77,6 +77,8 @@ export default function PreviewRuleDrawer({ ruleConfig, open, onPreviewValues, o
       ];
     }
 
+    // TODO: Implement collection input form
+
     return Object
       .entries(type.fields)
       .flatMap(([ key, type, ]) => toFormInputs({
@@ -146,7 +148,7 @@ export default function PreviewRuleDrawer({ ruleConfig, open, onPreviewValues, o
   const flattenInputOutput = (prefix: string, type: Types.Serializer.TSerializedType, values: Record<string, any>) => {
     const value = getValueByKey(values, prefix);
 
-    if (type.category === WrappedTypes.ETypeCategory.PRIMITIVE) {
+    if (type.category !== WrappedTypes.ETypeCategory.COMPLEX) { // TODO: Handle collection types
       return { [prefix]: value, };
     }
 

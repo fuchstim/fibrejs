@@ -36,6 +36,34 @@ export class WrappedType<TNative, TWrapped> {
     this.unwrap = unwrap;
     this.wrap = wrap;
   }
+
+  get collection() {
+    return new WrappedCollection<TNative, TWrapped>({
+      id: `COLLECTION.${this.id}`,
+      name: `Collection (${this.name})`,
+      validate: entries => {
+        const validationErrors: string[] = [];
+
+        entries.forEach((entry, index) => {
+          const { valid, reason, } = this.validate(entry);
+          if (!valid) {
+            validationErrors.push(
+              `Invalid entry at index ${index} (${reason})`
+            );
+          }
+        });
+
+        if (validationErrors.length === 0) { return { valid: true, reason: null, }; }
+
+        return {
+          valid: false,
+          reason: validationErrors.join(', '),
+        };
+      },
+      unwrap: wrappedEntries => wrappedEntries.map(this.unwrap),
+      wrap: unwrappedEntries => unwrappedEntries.map(this.wrap),
+    });
+  }
 }
 
 type TWrappedPrimitiveOptions<TNative> = Omit<TWrappedTypeOptions<TNative, TNative>, 'category'>;
@@ -61,6 +89,16 @@ export class WrappedComplex<TNative, TWrapped extends Record<string, any>> exten
     });
 
     this.fields = options.fields;
+  }
+}
+
+type TWrappedCollectionOptions<TNative, TWrapped> = Omit<TWrappedTypeOptions<TNative, TWrapped>, 'category'>;
+export class WrappedCollection<TNative, TWrapped> extends WrappedType<TNative[], TWrapped[]> {
+  constructor(options: TWrappedCollectionOptions<TNative[], TWrapped[]>) {
+    super({
+      ...options,
+      category: ETypeCategory.COLLECTION,
+    });
   }
 }
 

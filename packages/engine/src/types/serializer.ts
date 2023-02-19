@@ -4,10 +4,7 @@ import type { ENodeMetadataOptionType, ENodeType, TNodeMetadataDropDownOption, T
 interface ISerializedType {
   id: string,
   name: string,
-}
-
-interface ISerializedPrimitiveType extends ISerializedType {
-  category: ETypeCategory.PRIMITIVE,
+  category: ETypeCategory,
 }
 
 interface ISerializedComplexType extends ISerializedType {
@@ -15,7 +12,7 @@ interface ISerializedComplexType extends ISerializedType {
   fields: Record<string, TSerializedType>
 }
 
-export type TSerializedType = ISerializedPrimitiveType | ISerializedComplexType;
+export type TSerializedType = ISerializedType | ISerializedComplexType;
 
 interface ISerializedNodeOption {
   id: string,

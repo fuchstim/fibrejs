@@ -1,7 +1,7 @@
 import { BaseNode } from '../common/base-node';
 import { TNodeExecutorContext, TNodeMetadataOption, TNodeMetadataInputOutput, ENodeMetadataOptionType } from '../types/node';
 import { TSerializedNode, TSerializedNodeOption, TSerializedNodeInputOutput, TSerializedType } from '../types/serializer';
-import { WrappedType, WrappedPrimitive, ETypeCategory, WrappedComplex } from './wrapped-types';
+import { WrappedType, ETypeCategory, WrappedComplex } from './wrapped-types';
 
 class Serializer {
   serializeNode(node: BaseNode<any, any, any>, context: TNodeExecutorContext<any>): TSerializedNode {
@@ -57,34 +57,30 @@ class Serializer {
   }
 
   private serializeType(type: WrappedType<any, any>): TSerializedType {
-    if (type instanceof WrappedPrimitive<any>) {
+    if (!(type instanceof WrappedComplex<any, any>)) {
       return {
         id: type.id,
         name: type.name,
-        category: ETypeCategory.PRIMITIVE,
+        category: type.category,
       };
     }
 
-    if (type instanceof WrappedComplex<any, any>) {
-      return {
-        id: type.id,
-        name: type.name,
-        category: ETypeCategory.COMPLEX,
-        fields: Object
-          .entries(type.fields)
-          .reduce(
-            (acc, [ fieldKey, fieldType, ]) => {
-              return {
-                ...acc,
-                [fieldKey]: this.serializeType(fieldType),
-              };
-            },
-            {}
-          ),
-      };
-    }
-
-    throw new Error(`Failed to serialize invalid type: ${type.id}`);
+    return {
+      id: type.id,
+      name: type.name,
+      category: ETypeCategory.COMPLEX,
+      fields: Object
+        .entries(type.fields)
+        .reduce(
+          (acc, [ fieldKey, fieldType, ]) => {
+            return {
+              ...acc,
+              [fieldKey]: this.serializeType(fieldType),
+            };
+          },
+          {}
+        ),
+    };
   }
 }
 
