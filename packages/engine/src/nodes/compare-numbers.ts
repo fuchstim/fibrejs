@@ -46,7 +46,13 @@ export default class CompareNumbersNode extends BaseNode<TNodeInputs, TNodeOutpu
             { id: EOperation.LESS, name: 'Less', },
             { id: EOperation.LESS_EQUAL, name: 'Less or Equal', },
           ],
-          validate: v => Object.values(EOperation).includes(v),
+          validate: v => {
+            if (!Object.values(EOperation).includes(v)) {
+              return { valid: false, reason: `${v} is not a valid option`, };
+            }
+
+            return { valid: true, reason: null, };
+          },
         },
       ],
       inputs: [

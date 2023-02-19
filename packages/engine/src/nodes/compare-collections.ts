@@ -38,7 +38,13 @@ export default class CompareCollectionsNode extends BaseNode<TNodeInputs, TNodeO
             { id: EOperation.INCLUDES, name: 'Includes', },
             { id: EOperation.NOT_INCLUDES, name: 'Does not include', },
           ],
-          validate: v => Object.values(EOperation).includes(v),
+          validate: v => {
+            if (!Object.values(EOperation).includes(v)) {
+              return { valid: false, reason: `${v} is not a valid option`, };
+            }
+
+            return { valid: true, reason: null, };
+          },
         },
       ],
       inputs: [

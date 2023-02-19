@@ -1,6 +1,6 @@
 import type { EPrimitive, WrappedType } from '../common/wrapped-types';
 import type RuleStage from '../executors/rule-stage';
-import { TOptionalGetter } from './common';
+import { TOptionalGetter, TValidationResult } from './common';
 import type { TRuleStageExecutorContext } from './rule-stage';
 
 export enum ENodeMetadataOptionType {
@@ -25,7 +25,7 @@ export type TNodeMetadataDropDownOption = {
 interface INodeMetadataOption {
   id: string,
   name: string,
-  validate: (optionValue: any) => boolean,
+  validate: (optionValue: any) => TValidationResult,
 }
 
 interface INodeMetadataInputOption extends INodeMetadataOption {

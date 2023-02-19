@@ -61,13 +61,15 @@ export abstract class BaseNode<TInputs extends Record<string, any>, TOutputs ext
       };
     }
 
-    const invalidOptionConfigs = optionConfigs.filter(
-      ({ id, validate, }) => !validate(context.nodeOptions[id])
-    );
-    if (invalidOptionConfigs.length) {
+    const optionValidationErrors = optionConfigs
+      .map(
+        option => ({ option, result: option.validate(context.nodeOptions[option.id]), })
+      )
+      .filter(({ result, }) => !result.valid);
+    if (optionValidationErrors.length) {
       return {
         valid: false,
-        reason: `Invalid option configs: ${invalidOptionConfigs.map(c => `${c.name} (${c.id})`).join(', ')}`,
+        reason: `Invalid option configs: ${optionValidationErrors.map(e => `${e.option.name} (${e.result.reason})`).join(', ')}`,
       };
     }
 

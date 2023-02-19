@@ -41,16 +41,26 @@ export default class ExecuteRuleNode extends BaseNode<TNodeInputs, TNodeOutputs,
         name: 'Is Conditional',
         type: ENodeMetadataOptionType.INPUT,
         inputOptions: { type: EPrimitive.BOOLEAN, },
-        validate: input => typeof input === 'boolean',
+        validate: input => {
+          if (!(typeof input === 'boolean')) {
+            return { valid: false, reason: `Value ${input} is not a boolean`, };
+          }
+
+          return { valid: true, reason: null, };
+        },
       },
       {
         id: 'ruleId',
         name: 'Rule',
         type: ENodeMetadataOptionType.DROP_DOWN,
         dropDownOptions,
-        validate: ruleId => dropDownOptions.some(
-          option => option.id === ruleId
-        ),
+        validate: ruleId => {
+          if (!dropDownOptions.some(option => option.id === ruleId)) {
+            return { valid: false, reason: `${ruleId} is not a valid rule id`, };
+          }
+
+          return { valid: true, reason: null, };
+        },
       },
     ];
   }

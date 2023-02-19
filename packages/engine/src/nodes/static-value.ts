@@ -1,5 +1,6 @@
 import { BaseNode } from '../common/base-node';
 import { WBooleanType, WNumberType, WStringType, EPrimitive, WrappedType } from '../common/wrapped-types';
+import { TValidationResult } from '../types/common';
 import { ENodeMetadataOptionType, TNodeExecutorContext } from '../types/node';
 
 type TNodeOutputs = {
@@ -30,7 +31,13 @@ export default class StaticValueNode extends BaseNode<never, TNodeOutputs, TNode
           name: 'Value Type',
           type: ENodeMetadataOptionType.DROP_DOWN,
           dropDownOptions: this.getDropDownOptions(context.nodeOptions),
-          validate: v => this.getDropDownOptions(context.nodeOptions).map(o => o.id).includes(v),
+          validate: v => {
+            if (!this.getDropDownOptions(context.nodeOptions).map(o => o.id).includes(v)) {
+              return { valid: false, reason: `${v} is not a valid option`, };
+            }
+
+            return { valid: true, reason: null, };
+          },
         },
         {
           id: 'isCollection',
@@ -39,7 +46,13 @@ export default class StaticValueNode extends BaseNode<never, TNodeOutputs, TNode
           inputOptions: {
             type: EPrimitive.BOOLEAN,
           },
-          validate: v => typeof v === 'boolean',
+          validate: v => {
+            if (!(typeof v === 'boolean')) {
+              return { valid: false, reason: `Value ${v} is not a boolean`, };
+            }
+
+            return { valid: true, reason: null, };
+          },
         },
         {
           id: 'value',
@@ -73,7 +86,7 @@ export default class StaticValueNode extends BaseNode<never, TNodeOutputs, TNode
     ];
   }
 
-  private validateValue(value: any, nodeOptions: TNodeOptions): boolean {
+  private validateValue(value: any, nodeOptions: TNodeOptions): TValidationResult {
     const { valueType, } = nodeOptions;
 
     const nativeValueType = {
@@ -84,23 +97,47 @@ export default class StaticValueNode extends BaseNode<never, TNodeOutputs, TNode
 
     const wrappedOutputValue = this.getWrappedOutputValue({ ...nodeOptions, value, });
     if (!Array.isArray(wrappedOutputValue)) {
-      return typeof wrappedOutputValue === nativeValueType;
+      const valid = typeof wrappedOutputValue === nativeValueType;
+      if (!valid) {
+        return { valid, reason: `Value must be ${nativeValueType} but is ${typeof wrappedOutputValue}`, };
+      }
+
+      return { valid, reason: null, };
     }
 
-    const validCollectionInput = (wrappedOutputValue as (string | number)[])
-      .every(entry => {
+    const invalidInputValidationResults = (wrappedOutputValue as (string | number)[])
+      .map((entry, index) => {
         if (valueType === EPrimitive.STRING) {
-          return typeof entry === nativeValueType;
+          const valid = typeof entry === nativeValueType;
+
+          return { index, valid, reason: `Value must be ${nativeValueType} but is ${typeof entry}`, };
         }
 
         if (valueType === EPrimitive.NUMBER) {
-          return typeof entry === nativeValueType && !Number.isNaN(entry);
+          if (Number.isNaN(entry)) {
+            return { index, valid: false, reason: 'Value is not a number', };
+          }
+
+          const valid = typeof entry === nativeValueType;
+          return { index, valid, reason: `Value must be ${nativeValueType} but is ${typeof entry}`, };
         }
 
-        return false;
-      });
+        return { index, valid: false, reason: `Invalid value type: ${valueType}`, };
+      })
+      .filter(r => !r.valid);
 
-    return validCollectionInput;
+    if (invalidInputValidationResults.length) {
+      const reasons = invalidInputValidationResults.map(
+        r => `Index ${r.index + 1} (${r.reason})`
+      );
+
+      return {
+        valid: false,
+        reason: `One or more collection items are invalid: ${reasons.join(', ')}`,
+      };
+    }
+
+    return { valid: true, reason: null, };
   }
 
   private getWrappedValueType(nodeOptions: TNodeOptions): WrappedType<any, any> {

@@ -40,7 +40,13 @@ export default class CompareBooleansNode extends BaseNode<TNodeInputs, TNodeOutp
             { id: EOperation.EITHER, name: 'Either', },
             { id: EOperation.BOTH, name: 'Both', },
           ],
-          validate: v => Object.values(EOperation).includes(v),
+          validate: v => {
+            if (!Object.values(EOperation).includes(v)) {
+              return { valid: false, reason: `${v} is not a valid option`, };
+            }
+
+            return { valid: true, reason: null, };
+          },
         },
       ],
       inputs: [
