@@ -139,7 +139,7 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
   return (
     <Card
       title={(
-        <Row gutter={8}>
+        <Row gutter={8} wrap={false}>
           <Col>
             <Typography.Title level={5} style={{ margin: 0, }}>{editorNodeOptions.ruleStage.node.name}</Typography.Title>
           </Col>
@@ -154,7 +154,7 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
       hoverable={true}
       style={isSelected ? { boxShadow: `${colorPrimary} 0px 0px 4px`, } : {}}
     >
-      <Row justify="space-between" gutter={16} style={{ padding: '6px 0', }}>
+      <Row justify="space-between" gutter={16} style={{ padding: '6px 0', }} wrap={false}>
         <Col>{props.editorNode.getInputPorts().map(port => createPort(port))}</Col>
         <Col>{props.editorNode.getOutputPorts().map(port => createPort(port))}</Col>
       </Row>
