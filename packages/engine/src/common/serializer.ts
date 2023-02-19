@@ -1,7 +1,7 @@
 import { BaseNode } from '../common/base-node';
 import { TNodeExecutorContext, TNodeMetadataOption, TNodeMetadataInputOutput, ENodeMetadataOptionType } from '../types/node';
 import { TSerializedNode, TSerializedNodeOption, TSerializedNodeInputOutput, TSerializedType } from '../types/serializer';
-import { WrappedType, ETypeCategory, WrappedComplex } from './wrapped-types';
+import { WrappedType, ETypeCategory, WrappedComplex, WrappedCollection } from './wrapped-types';
 
 class Serializer {
   serializeNode(node: BaseNode<any, any, any>, context: TNodeExecutorContext<any>): TSerializedNode {
@@ -57,29 +57,29 @@ class Serializer {
   }
 
   private serializeType(type: WrappedType<any, any>): TSerializedType {
-    if (!(type instanceof WrappedComplex<any, any>)) {
+    if (type instanceof WrappedComplex<any, any> || type instanceof WrappedCollection<any, any>) {
       return {
         id: type.id,
         name: type.name,
-        category: type.category as ETypeCategory.PRIMITIVE | ETypeCategory.COLLECTION,
+        category: ETypeCategory.COMPLEX,
+        fields: Object
+          .entries(type.fields)
+          .reduce(
+            (acc, [ fieldKey, fieldType, ]) => {
+              return {
+                ...acc,
+                [fieldKey]: this.serializeType(fieldType),
+              };
+            },
+            {}
+          ),
       };
     }
 
     return {
       id: type.id,
       name: type.name,
-      category: ETypeCategory.COMPLEX,
-      fields: Object
-        .entries(type.fields)
-        .reduce(
-          (acc, [ fieldKey, fieldType, ]) => {
-            return {
-              ...acc,
-              [fieldKey]: this.serializeType(fieldType),
-            };
-          },
-          {}
-        ),
+      category: type.category as ETypeCategory.PRIMITIVE,
     };
   }
 }

@@ -21,7 +21,7 @@ export default abstract class Executor<TInputs, TOutputs, TContext extends TExec
     };
 
     if (context.callStack.length > MAX_CALL_STACK_SIZE) {
-      throw new Error(`Maximum executor call stack size (${100}) exceeded`);
+      throw new Error(`Maximum executor call stack size (${MAX_CALL_STACK_SIZE}) exceeded`);
     }
 
     context.logger.info(`Executing ${this.executorType}...`);

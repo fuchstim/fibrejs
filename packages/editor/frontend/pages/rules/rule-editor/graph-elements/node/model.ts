@@ -112,7 +112,7 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
       labelOnly: level > 0,
     });
 
-    if (config.type.category !== WrappedTypes.ETypeCategory.COMPLEX) {
+    if (config.type.category === WrappedTypes.ETypeCategory.PRIMITIVE) {
       return [ port, ];
     }
 

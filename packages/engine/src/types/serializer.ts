@@ -4,15 +4,15 @@ import type { ENodeMetadataOptionType, ENodeType, TNodeMetadataDropDownOption, T
 interface ISerializedType {
   id: string,
   name: string,
-  category: ETypeCategory.PRIMITIVE | ETypeCategory.COLLECTION,
-}
-
-interface ISerializedComplexType extends Omit<ISerializedType, 'category'> {
-  category: ETypeCategory.COMPLEX,
+  category: ETypeCategory.COLLECTION | ETypeCategory.COMPLEX,
   fields: Record<string, TSerializedType>
 }
 
-export type TSerializedType = ISerializedType | ISerializedComplexType;
+interface ISerializedPrimitiveType extends Omit<ISerializedType, 'category' | 'fields'> {
+  category: ETypeCategory.PRIMITIVE,
+}
+
+export type TSerializedType = ISerializedType | ISerializedPrimitiveType;
 
 interface ISerializedNodeOption {
   id: string,

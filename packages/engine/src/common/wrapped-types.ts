@@ -94,11 +94,17 @@ export class WrappedComplex<TNative, TWrapped extends Record<string, any>> exten
 
 type TWrappedCollectionOptions<TNative, TWrapped> = Omit<TWrappedTypeOptions<TNative, TWrapped>, 'category'>;
 export class WrappedCollection<TNative, TWrapped> extends WrappedType<TNative[], TWrapped[]> {
+  public fields: Record<string, WrappedType<any, any>>;
+
   constructor(options: TWrappedCollectionOptions<TNative[], TWrapped[]>) {
     super({
       ...options,
       category: ETypeCategory.COLLECTION,
     });
+
+    this.fields = {
+      length: WNumberType,
+    };
   }
 }
 
