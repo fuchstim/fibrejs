@@ -1,6 +1,7 @@
 import { BaseNode } from '../common/base-node';
 import Executor from '../common/executor';
 import { detectDuplicates } from '../common/util';
+import { WrappedComplex, WrappedNullable, WrappedType } from '../common/wrapped-types';
 import { TValidationResult } from '../types/common';
 import { ENodeType, TNodeExecutorContext, TNodeOptions } from '../types/node';
 import { TRuleStageExecutorContext, TRuleStageInput, TRuleStageInputs, TRuleStageOptions, TRuleStageResults } from '../types/rule-stage';
@@ -56,15 +57,86 @@ export default class RuleStage extends Executor<TRuleStageInputs, TRuleStageResu
       return { valid: false, reason: 'Entry node stage cannot have inputs', };
     }
 
-    const nodeInputs = this.node.getMetadata(validationContext).inputs;
-    if (this.node.type !== ENodeType.ENTRY && this.inputs.length !== nodeInputs.length) {
-      const missingInputs = nodeInputs.filter(
-        nodeInput => !this.inputs.map(i => i.inputId).includes(nodeInput.id)
-      );
+    if (this.node.type !== ENodeType.ENTRY) {
+      const nodeInputs = this.node.getMetadata(validationContext).inputs;
 
-      return { valid: false, reason: `Missing inputs: ${missingInputs.map(i => i.id)}`, };
+      if (this.inputs.length < nodeInputs.length) {
+        const missingInputs = nodeInputs.filter(
+          nodeInput => !this.inputs.map(i => i.inputId).includes(nodeInput.id)
+        );
+
+        return { valid: false, reason: `Missing inputs: ${missingInputs.map(i => i.id)}`, };
+      }
+
+      const stageInputTypes = this.inputs
+        .map(input => ({ input, type: this.getStageInputType(input, validationContext), }))
+        .filter(({ type, }) => type !== null)
+        .reduce(
+          (acc, { input, type, }) => ({ ...acc, [input.inputId]: type as WrappedType<any, any>, }),
+          {} as Record<string, WrappedType<any, any>>
+        );
+
+      const invalidStageInputs = nodeInputs
+        .map(
+          ({ id: inputId, type: nodeInputType, }) => {
+            const stageInputType = stageInputTypes[inputId];
+            if (!stageInputType) {
+              return { inputId, valid: false, reason: `No stage input found for node input ${inputId}`, };
+            }
+
+            if (nodeInputType.id === stageInputType.id) {
+              return { inputId, valid: true, };
+            }
+
+            if (nodeInputType instanceof WrappedNullable<any, any> && nodeInputType.WType.id === stageInputType.id) {
+              return { inputId, valid: true, };
+            }
+
+            return { inputId, valid: false, reason: `Stage input ${stageInputType.name} is not valid for node input ${nodeInputType.name}`, };
+          }
+        )
+        .filter(r => !r.valid);
+      if (invalidStageInputs.length) {
+        const reasons = invalidStageInputs.map(r => `${r.inputId} (${r.reason})`);
+
+        return {
+          valid: false,
+          reason: `One or more stage inputs are invalid: ${reasons.join(', ')}`,
+        };
+      }
     }
 
     return this.node.validateContext(validationContext);
+  }
+
+  private getStageInputType(stageInput: TRuleStageInput, context: TRuleStageExecutorContext): WrappedType<any, any> | null {
+    const sourceRuleStage = context.rule?.stages.find(s => s.id === stageInput.ruleStageId);
+    if (!sourceRuleStage) {
+      throw new Error(`Unable to find source stage ${stageInput.ruleStageId} for input ${stageInput.inputId}`);
+    }
+
+    const { outputs: sourceRuleStageOutputs, } = sourceRuleStage.node.getMetadata(
+      sourceRuleStage.createNodeContext(context)
+    );
+
+    const [ outputId, ...outputKeyParts ] = stageInput.outputId.split('.');
+
+    const sourceRuleStageOutput = sourceRuleStageOutputs.find(o => o.id === outputId);
+    if (!sourceRuleStageOutput) {
+      throw new Error(`Unable to find output ${outputId} in stage ${sourceRuleStage.id}`);
+    }
+
+    const outputType = outputKeyParts.reduce(
+      (acc, keyPart) => {
+        if (acc instanceof WrappedComplex<any, any>) {
+          return acc.fields[keyPart];
+        }
+
+        return null;
+      },
+      sourceRuleStageOutput.type as WrappedType<any, any> | null
+    );
+
+    return outputType;
   }
 }
