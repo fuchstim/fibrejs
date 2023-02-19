@@ -79,7 +79,7 @@ export default class RuleStage extends Executor<TRuleStageInputs, TRuleStageResu
         nodeInput => !this.inputs.map(i => i.inputId).includes(nodeInput.id)
       );
 
-      return { valid: false, reason: `Missing inputs: ${missingInputs.map(i => i.id)}`, };
+      return { valid: false, reason: `Missing inputs: ${missingInputs.map(i => i.id).join(', ')}`, };
     }
 
     const stageInputTypes = this.inputs
