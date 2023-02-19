@@ -18,9 +18,9 @@ type TWrappedTypeOptions = {
   category: ETypeCategory;
 };
 export abstract class WrappedType<TNative, TWrapped> {
-  public id: TWrappedTypeOptions['id'];
-  public name: TWrappedTypeOptions['name'];
-  public category: TWrappedTypeOptions['category'];
+  public readonly id: TWrappedTypeOptions['id'];
+  public readonly name: TWrappedTypeOptions['name'];
+  public readonly category: TWrappedTypeOptions['category'];
 
   constructor({ id, name, category, }: TWrappedTypeOptions) {
     this.id = id;
@@ -42,7 +42,7 @@ export abstract class WrappedType<TNative, TWrapped> {
 }
 
 export class WrappedPrimitive<TNative extends (string | number | boolean)> extends WrappedType<TNative, TNative> {
-  public override id: EPrimitive;
+  public override readonly id: EPrimitive;
 
   constructor(options: Omit<TWrappedTypeOptions, 'category'> & { id: EPrimitive }) {
     super({
@@ -92,7 +92,7 @@ type TWrappedComplexOptions<TNative, TWrapped> = Omit<TWrappedTypeOptions, 'cate
 };
 // eslint-disable-next-line max-len
 export class WrappedComplex<TNative extends Record<string, any>, TWrapped extends Record<string, any>> extends WrappedType<TNative, TWrapped> {
-  public fields: TWrappedComplexOptions<TNative, TWrapped>['fields'];
+  public readonly fields: TWrappedComplexOptions<TNative, TWrapped>['fields'];
 
   constructor(options: TWrappedComplexOptions<TNative, TWrapped>) {
     super({
@@ -149,8 +149,8 @@ export class WrappedComplex<TNative extends Record<string, any>, TWrapped extend
 }
 
 export class WrappedCollection<TNative, TWrapped> extends WrappedType<TNative[], TWrapped[]> {
-  private WEntryType: WrappedType<TNative, TWrapped>;
-  public fields: Record<string, WrappedType<any, any>>;
+  public readonly WEntryType: WrappedType<TNative, TWrapped>;
+  public readonly fields: Record<string, WrappedType<any, any>>;
 
   constructor(WEntryType: WrappedType<TNative, TWrapped>) {
     super({
@@ -200,7 +200,7 @@ export class WrappedCollection<TNative, TWrapped> extends WrappedType<TNative[],
 }
 
 export class WrappedNullable<TNative, TWrapped> extends WrappedType<TNative | null, TWrapped | null> {
-  private WType: WrappedType<TNative, TWrapped>;
+  public readonly WType: WrappedType<TNative, TWrapped>;
 
   constructor(WType: WrappedType<TNative, TWrapped>) {
     super({
