@@ -58,55 +58,69 @@ export default class RuleStage extends Executor<TRuleStageInputs, TRuleStageResu
     }
 
     if (this.node.type !== ENodeType.ENTRY) {
-      const nodeInputs = this.node.getMetadata(validationContext).inputs;
-
-      if (this.inputs.length < nodeInputs.length) {
-        const missingInputs = nodeInputs.filter(
-          nodeInput => !this.inputs.map(i => i.inputId).includes(nodeInput.id)
-        );
-
-        return { valid: false, reason: `Missing inputs: ${missingInputs.map(i => i.id)}`, };
-      }
-
-      const stageInputTypes = this.inputs
-        .map(input => ({ input, type: this.getStageInputType(input, validationContext), }))
-        .filter(({ type, }) => type !== null)
-        .reduce(
-          (acc, { input, type, }) => ({ ...acc, [input.inputId]: type as WrappedType<any, any>, }),
-          {} as Record<string, WrappedType<any, any>>
-        );
-
-      const invalidStageInputs = nodeInputs
-        .map(
-          ({ id: inputId, type: nodeInputType, }) => {
-            const stageInputType = stageInputTypes[inputId];
-            if (!stageInputType) {
-              return { inputId, valid: false, reason: `No stage input found for node input ${inputId}`, };
-            }
-
-            if (nodeInputType.id === stageInputType.id) {
-              return { inputId, valid: true, };
-            }
-
-            if (nodeInputType instanceof WrappedNullable<any, any> && nodeInputType.WType.id === stageInputType.id) {
-              return { inputId, valid: true, };
-            }
-
-            return { inputId, valid: false, reason: `Stage input ${stageInputType.name} is not valid for node input ${nodeInputType.name}`, };
-          }
-        )
-        .filter(r => !r.valid);
-      if (invalidStageInputs.length) {
-        const reasons = invalidStageInputs.map(r => `${r.inputId} (${r.reason})`);
-
-        return {
-          valid: false,
-          reason: `One or more stage inputs are invalid: ${reasons.join(', ')}`,
-        };
+      try {
+        const stageInputsValidationResult = this.validateStageInputs(validationContext);
+        if (!stageInputsValidationResult.valid) {
+          return stageInputsValidationResult;
+        }
+      } catch (error) {
+        return { valid: false, reason: (error as Error).message, };
       }
     }
 
     return this.node.validateContext(validationContext);
+  }
+
+  private validateStageInputs(context: TNodeExecutorContext<TNodeOptions>): TValidationResult {
+    const nodeInputs = this.node.getMetadata(context).inputs;
+
+    if (this.inputs.length < nodeInputs.length) {
+      const missingInputs = nodeInputs.filter(
+        nodeInput => !this.inputs.map(i => i.inputId).includes(nodeInput.id)
+      );
+
+      return { valid: false, reason: `Missing inputs: ${missingInputs.map(i => i.id)}`, };
+    }
+
+    const stageInputTypes = this.inputs
+      .map(input => ({ input, type: this.getStageInputType(input, context), }))
+      .filter(({ type, }) => type !== null)
+      .reduce(
+        (acc, { input, type, }) => ({ ...acc, [input.inputId]: type as WrappedType<any, any>, }),
+        {} as Record<string, WrappedType<any, any>>
+      );
+
+    const invalidStageInputs = nodeInputs
+      .map(
+        ({ id: inputId, type: nodeInputType, }) => {
+          const stageInputType = stageInputTypes[inputId];
+          if (!stageInputType) {
+            return { inputId, valid: false, reason: `No stage input found for node input ${inputId}`, };
+          }
+
+          if (nodeInputType.id === stageInputType.id) {
+            return { inputId, valid: true, };
+          }
+
+          if (nodeInputType instanceof WrappedNullable<any, any> && nodeInputType.WType.id === stageInputType.id) {
+            return { inputId, valid: true, };
+          }
+
+          return { inputId, valid: false, reason: `Stage input ${stageInputType.name} is not valid for node input ${nodeInputType.name}`, };
+        }
+      )
+      .filter(r => !r.valid);
+
+    if (invalidStageInputs.length) {
+      const reasons = invalidStageInputs.map(r => `${r.inputId} (${r.reason})`);
+
+      return {
+        valid: false,
+        reason: `One or more stage inputs are invalid: ${reasons.join(', ')}`,
+      };
+    }
+
+    return { valid: true, reason: null, };
   }
 
   private getStageInputType(stageInput: TRuleStageInput, context: TRuleStageExecutorContext): WrappedType<any, any> | null {
