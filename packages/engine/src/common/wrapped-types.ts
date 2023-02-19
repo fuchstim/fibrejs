@@ -60,7 +60,9 @@ export class WrappedPrimitive<TNative extends (string | number | boolean)> exten
       [EPrimitive.BOOLEAN]: 'boolean',
     }[this.id];
 
-    if (typeof value !== expected) {
+    const isNaN = this.id === EPrimitive.NUMBER && Number.isNaN(value);
+
+    if (typeof value !== expected || isNaN) {
       return {
         valid: false,
         reason: `\`${JSON.stringify(value)}\` is not a ${expected}`,
@@ -70,7 +72,14 @@ export class WrappedPrimitive<TNative extends (string | number | boolean)> exten
     return { valid: true, reason: null, };
   }
 
-  public override wrap(value: TNative): TNative { return value; }
+  public override wrap(value: TNative): TNative {
+    switch (this.id) {
+      case EPrimitive.STRING: return String(value) as TNative;
+      case EPrimitive.NUMBER: return Number(value) as TNative;
+      case EPrimitive.BOOLEAN: return Boolean(value) as TNative;
+    }
+  }
+
   public override unwrap(value: TNative): TNative { return value; }
 }
 

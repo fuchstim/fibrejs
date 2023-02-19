@@ -176,7 +176,7 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
 
   private wrapRuleInputs(ruleInputs: TRuleInputs, context: TRuleExecutorContext): TRuleInputs {
     if (!this.entryStage) {
-      throw new Error('Cannot wrap inputs for a rule without entry stage');
+      return {};
     }
 
     const wrappedInputs = this.entryStage.node

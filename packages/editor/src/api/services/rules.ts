@@ -22,7 +22,7 @@ export default class RulesService implements ICRUDService<Types.Config.TRuleConf
     const config = this.engine.getActiveConfig();
 
     return config.rules.sort(
-      (a, b) => a.name.localeCompare(b.name)
+      (a, b) => a.id.localeCompare(b.id)
     );
   }
 

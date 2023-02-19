@@ -14,6 +14,7 @@ import { Types, WrappedTypes } from '@fibrejs/engine';
 
 import client from '../../../../../common/client';
 import { camelCaseToSentenceCase } from '../../_common';
+import deepEqual from 'deep-equal';
 
 interface OptionsUpdatedEvent extends BaseEvent {
   updatedOptions?: Types.Node.TNodeOptions
@@ -143,7 +144,7 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
       level,
     });
 
-    if (config.type.category !== WrappedTypes.ETypeCategory.COMPLEX) {
+    if (config.type.category === WrappedTypes.ETypeCategory.PRIMITIVE) {
       return [ port, ];
     }
 
@@ -238,7 +239,22 @@ export default class EditorNodeModel extends NodeModel<EditorNodeModelGenerics> 
       { nodeOptions: updatedOptions, ruleId: this.ruleStage.ruleId, }
     );
 
-    this.ruleStage.nodeOptions = updatedOptions;
+    const invalidatedOptionIds = updatedNode.options
+      .filter(
+        updatedOption => !deepEqual(
+          this.ruleStage.node.options.find(option => option.id === updatedOption.id),
+          updatedOption
+        )
+      )
+      .map(option => option.id);
+
+    this.ruleStage.nodeOptions = invalidatedOptionIds.reduce(
+      (acc, optionId) => ({ ...acc, [optionId]: updatedNode.defaultOptions[optionId], }),
+      updatedOptions
+    );
+
+    console.log(this.ruleStage.nodeOptions);
+
     this.ruleStage.node = updatedNode;
 
     this.generatePortsFromNode(updatedNode);

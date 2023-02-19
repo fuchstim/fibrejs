@@ -14,21 +14,29 @@ interface EditorNodeProps {
 }
 
 export default function EditorNodeWidget(props: EditorNodeProps) {
-  const [ , updateState, ] = useState<object | undefined>();
-  const forceUpdate = React.useCallback(() => updateState({}), []);
-
   const [ portFoldLevels, setPortFoldLevels, ] = useState<Record<EPortType, number>>({
     [EPortType.INPUT]: 0,
     [EPortType.OUTPUT]: 0,
   });
 
-  useEffect(
-    () => props.editorNode.registerListener({ nodeUpdated: forceUpdate, }).deregister,
-    []
-  );
+  const [ optionsForm, ] = Form.useForm();
 
   const editorNodeOptions = props.editorNode.getOptions();
   const isSelected = props.editorNode.isSelected();
+
+  const [ , updateState, ] = useState<object | undefined>();
+  const rerender = React.useCallback(
+    () => {
+      updateState({}),
+      optionsForm.setFieldsValue(editorNodeOptions.ruleStage.nodeOptions);
+    },
+    []
+  );
+
+  useEffect(
+    () => props.editorNode.registerListener({ nodeUpdated: rerender, }).deregister,
+    []
+  );
 
   const {
     token: { colorPrimary, },
@@ -126,6 +134,7 @@ export default function EditorNodeWidget(props: EditorNodeProps) {
       <Form
         size='small'
         layout='vertical'
+        form={optionsForm}
         initialValues={editorNodeOptions.ruleStage.nodeOptions ?? {}}
         style={{ padding: '0 24px 24px 24px', width: '190px', }}
         onValuesChange={(_, updatedOptions) => props.editorNode.fireEvent({ updatedOptions, }, 'optionsUpdated')}

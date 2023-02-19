@@ -35,7 +35,7 @@ export default function EditorPortWidget(props: EditorPortWidgetProps) {
     config: { name, type, },
   } = port.getOptions();
 
-  const formattedPreviewValue = type.category === WrappedTypes.ETypeCategory.COMPLEX ? `{${type.name}}` : String(previewValue); // TODO: Render Collection preview value
+  const formattedPreviewValue = type.category === WrappedTypes.ETypeCategory.PRIMITIVE ? String(previewValue) : `{${type.name}}`; // TODO: Render Collection preview value
 
   const portWidget = (
     <PortWidget engine={engine} port={port}>
