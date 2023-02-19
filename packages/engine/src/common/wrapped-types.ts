@@ -4,20 +4,65 @@ export enum EPrimitive {
   BOOLEAN = 'BOOLEAN',
 }
 
+export enum ETypeCategory {
+  PRIMITIVE = 'PRIMITIVE',
+  COMPLEX = 'COMPLEX',
+  COLLECTION = 'COLLECTION'
+}
+
 type TTypeValidationResult = { valid: true, reason: null, } | { valid: false, reason: string };
 
-export type TWrappedType<TNativeType, TCustomType extends Record<string, any>> = {
-  id: string,
-  name: string,
-  fields: Record<keyof TCustomType, TWrappedType<any, any> | TWrappedPrimitive<any, any>>,
-  validate: (input: TCustomType) => TTypeValidationResult,
-  unwrap: (input: TCustomType) => TNativeType,
-  wrap: (input: TNativeType) => TCustomType
+type TWrappedTypeOptions<TNative, TWrapped> = {
+  id: string;
+  name: string;
+  category: ETypeCategory;
+  validate: (input: TWrapped) => TTypeValidationResult;
+  unwrap: (input: TWrapped) => TNative;
+  wrap: (input: TNative) => TWrapped;
 };
+export class WrappedType<TNative, TWrapped> {
+  public id: TWrappedTypeOptions<TNative, TWrapped>['id'];
+  public name: TWrappedTypeOptions<TNative, TWrapped>['name'];
+  public category: TWrappedTypeOptions<TNative, TWrapped>['category'];
+  public validate: TWrappedTypeOptions<TNative, TWrapped>['validate'];
+  public unwrap: TWrappedTypeOptions<TNative, TWrapped>['unwrap'];
+  public wrap: TWrappedTypeOptions<TNative, TWrapped>['wrap'];
 
-export type TWrappedPrimitive<TNativeType extends (string | number | boolean), TCustomType extends Record<string, any>> = Omit<TWrappedType<TNativeType, TCustomType>, 'fields'> & {
-  fields: Record<keyof TCustomType, EPrimitive>
+  constructor({ id, name, category, validate, unwrap, wrap, }: TWrappedTypeOptions<TNative, TWrapped>) {
+    this.id = id;
+    this.name = name;
+    this.category = category;
+    this.validate = validate;
+    this.unwrap = unwrap;
+    this.wrap = wrap;
+  }
+}
+
+type TWrappedPrimitiveOptions<TNative> = Omit<TWrappedTypeOptions<TNative, TNative>, 'category'>;
+export class WrappedPrimitive<TNative extends (string | number | boolean)> extends WrappedType<TNative, TNative> {
+  constructor(options: TWrappedPrimitiveOptions<TNative>) {
+    super({
+      ...options,
+      category: ETypeCategory.PRIMITIVE,
+    });
+  }
+}
+
+type TWrappedComplexOptions<TNative, TWrapped> = Omit<TWrappedTypeOptions<TNative, TWrapped>, 'category'> & {
+  fields: Record<keyof TWrapped, WrappedType<any, any>>,
 };
+export class WrappedComplex<TNative, TWrapped extends Record<string, any>> extends WrappedType<TNative, TWrapped> {
+  public fields: TWrappedComplexOptions<TNative, TWrapped>['fields'];
+
+  constructor(options: TWrappedComplexOptions<TNative, TWrapped>) {
+    super({
+      ...options,
+      category: ETypeCategory.PRIMITIVE,
+    });
+
+    this.fields = options.fields;
+  }
+}
 
 function validatePrimitive(value: string | number | boolean, expected: 'string' | 'number' | 'boolean'): TTypeValidationResult {
   if (typeof value !== expected) {
@@ -30,59 +75,41 @@ function validatePrimitive(value: string | number | boolean, expected: 'string' 
   return { valid: true, reason: null, };
 }
 
-export type TStringType = {
-  value: string,
-};
-export const WStringType: TWrappedPrimitive<string, TStringType> = {
+export const WStringType = new WrappedPrimitive<string>({
   id: EPrimitive.STRING,
   name: 'String',
-  fields: {
-    value: EPrimitive.STRING,
-  },
-  validate: ({ value, }) => validatePrimitive(value, 'string'),
-  unwrap: ({ value, }) => String(value),
-  wrap: value => ({ value, }),
-};
+  validate: value => validatePrimitive(value, 'string'),
+  unwrap: value => String(value),
+  wrap: value => value,
+});
 
-export type TNumberType = {
-  value: number,
-};
-export const WNumberType: TWrappedPrimitive<number, TNumberType> = {
+export const WNumberType = new WrappedPrimitive<number>({
   id: EPrimitive.NUMBER,
   name: 'Number',
-  fields: {
-    value: EPrimitive.NUMBER,
-  },
-  validate: ({ value, }) => validatePrimitive(value, 'number'),
-  unwrap: ({ value, }) => Number(value),
-  wrap: value => ({ value, }),
-};
+  validate: value => validatePrimitive(value, 'number'),
+  unwrap: value => Number(value),
+  wrap: value => value,
+});
 
-export type TBooleanType = {
-  value: boolean,
-};
-export const WBooleanType: TWrappedPrimitive<boolean, TBooleanType> = {
+export const WBooleanType = new WrappedPrimitive<boolean>({
   id: EPrimitive.BOOLEAN,
   name: 'Boolean',
-  fields: {
-    value: EPrimitive.BOOLEAN,
-  },
-  validate: ({ value, }) => validatePrimitive(value, 'boolean'),
-  unwrap: ({ value, }) => Boolean(value),
-  wrap: value => ({ value, }),
-};
+  validate: value => validatePrimitive(value, 'boolean'),
+  unwrap: value => Boolean(value),
+  wrap: value => value,
+});
 
 export type TDateType = {
-  milliseconds: TNumberType,
-  seconds: TNumberType,
-  minutes: TNumberType,
-  hours: TNumberType,
-  days: TNumberType,
-  months: TNumberType,
-  years: TNumberType,
-  timestamp: TStringType,
+  milliseconds: number,
+  seconds: number,
+  minutes: number,
+  hours: number,
+  days: number,
+  months: number,
+  years: number,
+  timestamp: string,
 };
-export const WDateType: TWrappedType<Date, TDateType> = {
+export const WDateType = new WrappedComplex<Date, TDateType>({
   id: 'DATE',
   name: 'Date',
   fields: {
@@ -131,4 +158,4 @@ export const WDateType: TWrappedType<Date, TDateType> = {
       timestamp: WStringType.wrap(date.toISOString()),
     };
   },
-};
+});

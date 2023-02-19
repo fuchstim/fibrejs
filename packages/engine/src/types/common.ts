@@ -1,5 +1,5 @@
 import type Executor from '../common/executor';
-import { TWrappedPrimitive, TWrappedType } from '../common/wrapped-types';
+import { WrappedType } from '../common/wrapped-types';
 import type Rule from '../executors/rule';
 import type RuleSet from '../executors/rule-set';
 
@@ -14,7 +14,7 @@ export type TExecutorResult<TInputs, TOutputs> = {
 
 export type TExecutorValidationResult<T> = {
   actual: T,
-  expected?: Record<string, TWrappedType<any, any> | TWrappedPrimitive<any, any>>,
+  expected?: Record<string, WrappedType<any, any>>,
 } & ({ valid: true, reason: null } | { valid: false, reason: string });
 
 export interface IExecutorLogger {

@@ -1,14 +1,14 @@
 import { BaseNode } from '../common/base-node';
-import { WBooleanType, WStringType, TBooleanType, TStringType } from '../common/wrapped-types';
+import { WBooleanType, WStringType } from '../common/wrapped-types';
 import { ENodeMetadataOptionType, TNodeExecutorContext } from '../types/node';
 
 type TNodeInputs = {
-  inputA: TStringType,
-  inputB: TStringType,
+  inputA: string,
+  inputB: string,
 };
 
 type TNodeOutputs = {
-  result: TBooleanType,
+  result: boolean,
 };
 
 enum EOperation {
@@ -53,12 +53,10 @@ export default class CompareStringsNode extends BaseNode<TNodeInputs, TNodeOutpu
 
   execute({ inputA, inputB, }: TNodeInputs, context: TNodeExecutorContext<TNodeOptions>): TNodeOutputs {
     const result = {
-      [EOperation.EQUAL]: inputA.value === inputB.value,
-      [EOperation.NOT_EQUAL]: inputA.value !== inputB.value,
+      [EOperation.EQUAL]: inputA === inputB,
+      [EOperation.NOT_EQUAL]: inputA !== inputB,
     }[context.nodeOptions.operation];
 
-    return {
-      result: { value: result, },
-    };
+    return { result, };
   }
 }

@@ -1,9 +1,9 @@
 import { BaseNode } from '../common/base-node';
-import { WBooleanType, TBooleanType } from '../common/wrapped-types';
+import { WBooleanType } from '../common/wrapped-types';
 import { ENodeType } from '../types/node';
 
 type TNodeInputs = {
-  result: TBooleanType,
+  result: boolean,
 };
 
 export default class ExitNode extends BaseNode<TNodeInputs, TNodeInputs, Record<string, never>> {

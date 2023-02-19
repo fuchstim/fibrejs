@@ -1,14 +1,14 @@
 import { BaseNode } from '../common/base-node';
-import { WBooleanType, WNumberType, TBooleanType, TNumberType } from '../common/wrapped-types';
+import { WBooleanType, WNumberType } from '../common/wrapped-types';
 import { ENodeMetadataOptionType, TNodeExecutorContext } from '../types/node';
 
 type TNodeInputs = {
-  inputA: TNumberType,
-  inputB: TNumberType,
+  inputA: number,
+  inputB: number,
 };
 
 type TNodeOutputs = {
-  result: TBooleanType,
+  result: boolean,
 };
 
 enum EOperation {
@@ -39,12 +39,12 @@ export default class CompareNumbersNode extends BaseNode<TNodeInputs, TNodeOutpu
           name: 'Operation',
           type: ENodeMetadataOptionType.DROP_DOWN,
           dropDownOptions: [
-          { id: EOperation.EQUAL, name: 'Equal', },
-          { id: EOperation.NOT_EQUAL, name: 'Not Equal', },
-          { id: EOperation.GREATER, name: 'Greater', },
-          { id: EOperation.GREATER_EQUAL, name: 'Greater or Equal', },
-          { id: EOperation.LESS, name: 'Less', },
-          { id: EOperation.LESS_EQUAL, name: 'Less or Equal', },
+            { id: EOperation.EQUAL, name: 'Equal', },
+            { id: EOperation.NOT_EQUAL, name: 'Not Equal', },
+            { id: EOperation.GREATER, name: 'Greater', },
+            { id: EOperation.GREATER_EQUAL, name: 'Greater or Equal', },
+            { id: EOperation.LESS, name: 'Less', },
+            { id: EOperation.LESS_EQUAL, name: 'Less or Equal', },
           ],
           validate: v => Object.values(EOperation).includes(v),
         },
@@ -61,16 +61,14 @@ export default class CompareNumbersNode extends BaseNode<TNodeInputs, TNodeOutpu
 
   execute({ inputA, inputB, }: TNodeInputs, context: TNodeExecutorContext<TNodeOptions>): TNodeOutputs {
     const result = {
-      [EOperation.EQUAL]: inputA.value === inputB.value,
-      [EOperation.NOT_EQUAL]: inputA.value !== inputB.value,
-      [EOperation.GREATER]: inputA.value > inputB.value,
-      [EOperation.GREATER_EQUAL]: inputA.value >= inputB.value,
-      [EOperation.LESS]: inputA.value < inputB.value,
-      [EOperation.LESS_EQUAL]: inputA.value <= inputB.value,
+      [EOperation.EQUAL]: inputA === inputB,
+      [EOperation.NOT_EQUAL]: inputA !== inputB,
+      [EOperation.GREATER]: inputA > inputB,
+      [EOperation.GREATER_EQUAL]: inputA >= inputB,
+      [EOperation.LESS]: inputA < inputB,
+      [EOperation.LESS_EQUAL]: inputA <= inputB,
     }[context.nodeOptions.operation];
 
-    return {
-      result: { value: result, },
-    };
+    return { result, };
   }
 }

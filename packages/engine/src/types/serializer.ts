@@ -1,4 +1,4 @@
-import type { EPrimitive } from '../common/wrapped-types';
+import type { ETypeCategory } from '../common/wrapped-types';
 import type { ENodeMetadataOptionType, ENodeType, TNodeMetadataDropDownOption, TNodeMetadataInputOptions, TNodeOptions } from './node';
 
 interface ISerializedType {
@@ -7,12 +7,11 @@ interface ISerializedType {
 }
 
 interface ISerializedPrimitiveType extends ISerializedType {
-  isComplex: false,
-  fields: Record<string, EPrimitive>
+  category: ETypeCategory.PRIMITIVE,
 }
 
 interface ISerializedComplexType extends ISerializedType {
-  isComplex: true,
+  category: ETypeCategory.COMPLEX,
   fields: Record<string, TSerializedType>
 }
 
