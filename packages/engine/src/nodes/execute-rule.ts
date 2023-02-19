@@ -11,7 +11,7 @@ type TNodeOptions = {
   ruleId: string
 };
 
-export default class ExecuteRule extends BaseNode<TNodeInputs, TNodeOutputs, TNodeOptions> {
+export default class ExecuteRuleNode extends BaseNode<TNodeInputs, TNodeOutputs, TNodeOptions> {
   constructor() {
     super({
       id: 'executeRule',

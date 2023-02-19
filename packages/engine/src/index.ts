@@ -11,6 +11,7 @@ import { BaseNode } from './common/base-node';
 import eventBus from './common/event-bus';
 import EventEmitter from './common/event-emitter';
 import serializer from './common/serializer';
+import CollectionSizeNode from './nodes/collection-size';
 import CompareBooleansNode from './nodes/compare-booleans';
 import CompareNumbersNode from './nodes/compare-numbers';
 import CompareStringsNode from './nodes/compare-strings';
@@ -47,6 +48,7 @@ export default class Engine extends EventEmitter<TEventTypes> {
 
     this.nodes = [
       ...options.customNodes ?? [],
+      new CollectionSizeNode(),
       new CompareBooleansNode(),
       new CompareNumbersNode(),
       new CompareStringsNode(),

@@ -20,7 +20,7 @@ type TNodeOptions = {
   operation: EOperation
 };
 
-export default class CompareBooleans extends BaseNode<TNodeInputs, TNodeOutputs, TNodeOptions> {
+export default class CompareBooleansNode extends BaseNode<TNodeInputs, TNodeOutputs, TNodeOptions> {
   constructor() {
     super({
       id: 'compareBooleans',

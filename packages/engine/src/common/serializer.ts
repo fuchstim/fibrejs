@@ -61,7 +61,7 @@ class Serializer {
       return {
         id: type.id,
         name: type.name,
-        category: type.category,
+        category: type.category as ETypeCategory.PRIMITIVE | ETypeCategory.COLLECTION,
       };
     }
 

@@ -77,15 +77,23 @@ export default function PreviewRuleDrawer({ ruleConfig, open, onPreviewValues, o
       ];
     }
 
-    // TODO: Implement collection input form
+    if (type.category === WrappedTypes.ETypeCategory.COLLECTION) { // TODO: Implement collection input form
+      return [];
+    }
 
-    return Object
-      .entries(type.fields)
-      .flatMap(([ key, type, ]) => toFormInputs({
-        id: [ id, key, ].join('.'),
-        name: [ name, camelCaseToSentenceCase(key), ].join(' → '),
-        type,
-      }));
+    if (type.category === WrappedTypes.ETypeCategory.COMPLEX) {
+      return Object
+        .entries(type.fields)
+        .flatMap(
+          ([ key, type, ]) => toFormInputs({
+            id: [ id, key, ].join('.'),
+            name: [ name, camelCaseToSentenceCase(key), ].join(' → '),
+            type,
+          })
+        );
+    }
+
+    return [];
   };
 
   const createInput = (name: string, type: WrappedTypes.EPrimitive) => {
