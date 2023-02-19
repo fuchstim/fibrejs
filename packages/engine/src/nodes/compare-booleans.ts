@@ -3,8 +3,8 @@ import { WBooleanType } from '../common/wrapped-types';
 import { ENodeMetadataOptionType, TNodeExecutorContext } from '../types/node';
 
 type TNodeInputs = {
-  inputA: boolean,
-  inputB: boolean,
+  inputA: boolean | null,
+  inputB: boolean | null,
 };
 
 type TNodeOutputs = {
@@ -50,8 +50,8 @@ export default class CompareBooleansNode extends BaseNode<TNodeInputs, TNodeOutp
         },
       ],
       inputs: [
-        { id: 'inputA', name: 'Input A', type: WBooleanType, },
-        { id: 'inputB', name: 'Input B', type: WBooleanType, },
+        { id: 'inputA', name: 'Input A', type: WBooleanType.nullable, },
+        { id: 'inputB', name: 'Input B', type: WBooleanType.nullable, },
       ],
       outputs: [
         { id: 'result', name: 'Result', type: WBooleanType, },
@@ -60,6 +60,10 @@ export default class CompareBooleansNode extends BaseNode<TNodeInputs, TNodeOutp
   }
 
   execute({ inputA, inputB, }: TNodeInputs, context: TNodeExecutorContext<TNodeOptions>): TNodeOutputs {
+    if (inputA === null || inputB === null) {
+      return { result: false, };
+    }
+
     const result = {
       [EOperation.NEITHER]: !inputA && !inputB,
       [EOperation.EITHER]: inputA || inputB,

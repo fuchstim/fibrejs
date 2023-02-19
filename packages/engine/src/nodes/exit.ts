@@ -3,10 +3,14 @@ import { WBooleanType } from '../common/wrapped-types';
 import { ENodeType } from '../types/node';
 
 type TNodeInputs = {
+  result: boolean | null,
+};
+
+type TNodeOutputs = {
   result: boolean,
 };
 
-export default class ExitNode extends BaseNode<TNodeInputs, TNodeInputs, Record<string, never>> {
+export default class ExitNode extends BaseNode<TNodeInputs, TNodeOutputs, Record<string, never>> {
   constructor() {
     super({
       id: 'exit',
@@ -17,7 +21,7 @@ export default class ExitNode extends BaseNode<TNodeInputs, TNodeInputs, Record<
       defaultOptions: {},
       options: [],
       inputs: [
-        { id: 'result', name: 'Rule Result', type: WBooleanType, },
+        { id: 'result', name: 'Rule Result', type: WBooleanType.nullable, },
       ],
       outputs: [
         { id: 'result', name: 'Rule Result', type: WBooleanType, },
@@ -25,7 +29,11 @@ export default class ExitNode extends BaseNode<TNodeInputs, TNodeInputs, Record<
     });
   }
 
-  execute(inputs: TNodeInputs): TNodeInputs {
-    return inputs;
+  execute({ result, }: TNodeInputs): TNodeOutputs {
+    if (result === null) {
+      return { result: false, };
+    }
+
+    return { result, };
   }
 }

@@ -3,8 +3,8 @@ import { WBooleanType, WStringType } from '../common/wrapped-types';
 import { ENodeMetadataOptionType, TNodeExecutorContext } from '../types/node';
 
 type TNodeInputs = {
-  inputA: string[],
-  inputB: string,
+  inputA: string[] | null,
+  inputB: string | null,
 };
 
 type TNodeOutputs = {
@@ -48,8 +48,8 @@ export default class CompareCollectionsNode extends BaseNode<TNodeInputs, TNodeO
         },
       ],
       inputs: [
-        { id: 'inputA', name: 'Input A', type: WStringType.collection, },
-        { id: 'inputB', name: 'Input B', type: WStringType, },
+        { id: 'inputA', name: 'Input A', type: WStringType.collection.nullable, },
+        { id: 'inputB', name: 'Input B', type: WStringType.nullable, },
       ],
       outputs: [
         { id: 'result', name: 'Result', type: WBooleanType, },
@@ -58,6 +58,10 @@ export default class CompareCollectionsNode extends BaseNode<TNodeInputs, TNodeO
   }
 
   execute({ inputA, inputB, }: TNodeInputs, context: TNodeExecutorContext<TNodeOptions>): TNodeOutputs {
+    if (inputA === null || inputB === null) {
+      return { result: false, };
+    }
+
     const result = {
       [EOperation.INCLUDES]: inputA.includes(inputB),
       [EOperation.NOT_INCLUDES]: !inputA.includes(inputB),
