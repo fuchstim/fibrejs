@@ -180,6 +180,10 @@ export class WrappedCollection<TNative, TWrapped> extends WrappedType<TNative[],
   }
 
   public override wrap(entries: TNative[]): TWrapped[] {
+    if (!Array.isArray(entries)) {
+      throw new Error('Input must be a collection');
+    }
+
     return entries.map(e => this.WEntryType.wrap(e));
   }
 
