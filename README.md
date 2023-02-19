@@ -30,9 +30,9 @@ Please refer to the installation and usage guides in the [project wiki](https://
 
 ## Roadmap
 
-* [] Support collection data types
-* [] Support complex input types in rule preview
-* [] Customizable node display
+- [ ] Support collection data types
+- [ ] Support complex input types in rule preview
+- [ ] Customizable node display
 
 See the [open issues](https://github.com/fuchstim/fibrejs/issues)for a full list
 of proposed features (and known issues).
