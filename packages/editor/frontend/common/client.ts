@@ -19,6 +19,8 @@ const getConfig = async () => {
 
   CLIENT.defaults.baseURL = config.apiBasePath;
 
+  window.document.title = `${config.name} Admin Dashboard`;
+
   return config;
 };
 
