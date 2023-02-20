@@ -31,6 +31,7 @@ Please refer to the installation and usage guides in the [project wiki](https://
 ## Roadmap
 
 - [ ] Support collection input types in rule preview
+- [ ] Nullable types
 - [ ] Customizable node display
 - [ ] Extensible dashboard pages
 
