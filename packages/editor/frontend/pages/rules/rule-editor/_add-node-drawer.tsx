@@ -42,7 +42,7 @@ export default function AddNodeDrawer({ ruleId, open, onSelected, onClose, }: Pr
       render: (_, record) => (
         <Button
           icon={<PlusOutlined />}
-          onClick={() => { onSelected(record); onClose(); }}
+          onClick={() => onSelected(record)}
         >
           Add to Rule
         </Button>
