@@ -1,7 +1,7 @@
 import { BaseNode } from '../common/base-node';
 import Executor from '../common/executor';
 import { detectDuplicates } from '../common/util';
-import { WrappedComplex, WrappedType } from '../common/wrapped-types';
+import { WrappedCollection, WrappedComplex, WrappedType } from '../common/wrapped-types';
 import { TValidationResult } from '../types/common';
 import { ENodeType, TNodeExecutorContext, TNodeOptions } from '../types/node';
 import { TRuleStageExecutorContext, TRuleStageInput, TRuleStageInputs, TRuleStageOptions, TRuleStageResults } from '../types/rule-stage';
@@ -138,7 +138,7 @@ export default class RuleStage extends Executor<TRuleStageInputs, TRuleStageResu
 
     const outputType = outputKeyParts.reduce(
       (acc, keyPart) => {
-        if (acc instanceof WrappedComplex<any, any>) {
+        if (acc instanceof WrappedComplex<any, any> || acc instanceof WrappedCollection<any, any>) {
           return acc.fields[keyPart];
         }
 

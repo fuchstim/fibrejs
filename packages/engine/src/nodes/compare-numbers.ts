@@ -3,8 +3,9 @@ import { WBooleanType, WNumberType } from '../common/wrapped-types';
 import { ENodeMetadataOptionType, TNodeExecutorContext } from '../types/node';
 
 type TNodeInputs = {
-  inputA: number | null,
-  inputB: number | null,
+  inputA: number,
+  inputB: number,
+  inputC: number,
 };
 
 type TNodeOutputs = {
@@ -18,6 +19,7 @@ enum EOperation {
   GREATER_EQUAL = 'GREATER_EQUAL',
   LESS = 'LESS',
   LESS_EQUAL = 'LESS_EQUAL',
+  BETWEEN = 'BETWEEN',
 }
 type TNodeOptions = {
   operation: EOperation
@@ -45,6 +47,7 @@ export default class CompareNumbersNode extends BaseNode<TNodeInputs, TNodeOutpu
             { id: EOperation.GREATER_EQUAL, name: 'Greater or Equal', },
             { id: EOperation.LESS, name: 'Less', },
             { id: EOperation.LESS_EQUAL, name: 'Less or Equal', },
+            { id: EOperation.BETWEEN, name: 'Between (exclusive)', },
           ],
           validate: v => {
             if (!Object.values(EOperation).includes(v)) {
@@ -55,21 +58,25 @@ export default class CompareNumbersNode extends BaseNode<TNodeInputs, TNodeOutpu
           },
         },
       ],
-      inputs: [
-        { id: 'inputA', name: 'Input A', type: WNumberType, },
-        { id: 'inputB', name: 'Input B', type: WNumberType, },
-      ],
+      inputs: context => {
+        const inputs = [
+          { id: 'inputA', name: 'Input A', type: WNumberType, },
+          { id: 'inputB', name: 'Input B', type: WNumberType, },
+        ];
+
+        if (context.nodeOptions.operation === EOperation.BETWEEN) {
+          inputs.push({ id: 'inputC', name: 'Input C', type: WNumberType, });
+        }
+
+        return inputs;
+      },
       outputs: [
         { id: 'result', name: 'Result', type: WBooleanType, },
       ],
     });
   }
 
-  execute({ inputA, inputB, }: TNodeInputs, context: TNodeExecutorContext<TNodeOptions>): TNodeOutputs {
-    if (inputA === null || inputB === null) {
-      return { result: false, };
-    }
-
+  execute({ inputA, inputB, inputC, }: TNodeInputs, context: TNodeExecutorContext<TNodeOptions>): TNodeOutputs {
     const result = {
       [EOperation.EQUAL]: inputA === inputB,
       [EOperation.NOT_EQUAL]: inputA !== inputB,
@@ -77,6 +84,7 @@ export default class CompareNumbersNode extends BaseNode<TNodeInputs, TNodeOutpu
       [EOperation.GREATER_EQUAL]: inputA >= inputB,
       [EOperation.LESS]: inputA < inputB,
       [EOperation.LESS_EQUAL]: inputA <= inputB,
+      [EOperation.BETWEEN]: inputA > inputB && inputA < inputC,
     }[context.nodeOptions.operation];
 
     return { result, };
