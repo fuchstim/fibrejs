@@ -32,10 +32,6 @@ export abstract class WrappedType<TNative, TWrapped> {
     return new WrappedCollection<TNative, TWrapped>(this);
   }
 
-  get nullable() {
-    return new WrappedNullable<TNative, TWrapped>(this);
-  }
-
   public abstract validate(input: TWrapped): TValidationResult;
   public abstract wrap(input: TNative): TWrapped;
   public abstract unwrap(input: TWrapped): TNative;
@@ -80,7 +76,9 @@ export class WrappedPrimitive<TNative extends (string | number | boolean)> exten
     }
   }
 
-  public override unwrap(value: TNative): TNative { return value; }
+  public override unwrap(value: TNative): TNative {
+    return value;
+  }
 }
 
 type TWrappedComplexOptions<TNative, TWrapped> = Omit<TWrappedTypeOptions, 'category'> & {
@@ -196,40 +194,6 @@ export class WrappedCollection<TNative, TWrapped> extends WrappedType<TNative[],
 
   public override unwrap(entries: TWrapped[]): TNative[] {
     return entries.map(e => this.WEntryType.unwrap(e));
-  }
-}
-
-export class WrappedNullable<TNative, TWrapped> extends WrappedType<TNative | null, TWrapped | null> {
-  public readonly WType: WrappedType<TNative, TWrapped>;
-
-  constructor(WType: WrappedType<TNative, TWrapped>) {
-    super({
-      id: `${WType.id}.NULLABLE`,
-      name: `${WType.name} (Nullable)`,
-      category: WType.category,
-    });
-
-    this.WType = WType;
-  }
-
-  public override validate(input: TWrapped | null): TValidationResult {
-    if (input === null) {
-      return { valid: true, reason: null, };
-    }
-
-    return this.WType.validate(input);
-  }
-
-  public override wrap(input: TNative | null): TWrapped | null {
-    if (input === null) { return null; }
-
-    return this.WType.wrap(input);
-  }
-
-  public override unwrap(input: TWrapped | null): TNative | null {
-    if (input === null) { return null; }
-
-    return this.WType.unwrap(input);
   }
 }
 

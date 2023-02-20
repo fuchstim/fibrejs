@@ -1,7 +1,7 @@
 import { BaseNode } from '../common/base-node';
 import Executor from '../common/executor';
 import { detectDuplicates } from '../common/util';
-import { WrappedComplex, WrappedNullable, WrappedType } from '../common/wrapped-types';
+import { WrappedComplex, WrappedType } from '../common/wrapped-types';
 import { TValidationResult } from '../types/common';
 import { ENodeType, TNodeExecutorContext, TNodeOptions } from '../types/node';
 import { TRuleStageExecutorContext, TRuleStageInput, TRuleStageInputs, TRuleStageOptions, TRuleStageResults } from '../types/rule-stage';
@@ -99,10 +99,6 @@ export default class RuleStage extends Executor<TRuleStageInputs, TRuleStageResu
           }
 
           if (nodeInputType.id === stageInputType.id) {
-            return { inputId, valid: true, };
-          }
-
-          if (nodeInputType instanceof WrappedNullable<any, any> && nodeInputType.WType.id === stageInputType.id) {
             return { inputId, valid: true, };
           }
 

@@ -48,8 +48,8 @@ export default class CompareStringsNode extends BaseNode<TNodeInputs, TNodeOutpu
         },
       ],
       inputs: [
-        { id: 'inputA', name: 'Input A', type: WStringType.nullable, },
-        { id: 'inputB', name: 'Input B', type: WStringType.nullable, },
+        { id: 'inputA', name: 'Input A', type: WStringType, },
+        { id: 'inputB', name: 'Input B', type: WStringType, },
       ],
       outputs: [
         { id: 'result', name: 'Result', type: WBooleanType, },

@@ -21,7 +21,7 @@ export default class ExitNode extends BaseNode<TNodeInputs, TNodeOutputs, Record
       defaultOptions: {},
       options: [],
       inputs: [
-        { id: 'result', name: 'Rule Result', type: WBooleanType.nullable, },
+        { id: 'result', name: 'Rule Result', type: WBooleanType, },
       ],
       outputs: [
         { id: 'result', name: 'Rule Result', type: WBooleanType, },

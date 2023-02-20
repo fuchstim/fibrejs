@@ -48,8 +48,8 @@ export default class CompareCollectionsNode extends BaseNode<TNodeInputs, TNodeO
         },
       ],
       inputs: [
-        { id: 'inputA', name: 'Input A', type: WStringType.collection.nullable, },
-        { id: 'inputB', name: 'Input B', type: WStringType.nullable, },
+        { id: 'inputA', name: 'Input A', type: WStringType.collection, },
+        { id: 'inputB', name: 'Input B', type: WStringType, },
       ],
       outputs: [
         { id: 'result', name: 'Result', type: WBooleanType, },

@@ -63,7 +63,7 @@ export default class EditorPortModel extends PortModel<EditorPortModelGenerics> 
       return false;
     }
 
-    if (![ sourceConfig.type.id, `${sourceConfig.type.id}.NULLABLE`, ].includes(targetConfig.type.id)) {
+    if (sourceConfig.type.id !== targetConfig.type.id) {
       notification.error({
         message: `Cannot connect ${sourceConfig.type.name} type to ${targetConfig.type.name} type`,
       });

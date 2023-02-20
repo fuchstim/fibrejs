@@ -56,8 +56,8 @@ export default class CompareNumbersNode extends BaseNode<TNodeInputs, TNodeOutpu
         },
       ],
       inputs: [
-        { id: 'inputA', name: 'Input A', type: WNumberType.nullable, },
-        { id: 'inputB', name: 'Input B', type: WNumberType.nullable, },
+        { id: 'inputA', name: 'Input A', type: WNumberType, },
+        { id: 'inputB', name: 'Input B', type: WNumberType, },
       ],
       outputs: [
         { id: 'result', name: 'Result', type: WBooleanType, },

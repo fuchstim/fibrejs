@@ -50,8 +50,8 @@ export default class CompareBooleansNode extends BaseNode<TNodeInputs, TNodeOutp
         },
       ],
       inputs: [
-        { id: 'inputA', name: 'Input A', type: WBooleanType.nullable, },
-        { id: 'inputB', name: 'Input B', type: WBooleanType.nullable, },
+        { id: 'inputA', name: 'Input A', type: WBooleanType, },
+        { id: 'inputB', name: 'Input B', type: WBooleanType, },
       ],
       outputs: [
         { id: 'result', name: 'Result', type: WBooleanType, },
