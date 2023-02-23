@@ -7,6 +7,8 @@ export type TOptionalGetter<TContext, TReturnType> = TReturnType | TGetter<TCont
 
 export type TValidationResult = ({ valid: true, reason: null } | { valid: false, reason: string });
 
+export type GConstructor<T> = new (...args: any[]) => T;
+
 export type TExecutorResult<TInputs, TOutputs> = {
   executionTimeMs: number,
   inputs: TInputs,

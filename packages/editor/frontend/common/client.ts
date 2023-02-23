@@ -45,7 +45,6 @@ const wrappedGet = async <TResult>(url: string, data: Record<string, unknown> = 
   return result.data as TResult;
 };
 
-// eslint-disable-next-line max-len
 const wrappedPost = async <TPayload, TResult>(url: string, data: TPayload, config?: AxiosRequestConfig) => {
   const result = await CLIENT.post(url, data, config)
     .catch(handleError);
@@ -53,7 +52,6 @@ const wrappedPost = async <TPayload, TResult>(url: string, data: TPayload, confi
   return result.data as TResult;
 };
 
-// eslint-disable-next-line max-len
 const wrappedPatch = async <TPayload, TResult>(url: string, data: TPayload, config?: AxiosRequestConfig) => {
   const result = await CLIENT.patch(url, data, config)
     .catch(handleError);

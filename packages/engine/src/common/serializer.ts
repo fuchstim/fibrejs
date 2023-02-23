@@ -1,7 +1,7 @@
 import { BaseNode } from '../common/base-node';
 import { TNodeExecutorContext, TNodeMetadataOption, TNodeMetadataInputOutput, ENodeMetadataOptionType } from '../types/node';
 import { TSerializedNode, TSerializedNodeOption, TSerializedNodeInputOutput, TSerializedType } from '../types/serializer';
-import { WrappedType, ETypeCategory, WrappedComplex, WrappedCollection } from './wrapped-types';
+import { IWrappable, ETypeCategory, WrappedComplex, WrappedCollection } from './wrapped-types';
 
 class Serializer {
   serializeNode(node: BaseNode<any, any, any>, context: TNodeExecutorContext<any>): TSerializedNode {
@@ -56,7 +56,7 @@ class Serializer {
     };
   }
 
-  private serializeType(type: WrappedType<any, any>): TSerializedType {
+  private serializeType(type: IWrappable<any, any>): TSerializedType {
     if (type instanceof WrappedComplex<any, any> || type instanceof WrappedCollection<any, any>) {
       return {
         id: type.id,

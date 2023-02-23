@@ -3,7 +3,7 @@ import { WBooleanType, WStringType } from '../common/wrapped-types';
 import { ENodeMetadataOptionType, TNodeExecutorContext } from '../types/node';
 
 type TNodeInputs = {
-  inputA: string[] | null,
+  inputA: string[],
   inputB: string | null,
 };
 
@@ -49,7 +49,7 @@ export default class CompareCollectionsNode extends BaseNode<TNodeInputs, TNodeO
       ],
       inputs: [
         { id: 'inputA', name: 'Input A', type: WStringType.collection, },
-        { id: 'inputB', name: 'Input B', type: WStringType, },
+        { id: 'inputB', name: 'Input B', type: WStringType.nullable, },
       ],
       outputs: [
         { id: 'result', name: 'Result', type: WBooleanType, },
@@ -58,7 +58,7 @@ export default class CompareCollectionsNode extends BaseNode<TNodeInputs, TNodeO
   }
 
   execute({ inputA, inputB, }: TNodeInputs, context: TNodeExecutorContext<TNodeOptions>): TNodeOutputs {
-    if (inputA === null || inputB === null) {
+    if (inputB === null) {
       return { result: false, };
     }
 

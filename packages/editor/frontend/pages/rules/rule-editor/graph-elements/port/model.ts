@@ -83,13 +83,13 @@ export default class EditorPortModel extends PortModel<EditorPortModelGenerics> 
     }
   }
 
-  deserialize(event: DeserializeEvent<this>) {
+  override deserialize(event: DeserializeEvent<this>) {
     super.deserialize(event);
     this.options.portType = event.data.type as EPortType;
     this.options.config = event.data.config;
   }
 
-  serialize() {
+  override serialize() {
     return {
       ...super.serialize(),
       type: this.options.portType,
@@ -106,7 +106,7 @@ export default class EditorPortModel extends PortModel<EditorPortModelGenerics> 
     return link;
   }
 
-  createLinkModel(): LinkModel {
+  override createLinkModel(): LinkModel {
     return super.createLinkModel() || new DefaultLinkModel();
   }
 

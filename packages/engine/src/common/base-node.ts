@@ -4,8 +4,11 @@ import Executor from './executor';
 import { detectDuplicates } from './util';
 import { EPrimitive } from './wrapped-types';
 
-// eslint-disable-next-line max-len
-export abstract class BaseNode<TInputs extends Record<string, any>, TOutputs extends Record<string, any>, TOptions extends TNodeOptions> extends Executor<TInputs, TOutputs, TNodeExecutorContext<TOptions>> {
+export abstract class BaseNode<
+  TInputs extends Record<string, any>,
+  TOutputs extends Record<string, any>,
+  TOptions extends TNodeOptions
+> extends Executor<TInputs, TOutputs, TNodeExecutorContext<TOptions>> {
   readonly id: string;
   readonly name: string;
   readonly type?: ENodeType;

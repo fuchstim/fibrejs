@@ -43,18 +43,18 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
     const wrappedRuleInputs = this.wrapRuleInputs(unwrappedRuleInputs, context);
 
     for (const stages of this.sortedStages) {
-      await Promise.all(
-        stages.map(
-          async stage => {
-            const stageInputs = this.getStageInputs(stage, wrappedRuleInputs, ruleStageResults);
+      const stageExecutionPromises = stages.map(async stage => {
+        const stageInputs = this.getStageInputs(stage, wrappedRuleInputs, ruleStageResults);
 
-            ruleStageResults[stage.id] = await stage.run(
-              stageInputs,
-              { ...context, rule: this, }
-            );
-          }
-        )
-      );
+        const { outputs: ruleStageResult, } = await stage.run(
+          stageInputs,
+          { ...context, rule: this, }
+        );
+
+        ruleStageResults[stage.id] = ruleStageResult;
+      });
+
+      await Promise.all(stageExecutionPromises);
     }
 
     if (context.isPreview) {

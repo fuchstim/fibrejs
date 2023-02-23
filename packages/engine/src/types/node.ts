@@ -1,4 +1,4 @@
-import type { EPrimitive, WrappedType } from '../common/wrapped-types';
+import type { EPrimitive, IWrappable } from '../common/wrapped-types';
 import type RuleStage from '../executors/rule-stage';
 import { TOptionalGetter, TValidationResult } from './common';
 import type { TRuleStageExecutorContext } from './rule-stage';
@@ -43,7 +43,7 @@ export type TNodeMetadataOption = INodeMetadataInputOption | INodeMetadataDropDo
 export type TNodeMetadataInputOutput = {
   id: string,
   name: string,
-  type: WrappedType<any, any>,
+  type: IWrappable<any, any>,
 };
 
 export type TNodeOption = string | number | boolean;

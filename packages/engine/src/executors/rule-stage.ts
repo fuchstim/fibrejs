@@ -1,12 +1,13 @@
 import { BaseNode } from '../common/base-node';
 import Executor from '../common/executor';
 import { detectDuplicates } from '../common/util';
-import { WrappedCollection, WrappedComplex, WrappedType } from '../common/wrapped-types';
-import { TValidationResult } from '../types/common';
+import { WrappedComplex, IWrappable, WrappedCollection, isNullableOf, isNullable } from '../common/wrapped-types';
+import { TExecutorResult, TValidationResult } from '../types/common';
 import { ENodeType, TNodeExecutorContext, TNodeOptions } from '../types/node';
 import { TRuleStageExecutorContext, TRuleStageInput, TRuleStageInputs, TRuleStageOptions, TRuleStageResults } from '../types/rule-stage';
 
-export default class RuleStage extends Executor<TRuleStageInputs, TRuleStageResults, TRuleStageExecutorContext> {
+export default class RuleStage
+extends Executor<TRuleStageInputs, TExecutorResult<TRuleStageInputs, TRuleStageResults>, TRuleStageExecutorContext> {
   readonly id: string;
   readonly node: BaseNode<any, any, any>;
   readonly inputs: TRuleStageInput[];
@@ -37,12 +38,22 @@ export default class RuleStage extends Executor<TRuleStageInputs, TRuleStageResu
   }
 
   async execute(wrappedInputs: TRuleStageInputs, context: TRuleStageExecutorContext) {
-    const { outputs: wrappedOutputs, } = await this.node.run(
-      wrappedInputs,
-      this.createNodeContext(context)
+    const nodeContext = this.createNodeContext(context);
+
+    const preparedInputs = this.node
+      .getMetadata(nodeContext)
+      .inputs
+      .reduce(
+        (acc, { id: inputId, }) => ({ ...acc, [inputId]: wrappedInputs[inputId] ?? null, }),
+        {}
+      );
+
+    const result = await this.node.run(
+      preparedInputs,
+      nodeContext
     );
 
-    return wrappedOutputs;
+    return result;
   }
 
   override validateContext(context: TRuleStageExecutorContext): TValidationResult {
@@ -74,20 +85,12 @@ export default class RuleStage extends Executor<TRuleStageInputs, TRuleStageResu
   private validateStageInputs(context: TNodeExecutorContext<TNodeOptions>): TValidationResult {
     const nodeInputs = this.node.getMetadata(context).inputs;
 
-    if (this.inputs.length < nodeInputs.length) {
-      const missingInputs = nodeInputs.filter(
-        nodeInput => !this.inputs.map(i => i.inputId).includes(nodeInput.id)
-      );
-
-      return { valid: false, reason: `Missing inputs: ${missingInputs.map(i => i.id).join(', ')}`, };
-    }
-
     const stageInputTypes = this.inputs
       .map(input => ({ input, type: this.getStageInputType(input, context), }))
       .filter(({ type, }) => type !== null)
       .reduce(
-        (acc, { input, type, }) => ({ ...acc, [input.inputId]: type as WrappedType<any, any>, }),
-        {} as Record<string, WrappedType<any, any>>
+        (acc, { input, type, }) => ({ ...acc, [input.inputId]: type as IWrappable<any, any>, }),
+        {} as Record<string, IWrappable<any, any>>
       );
 
     const invalidStageInputs = nodeInputs
@@ -95,10 +98,18 @@ export default class RuleStage extends Executor<TRuleStageInputs, TRuleStageResu
         ({ id: inputId, type: nodeInputType, }) => {
           const stageInputType = stageInputTypes[inputId];
           if (!stageInputType) {
-            return { inputId, valid: false, reason: `No stage input found for node input ${inputId}`, };
+            if (isNullable(nodeInputType)) {
+              return { inputId, valid: true, };
+            }
+
+            return { inputId, valid: false, reason: `Missing input: ${inputId}`, };
           }
 
           if (nodeInputType.id === stageInputType.id) {
+            return { inputId, valid: true, };
+          }
+
+          if (isNullableOf(stageInputType, nodeInputType)) {
             return { inputId, valid: true, };
           }
 
@@ -119,7 +130,7 @@ export default class RuleStage extends Executor<TRuleStageInputs, TRuleStageResu
     return { valid: true, reason: null, };
   }
 
-  private getStageInputType(stageInput: TRuleStageInput, context: TRuleStageExecutorContext): WrappedType<any, any> | null {
+  private getStageInputType(stageInput: TRuleStageInput, context: TRuleStageExecutorContext): IWrappable<any, any> | null {
     const sourceRuleStage = context.rule?.stages.find(s => s.id === stageInput.ruleStageId);
     if (!sourceRuleStage) {
       throw new Error(`Unable to find source stage ${stageInput.ruleStageId} for input ${stageInput.inputId}`);
@@ -144,7 +155,7 @@ export default class RuleStage extends Executor<TRuleStageInputs, TRuleStageResu
 
         return null;
       },
-      sourceRuleStageOutput.type as WrappedType<any, any> | null
+      sourceRuleStageOutput.type as IWrappable<any, any> | null
     );
 
     return outputType;

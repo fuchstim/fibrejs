@@ -58,7 +58,7 @@ export default function EditorPortWidget(props: EditorPortWidgetProps) {
         >
           {name}
         </Tag>
-        {previewValue != null ? (<Typography.Text type="secondary" code>{ formattedPreviewValue }</Typography.Text>) : <></> }
+        {previewValue !== undefined ? (<Typography.Text type="secondary" code>{ formattedPreviewValue }</Typography.Text>) : <></> }
       </div>
     </Tooltip>
   );

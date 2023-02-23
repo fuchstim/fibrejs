@@ -3,9 +3,9 @@ import { WBooleanType, WNumberType } from '../common/wrapped-types';
 import { ENodeMetadataOptionType, TNodeExecutorContext } from '../types/node';
 
 type TNodeInputs = {
-  inputA: number,
-  inputB: number,
-  inputC: number,
+  inputA: number | null,
+  inputB: number | null,
+  inputC: number | null,
 };
 
 type TNodeOutputs = {
@@ -60,12 +60,12 @@ export default class CompareNumbersNode extends BaseNode<TNodeInputs, TNodeOutpu
       ],
       inputs: context => {
         const inputs = [
-          { id: 'inputA', name: 'Input A', type: WNumberType, },
-          { id: 'inputB', name: 'Input B', type: WNumberType, },
+          { id: 'inputA', name: 'Input A', type: WNumberType.nullable, },
+          { id: 'inputB', name: 'Input B', type: WNumberType.nullable, },
         ];
 
         if (context.nodeOptions.operation === EOperation.BETWEEN) {
-          inputs.push({ id: 'inputC', name: 'Input C', type: WNumberType, });
+          inputs.push({ id: 'inputC', name: 'Input C', type: WNumberType.nullable, });
         }
 
         return inputs;
@@ -77,6 +77,10 @@ export default class CompareNumbersNode extends BaseNode<TNodeInputs, TNodeOutpu
   }
 
   execute({ inputA, inputB, inputC, }: TNodeInputs, context: TNodeExecutorContext<TNodeOptions>): TNodeOutputs {
+    if (inputA === null || inputB === null || inputC === null) {
+      return { result: false, };
+    }
+
     const result = {
       [EOperation.EQUAL]: inputA === inputB,
       [EOperation.NOT_EQUAL]: inputA !== inputB,

@@ -1,4 +1,4 @@
-import { TValidationResult } from '../types/common';
+import { GConstructor, TValidationResult } from '../types/common';
 
 export enum EPrimitive {
   STRING = 'STRING',
@@ -12,51 +12,60 @@ export enum ETypeCategory {
   COLLECTION = 'COLLECTION'
 }
 
-type TWrappedTypeOptions = {
+export interface IWrappable<TNative, TWrapped> {
   id: string;
   name: string;
   category: ETypeCategory;
-};
-export abstract class WrappedType<TNative, TWrapped> {
-  public readonly id: TWrappedTypeOptions['id'];
-  public readonly name: TWrappedTypeOptions['name'];
-  public readonly category: TWrappedTypeOptions['category'];
 
-  constructor({ id, name, category, }: TWrappedTypeOptions) {
+  validate(input: TWrapped): TValidationResult;
+  wrap(input: TNative): TWrapped;
+  unwrap(input: TWrapped): TNative;
+}
+
+type TWrappableOptions<TNative, TWrapped> = {
+  id: string,
+  name: string;
+
+  validate?: IWrappable<TNative, TWrapped>['validate'],
+  wrap?: IWrappable<TNative, TWrapped>['wrap'],
+  unwrap?: IWrappable<TNative, TWrapped>['unwrap'],
+};
+
+type TWrappedPrimitiveOptions<TNative, TWrapped> = TWrappableOptions<TNative, TWrapped> & {
+  primitiveType?: EPrimitive
+};
+export class WrappedPrimitive<TNative extends (string | number | boolean)> implements IWrappable<TNative, TNative> {
+  public id: string;
+  public name: string;
+  public category: ETypeCategory = ETypeCategory.PRIMITIVE;
+  public primitiveType: EPrimitive;
+
+  constructor({ id, name, primitiveType, validate, wrap, unwrap, }: TWrappedPrimitiveOptions<TNative, TNative>) {
     this.id = id;
     this.name = name;
-    this.category = category;
+    this.primitiveType = primitiveType ?? id as EPrimitive;
+
+    this.validate = validate ?? this.validate;
+    this.wrap = wrap ?? this.wrap;
+    this.unwrap = unwrap ?? this.unwrap;
   }
 
   get collection() {
-    return new WrappedCollection<TNative, TWrapped>(this);
+    return new WrappedCollection({ id: this.id, name: this.name, WEntryType: this, });
   }
 
-  public abstract validate(input: TWrapped): TValidationResult;
-  public abstract wrap(input: TNative): TWrapped;
-  public abstract unwrap(input: TWrapped): TNative;
-}
-
-export class WrappedPrimitive<TNative extends (string | number | boolean)> extends WrappedType<TNative, TNative> {
-  public override readonly id: EPrimitive;
-
-  constructor(options: Omit<TWrappedTypeOptions, 'category'> & { id: EPrimitive }) {
-    super({
-      ...options,
-      category: ETypeCategory.PRIMITIVE,
-    });
-
-    this.id = options.id;
+  get nullable() {
+    return new NullableWrappedPrimitive({ id: this.id, name: this.name, primitiveType: this.primitiveType, });
   }
 
-  public override validate(value: TNative): TValidationResult {
+  public validate(value: TNative): TValidationResult {
     const expected = {
       [EPrimitive.STRING]: 'string',
       [EPrimitive.NUMBER]: 'number',
       [EPrimitive.BOOLEAN]: 'boolean',
-    }[this.id];
+    }[this.primitiveType];
 
-    const isNaN = this.id === EPrimitive.NUMBER && Number.isNaN(value);
+    const isNaN = this.primitiveType === EPrimitive.NUMBER && Number.isNaN(value);
 
     if (typeof value !== expected || isNaN) {
       return {
@@ -68,44 +77,53 @@ export class WrappedPrimitive<TNative extends (string | number | boolean)> exten
     return { valid: true, reason: null, };
   }
 
-  public override wrap(value: TNative): TNative {
-    switch (this.id) {
+  public wrap(value: TNative): TNative {
+    switch (this.primitiveType) {
       case EPrimitive.STRING: return String(value) as TNative;
       case EPrimitive.NUMBER: return Number(value) as TNative;
       case EPrimitive.BOOLEAN: return Boolean(value) as TNative;
     }
   }
 
-  public override unwrap(value: TNative): TNative {
+  public unwrap(value: TNative): TNative {
     return value;
   }
 }
+const NullableWrappedPrimitive = Nullable(WrappedPrimitive);
 
-type TWrappedComplexOptions<TNative, TWrapped> = Omit<TWrappedTypeOptions, 'category'> & {
-  validate?: WrappedType<TNative, TWrapped>['validate'],
-  wrap?: WrappedType<TNative, TWrapped>['wrap'],
-  unwrap?: WrappedType<TNative, TWrapped>['unwrap'],
+type TWrappedComplexOptions<TNative, TWrapped> = TWrappableOptions<TNative, TWrapped> & {
+  fields: Record<keyof TWrapped, WrappedPrimitive<any> | WrappedComplex<any, any>>,
 
-  fields: Record<keyof TWrapped, WrappedType<any, any>>,
+  validate?: IWrappable<TNative, TWrapped>['validate'],
+  wrap?: IWrappable<TNative, TWrapped>['wrap'],
+  unwrap?: IWrappable<TNative, TWrapped>['unwrap'],
 };
-// eslint-disable-next-line max-len
-export class WrappedComplex<TNative extends Record<string, any>, TWrapped extends Record<string, any>> extends WrappedType<TNative, TWrapped> {
-  public readonly fields: TWrappedComplexOptions<TNative, TWrapped>['fields'];
+export class WrappedComplex<TNative extends Record<string, any>, TWrapped extends Record<string, any>>
+implements IWrappable<TNative, TWrapped> {
+  public id: string;
+  public name: string;
+  public category: ETypeCategory = ETypeCategory.COMPLEX;
+  public fields: Record<keyof TWrapped, WrappedPrimitive<any> | WrappedComplex<any, any>>;
 
-  constructor(options: TWrappedComplexOptions<TNative, TWrapped>) {
-    super({
-      ...options,
-      category: ETypeCategory.COMPLEX,
-    });
+  constructor({ id, name, fields, validate, wrap, unwrap, }: TWrappedComplexOptions<TNative, TWrapped>) {
+    this.id = id;
+    this.name = name;
+    this.fields = fields;
 
-    this.validate = options.validate ?? this.validate;
-    this.wrap = options.wrap ?? this.wrap;
-    this.unwrap = options.unwrap ?? this.unwrap;
-
-    this.fields = options.fields;
+    this.validate = validate ?? this.validate;
+    this.wrap = wrap ?? this.wrap;
+    this.unwrap = unwrap ?? this.unwrap;
   }
 
-  public override validate(input: TWrapped): TValidationResult {
+  get collection() {
+    return new WrappedCollection({ id: this.id, name: this.name, WEntryType: this, });
+  }
+
+  get nullable() {
+    return new NullableWrappedComplex({ id: this.id, name: this.name, fields: this.fields, });
+  }
+
+  public validate(input: TWrapped): TValidationResult {
     const validationErrors: string[] = [];
 
     Object
@@ -127,7 +145,7 @@ export class WrappedComplex<TNative extends Record<string, any>, TWrapped extend
     };
   }
 
-  public override wrap(input: TNative): TWrapped {
+  public wrap(input: TNative): TWrapped {
     return Object
       .entries(this.fields)
       .reduce(
@@ -136,7 +154,7 @@ export class WrappedComplex<TNative extends Record<string, any>, TWrapped extend
       );
   }
 
-  public override unwrap(input: TWrapped): TNative {
+  public unwrap(input: TWrapped): TNative {
     return Object
       .entries(this.fields)
       .reduce(
@@ -145,26 +163,30 @@ export class WrappedComplex<TNative extends Record<string, any>, TWrapped extend
       );
   }
 }
+const NullableWrappedComplex = Nullable(WrappedComplex);
 
-export class WrappedCollection<TNative, TWrapped> extends WrappedType<TNative[], TWrapped[]> {
-  public readonly WEntryType: WrappedType<TNative, TWrapped>;
-  public readonly fields: Record<string, WrappedType<any, any>>;
+type TWrappedCollectionOptions<TNative, TWrapped> = TWrappableOptions<TNative, TWrapped> & {
+  WEntryType: IWrappable<TNative, TWrapped>
+};
+export class WrappedCollection<TNative, TWrapped> implements IWrappable<TNative[], TWrapped[]> {
+  public id: string;
+  public name: string;
+  public category: ETypeCategory = ETypeCategory.COLLECTION;
+  public WEntryType: IWrappable<TNative, TWrapped>;
+  public fields: Record<string, WrappedPrimitive<number>>;
 
-  constructor(WEntryType: WrappedType<TNative, TWrapped>) {
-    super({
-      id: `${WEntryType.id}.COLLECTION`,
-      name: `${WEntryType.name} (Collection)`,
-      category: ETypeCategory.COLLECTION,
-    });
-
+  constructor({ id, name, WEntryType, }: TWrappedCollectionOptions<TNative, TWrapped>) {
+    this.id = `${id}.COLLECTION`;
+    this.name = `${name} (Collection)`;
     this.WEntryType = WEntryType;
-
-    this.fields = {
-      length: WNumberType,
-    };
+    this.fields = { length: WNumberType, };
   }
 
-  public override validate(entries: TWrapped[]): TValidationResult {
+  // get collection() { } // TODO: Support
+
+  // get nullable() { } // TODO: Support
+
+  public validate(entries: TWrapped[]): TValidationResult {
     const validationErrors: string[] = [];
 
     entries.forEach((entry, index) => {
@@ -184,7 +206,7 @@ export class WrappedCollection<TNative, TWrapped> extends WrappedType<TNative[],
     };
   }
 
-  public override wrap(entries: TNative[]): TWrapped[] {
+  public wrap(entries: TNative[]): TWrapped[] {
     if (!Array.isArray(entries)) {
       throw new Error('Input must be a collection');
     }
@@ -192,9 +214,88 @@ export class WrappedCollection<TNative, TWrapped> extends WrappedType<TNative[],
     return entries.map(e => this.WEntryType.wrap(e));
   }
 
-  public override unwrap(entries: TWrapped[]): TNative[] {
+  public unwrap(entries: TWrapped[]): TNative[] {
     return entries.map(e => this.WEntryType.unwrap(e));
   }
+}
+
+export interface INullableWrappable<TNative, TWrapped> extends IWrappable<TNative | null, TWrapped | null> {
+  isNullableOf(wrappedType: IWrappable<any, any>): boolean;
+
+  validate(input: TWrapped | null): TValidationResult;
+  wrap(input: TNative | null): TWrapped | null;
+  unwrap(input: TWrapped | null): TNative | null;
+}
+
+type TWrappable<TNative, TWrapped> = GConstructor<IWrappable<TNative | null, TWrapped | null>>;
+type ExtractNative<Wrapped> = Wrapped extends TWrappable<infer TNative, unknown> ? TNative : never;
+type ExtractWrapped<Wrapped> = Wrapped extends TWrappable<unknown, infer TWrapped> ? TWrapped: never;
+
+function Nullable<TBase extends TWrappable<ExtractNative<TBase>, ExtractWrapped<TBase>>>(Base: TBase) {
+  return class Nullable extends Base implements INullableWrappable<ExtractNative<TBase>, ExtractWrapped<TBase>> {
+    constructor(...args: any[]) {
+      const options = args[0] as TWrappableOptions<ExtractNative<TBase>, ExtractWrapped<TBase>>;
+
+      super({
+        ...options,
+        id: Nullable.createNullableId(options.id),
+        name: Nullable.createNullableName(options.name),
+      });
+
+      if (this instanceof WrappedComplex) {
+        this.fields = Object
+          .entries(this.fields)
+          .reduce(
+            (acc, [ key, value, ]) => ({ ...acc, [key]: value.nullable, }),
+            {}
+          );
+      }
+    }
+
+    get nullable() { return this; }
+
+    static createNullableId(id: string) { return `${id}.NULLABLE`; }
+    static createNullableName(name: string) { return `${name} (Nullable)`; }
+
+    public isNullableOf(wrappedType: IWrappable<any, any>) {
+      return this.id === Nullable.createNullableId(wrappedType.id);
+    }
+
+    override validate(input: ExtractWrapped<TBase> | null): TValidationResult {
+      if (input === null) {
+        return { valid: true, reason: null, };
+      }
+
+      return super.validate(input);
+    }
+
+    override wrap(input: ExtractNative<TBase> | null): ExtractWrapped<TBase> | null {
+      if (input === null || input === undefined) { return null; }
+
+      return super.wrap(input);
+    }
+
+    override unwrap(input: ExtractWrapped<TBase> | null): ExtractNative<TBase> | null {
+      if (input === null) { return null; }
+
+      return super.unwrap(input);
+    }
+  };
+}
+
+export function isNullable<TNative, TWrapped>(
+  wrappedNullable: IWrappable<TNative | null, TWrapped | null>
+): wrappedNullable is INullableWrappable<TNative, TWrapped> {
+  return (
+    wrappedNullable instanceof NullableWrappedPrimitive || wrappedNullable instanceof NullableWrappedComplex
+  );
+}
+
+export function isNullableOf<TNative, TWrapped>(
+  wrapped: IWrappable<TNative, TWrapped>,
+  wrappedNullable: IWrappable<TNative | null, TWrapped | null>
+) {
+  return isNullable(wrappedNullable) && wrappedNullable.isNullableOf(wrapped);
 }
 
 export const WStringType = new WrappedPrimitive<string>({
@@ -272,3 +373,4 @@ export const WDateType = new WrappedComplex<Date, TDateType>({
     };
   },
 });
+
