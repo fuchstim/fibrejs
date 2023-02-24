@@ -84,7 +84,12 @@ export default class ExecuteRuleNode extends BaseNode<TNodeInputs, TNodeOutputs,
 
     const ruleOutputs = rule.exitStage?.node.getMetadata(context).outputs ?? [];
 
-    return context.nodeOptions.isConditional ? [] : ruleOutputs;
+    return ruleOutputs.map(
+      output => ({
+        ...output,
+        type: context.nodeOptions.isConditional ? output.type.nullable : output.type,
+      })
+    );
   }
 
   async execute(inputs: TNodeInputs, context: TNodeExecutorContext<TNodeOptions>): Promise<TNodeOutputs> {

@@ -17,6 +17,9 @@ export interface IWrappable<TNative, TWrapped> {
   name: string;
   category: ETypeCategory;
 
+  collection: WrappedCollection<TNative, TWrapped>;
+  nullable: INullableWrappable<TNative, TWrapped>;
+
   validate(input: TWrapped): TValidationResult;
   wrap(input: TNative): TWrapped;
   unwrap(input: TWrapped): TNative;
@@ -50,12 +53,12 @@ export class WrappedPrimitive<TNative extends (string | number | boolean)> imple
     this.unwrap = unwrap ?? this.unwrap;
   }
 
-  get collection() {
-    return new WrappedCollection({ id: this.id, name: this.name, WEntryType: this, });
+  get collection(): WrappedCollection<TNative, TNative> {
+    return new WrappedCollection<TNative, TNative>({ id: this.id, name: this.name, WEntryType: this, });
   }
 
-  get nullable() {
-    return new NullableWrappedPrimitive({ id: this.id, name: this.name, primitiveType: this.primitiveType, });
+  get nullable(): INullableWrappable<TNative, TNative> {
+    return new NullableWrappedPrimitive<TNative>({ id: this.id, name: this.name, primitiveType: this.primitiveType, });
   }
 
   public validate(value: TNative): TValidationResult {
@@ -115,12 +118,12 @@ implements IWrappable<TNative, TWrapped> {
     this.unwrap = unwrap ?? this.unwrap;
   }
 
-  get collection() {
-    return new WrappedCollection({ id: this.id, name: this.name, WEntryType: this, });
+  get collection(): WrappedCollection<TNative, TWrapped> {
+    return new WrappedCollection<TNative, TWrapped>({ id: this.id, name: this.name, WEntryType: this, });
   }
 
-  get nullable() {
-    return new NullableWrappedComplex({ id: this.id, name: this.name, fields: this.fields, });
+  get nullable(): INullableWrappable<TNative, TWrapped> {
+    return new NullableWrappedComplex<TNative, TWrapped>({ id: this.id, name: this.name, fields: this.fields, });
   }
 
   public validate(input: TWrapped): TValidationResult {
@@ -182,9 +185,13 @@ export class WrappedCollection<TNative, TWrapped> implements IWrappable<TNative[
     this.fields = { length: WNumberType, };
   }
 
-  // get collection() { } // TODO: Support
+  get collection(): never {
+    throw new Error('Nested collections are not supported'); // TODO: Support
+  }
 
-  // get nullable() { } // TODO: Support
+  get nullable(): never {
+    throw new Error('Nullable collections are not supported'); // TODO: Support
+  }
 
   public validate(entries: TWrapped[]): TValidationResult {
     const validationErrors: string[] = [];
@@ -231,6 +238,9 @@ type TWrappable<TNative, TWrapped> = GConstructor<IWrappable<TNative | null, TWr
 type ExtractNative<Wrapped> = Wrapped extends TWrappable<infer TNative, unknown> ? TNative : never;
 type ExtractWrapped<Wrapped> = Wrapped extends TWrappable<unknown, infer TWrapped> ? TWrapped: never;
 
+function createNullableId(id: string) { return `${id}.NULLABLE`; }
+function createNullableName(name: string) { return `${name} (Nullable)`; }
+
 function Nullable<TBase extends TWrappable<ExtractNative<TBase>, ExtractWrapped<TBase>>>(Base: TBase) {
   return class Nullable extends Base implements INullableWrappable<ExtractNative<TBase>, ExtractWrapped<TBase>> {
     constructor(...args: any[]) {
@@ -238,8 +248,8 @@ function Nullable<TBase extends TWrappable<ExtractNative<TBase>, ExtractWrapped<
 
       super({
         ...options,
-        id: Nullable.createNullableId(options.id),
-        name: Nullable.createNullableName(options.name),
+        id: createNullableId(options.id),
+        name: createNullableName(options.name),
       });
 
       if (this instanceof WrappedComplex) {
@@ -252,13 +262,10 @@ function Nullable<TBase extends TWrappable<ExtractNative<TBase>, ExtractWrapped<
       }
     }
 
-    get nullable() { return this; }
+    override get nullable() { return this; }
 
-    static createNullableId(id: string) { return `${id}.NULLABLE`; }
-    static createNullableName(name: string) { return `${name} (Nullable)`; }
-
-    public isNullableOf(wrappedType: IWrappable<any, any>) {
-      return this.id === Nullable.createNullableId(wrappedType.id);
+    public isNullableOf(wrappedType: IWrappable<any, any>): boolean {
+      return isNullableOf(wrappedType, this);
     }
 
     override validate(input: ExtractWrapped<TBase> | null): TValidationResult {
@@ -292,10 +299,13 @@ export function isNullable<TNative, TWrapped>(
 }
 
 export function isNullableOf<TNative, TWrapped>(
-  wrapped: IWrappable<TNative, TWrapped>,
-  wrappedNullable: IWrappable<TNative | null, TWrapped | null>
-) {
-  return isNullable(wrappedNullable) && wrappedNullable.isNullableOf(wrapped);
+  wrapped: IWrappable<TNative, TWrapped> | string,
+  wrappedNullable: IWrappable<TNative | null, TWrapped | null> | string
+): boolean {
+  const wrappedId = typeof wrapped === 'string' ? wrapped : wrapped.id;
+  const wrappedNullableId = typeof wrappedNullable === 'string' ? wrappedNullable : wrappedNullable.id;
+
+  return createNullableId(wrappedId) === wrappedNullableId;
 }
 
 export const WStringType = new WrappedPrimitive<string>({
