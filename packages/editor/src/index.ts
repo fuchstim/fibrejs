@@ -1,4 +1,5 @@
 export { AuthenticationProvider } from './authentication-provider';
+export { TAuthenticatedUser } from './types';
 
 import express, { Application, NextFunction, Response } from 'express';
 import path from 'path';
