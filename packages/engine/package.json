@@ -17,8 +17,5 @@
     "@fibrejs/logger": "^1.0.0",
     "@types/uuid": "^9.0.0",
     "uuid": "^9.0.0"
-  },
-  "devDependencies": {
-    "@projectstorm/geometry": "^7.0.0"
   }
 }
