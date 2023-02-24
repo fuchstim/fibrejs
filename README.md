@@ -1,3 +1,5 @@
+<br />
+
 <div align="center">
   <a href="https://github.com/fuchstim/fibrejs">
     <img src="images/logo.png" alt="Logo" width="200" height="80">
