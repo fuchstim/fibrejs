@@ -1,10 +1,3 @@
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
-
-<br />
 <div align="center">
   <a href="https://github.com/fuchstim/fibrejs">
     <img src="images/logo.png" alt="Logo" width="200" height="80">
@@ -35,14 +28,3 @@ Please refer to the installation and usage guides in the [project wiki](https://
 - [ ] Use any node as entry / exit node
 - [ ] Customizable node display
 - [ ] Extensible dashboard pages
-
-[contributors-shield]: https://img.shields.io/github/contributors/fuchstim/fibrejs.svg?style=for-the-badge
-[contributors-url]: https://github.com/fuchstim/fibrejs/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/fuchstim/fibrejs.svg?style=for-the-badge
-[forks-url]: https://github.com/fuchstim/fibrejs/network/members
-[stars-shield]: https://img.shields.io/github/stars/fuchstim/fibrejs.svg?style=for-the-badge
-[stars-url]: https://github.com/fuchstim/fibrejs/stargazers
-[issues-shield]: https://img.shields.io/github/issues/fuchstim/fibrejs.svg?style=for-the-badge
-[issues-url]: https://github.com/fuchstim/fibrejs/issues
-[license-shield]: https://img.shields.io/github/license/fuchstim/fibrejs.svg?style=for-the-badge
-[license-url]: https://github.com/fuchstim/fibrejs/blob/master/LICENSE.txt
