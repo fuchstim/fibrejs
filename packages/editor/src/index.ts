@@ -10,7 +10,7 @@ import createApiMiddleware from './api';
 import { AuthenticationProvider, AnonymousAuthenticationProvider } from './authentication-provider';
 import { TConfig } from './types';
 
-const HTML_PATH = path.resolve(__dirname, 'html');
+const HTML_PATH = path.resolve(__dirname, '..', 'html');
 const STATIC_FILES = [ 'main.js', 'main.css', ];
 
 type TMiddlewareOptions = {

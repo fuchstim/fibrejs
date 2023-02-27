@@ -2,9 +2,9 @@
   "name": "@fibrejs/engine",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "scripts": {
-    "clean": "rm -rf ./dist && rm -rf tsconfig.tsbuildinfo",
+    "clean": "rm -rf ./dist",
     "build": "tsc -p ./tsconfig.json",
     "rebuild": "npm run clean && npm run build",
     "watch": "tsc -b -w",
