@@ -11,7 +11,7 @@ type TNodeOutputs = {
   result: boolean,
 };
 
-enum EOperation {
+export enum EOperation {
   INCLUDES = 'INCLUDES',
   NOT_INCLUDES = 'NOT_INCLUDES',
 }

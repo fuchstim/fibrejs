@@ -11,7 +11,7 @@ type TNodeOutputs = {
   result: boolean,
 };
 
-enum EOperation {
+export enum EOperation {
   EQUAL = 'EQUAL',
   NOT_EQUAL = 'NOT_EQUAL',
 }

@@ -23,7 +23,7 @@ class Logger {
   info(...args: unknown[]) { this.writeLog('info', [ this.prefix, ...args, ]); }
   debug(...args: unknown[]) { this.writeLog('debug', [ this.prefix, ...args, ]); }
 
-  private writeLog(level: 'debug' | 'info' | 'warn' | 'error', messageParts: unknown[]) {
+  protected writeLog(level: 'debug' | 'info' | 'warn' | 'error', messageParts: unknown[]) {
     console[level].apply(console, [ `[${level}]`, ...messageParts, ]);
   }
 }

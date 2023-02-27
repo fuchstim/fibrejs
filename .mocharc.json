@@ -1,0 +1,13 @@
+{
+  "exit": true,
+  "extension": [
+    "ts",
+    "js"
+  ],
+  "grep": "@slow",
+  "invert": true,
+  "reporter": "nyan",
+  "recursive": true,
+  "loader": "ts-node/esm",
+  "parallel": true
+}

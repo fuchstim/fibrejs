@@ -8,7 +8,7 @@
     "build": "tsc -p ./tsconfig.json",
     "rebuild": "npm run clean && npm run build",
     "watch": "tsc -b -w",
-    "test": "mocha ./test"
+    "test": "mocha ./test --config ../../.mocharc.json"
   },
   "keywords": [],
   "author": "",

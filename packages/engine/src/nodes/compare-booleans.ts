@@ -11,7 +11,7 @@ type TNodeOutputs = {
   result: boolean,
 };
 
-enum EOperation {
+export enum EOperation {
   NEITHER = 'NEITHER',
   EITHER = 'EITHER',
   BOTH = 'BOTH'
