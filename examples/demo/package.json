@@ -1,0 +1,23 @@
+{
+  "name": "@fibrejs/demo",
+  "version": "1.0.0",
+  "description": "Demo for usage of @fibrejs",
+  "main": "./src/index.ts",
+  "scripts": {
+    "start": "npx nodemon ./src/index.ts --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fuchstim/fibrejs.git"
+  },
+  "author": "zdods",
+  "license": "ISC",
+  "homepage": "https://github.com/fuchstim/fibrejs#readme",
+  "dependencies": {
+    "@fibrejs/editor": "*",
+    "@fibrejs/engine": "*",
+    "@fibrejs/logger": "*",
+    "express": "^4.18.2"
+  }
+}
