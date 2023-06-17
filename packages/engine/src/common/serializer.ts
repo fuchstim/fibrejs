@@ -32,15 +32,13 @@ class Serializer {
       };
     }
 
-    const { id, name, type, inputOptions, } = option;
+    const { id, name, type, inputSchema, } = option;
 
     return {
       id,
       name,
       type,
-      inputOptions: {
-        schema: serializeSchema(inputOptions.schema),
-      },
+      inputSchema: serializeSchema(inputSchema),
     };
   }
 }

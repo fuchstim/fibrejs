@@ -79,16 +79,16 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
     const invalidStages = this.stages
       .map(
         stage => ({
-          stage,
-          result: stage.validateContext(this.createRuleStageContext(context)),
+          stageId: stage.id,
+          ...stage.validateContext(this.createRuleStageContext(context)),
         })
       )
-      .filter(r => r.result.valid === false);
+      .filter(r => r.valid === false);
 
     if (invalidStages.length) {
       return {
         valid: false,
-        reason: `Invalid stages: ${invalidStages.map(e => `${e.stage.id} (${e.result.reason})`).join(', ')}`,
+        reason: `Invalid stages: ${invalidStages.map(e => `${e.stageId} (${e.reason})`).join(', ')}`,
       };
     }
 

@@ -1,7 +1,6 @@
 import z, { ZodSchema } from 'zod';
 import { BaseNode } from '../common/base-node';
 import { ENodeMetadataOptionType, TNodeExecutorContext } from '../types/node';
-import { validateAgainstSchema } from '../common/util';
 
 const INPUT_SCHEMA = z.object({});
 
@@ -55,27 +54,18 @@ export default class StaticValueNode extends BaseNode<TNodeInputs, TNodeOutputs,
             { id: EValueType.NUMBER, name: 'Number', },
             { id: EValueType.BOOLEAN, name: 'Boolean', },
           ],
-          validate: v => {
-            if (!Object.values(EValueType).includes(v)) {
-              return { valid: false, reason: `${v} is not a valid option`, };
-            }
-
-            return { valid: true, reason: null, };
-          },
         },
         {
           id: 'isCollection',
           name: 'Is Collection',
           type: ENodeMetadataOptionType.INPUT,
-          inputOptions: { schema: z.boolean(), },
-          validate: v => validateAgainstSchema(z.boolean(), v),
+          inputSchema: z.boolean(),
         },
         {
           id: 'value',
           name: 'Value',
           type: ENodeMetadataOptionType.INPUT,
-          inputOptions: { schema: this.getValueSchema(context.nodeOptions), },
-          validate: v => validateAgainstSchema(this.getValueSchema(context.nodeOptions), v), // TODO: Fix collection support
+          inputSchema: this.getValueSchema(context.nodeOptions),
         },
       ]),
       inputSchema: z.object({}),

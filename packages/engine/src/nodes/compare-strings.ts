@@ -40,13 +40,6 @@ export default class CompareStringsNode extends BaseNode<TNodeInputs, TNodeOutpu
             { id: EOperation.EQUAL, name: 'Equal', },
             { id: EOperation.NOT_EQUAL, name: 'Not Equal', },
           ],
-          validate: v => {
-            if (!Object.values(EOperation).includes(v)) {
-              return { valid: false, reason: `${v} is not a valid option`, };
-            }
-
-            return { valid: true, reason: null, };
-          },
         },
       ],
       inputSchema: INPUT_SCHEMA,

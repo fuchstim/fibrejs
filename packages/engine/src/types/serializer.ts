@@ -7,7 +7,7 @@ interface ISerializedNodeOption {
 
 interface ISerializedNodeInputOption extends ISerializedNodeOption {
   type: ENodeMetadataOptionType.INPUT,
-  inputOptions: { schema: string },
+  inputSchema: string,
 }
 
 interface ISerializedNodeDropDownOption extends ISerializedNodeOption {

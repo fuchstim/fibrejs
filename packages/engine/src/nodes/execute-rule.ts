@@ -1,7 +1,6 @@
 import z, { AnyZodObject } from 'zod';
 import { BaseNode } from '../common/base-node';
 import { ENodeMetadataOptionType, TNodeExecutorContext, TNodeMetadataOption } from '../types/node';
-import { validateAgainstSchema } from '../common/util';
 
 type TNodeInputs = Record<string, any>;
 type TNodeOutputs = Record<string, any>;
@@ -40,21 +39,13 @@ export default class ExecuteRuleNode extends BaseNode<TNodeInputs, TNodeOutputs,
         id: 'isConditional',
         name: 'Is Conditional',
         type: ENodeMetadataOptionType.INPUT,
-        inputOptions: { schema: z.boolean(), },
-        validate: input => validateAgainstSchema(z.boolean(), input),
+        inputSchema: z.boolean(),
       },
       {
         id: 'ruleId',
         name: 'Rule',
         type: ENodeMetadataOptionType.DROP_DOWN,
         dropDownOptions,
-        validate: ruleId => {
-          if (!dropDownOptions.some(option => option.id === ruleId)) {
-            return { valid: false, reason: `${ruleId} is not a valid rule id`, };
-          }
-
-          return { valid: true, reason: null, };
-        },
       },
     ];
   }

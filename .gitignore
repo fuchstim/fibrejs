@@ -5,3 +5,4 @@ dist
 .envrc
 tsconfig.tsbuildinfo
 **/config/*.json
+packages/demo

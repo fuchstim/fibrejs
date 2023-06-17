@@ -94,15 +94,14 @@ class ConfigParser implements IConfigParser {
   }
 
   exportRule(rule: Rule): TRuleConfig {
-    const { id, name, sortedStages, } = rule;
+    const { id, name, stages, } = rule;
 
     return {
       id,
       name,
-      stages: sortedStages
-        .flat()
+      stages: stages
         .map(
-          ruleStage => this.exportRuleStage(ruleStage)
+          stage => this.exportRuleStage(stage)
         ),
     };
   }

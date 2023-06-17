@@ -1,6 +1,6 @@
 import { AnyZodObject, ZodSchema } from 'zod';
 import type RuleStage from '../executors/rule-stage';
-import { TOptionalGetter, TValidationResult } from './common';
+import { TOptionalGetter } from './common';
 import type { TRuleStageExecutorContext } from './rule-stage';
 
 export enum ENodeMetadataOptionType {
@@ -13,10 +13,6 @@ export enum ENodeType {
   EXIT = 'EXIT',
 }
 
-export type TNodeMetadataInputOptions = {
-  schema: ZodSchema
-};
-
 export type TNodeMetadataDropDownOption = {
   id: string,
   name: string
@@ -25,12 +21,11 @@ export type TNodeMetadataDropDownOption = {
 interface INodeMetadataOption {
   id: string,
   name: string,
-  validate: (optionValue: any) => TValidationResult,
 }
 
 interface INodeMetadataInputOption extends INodeMetadataOption {
   type: ENodeMetadataOptionType.INPUT,
-  inputOptions: TNodeMetadataInputOptions,
+  inputSchema: ZodSchema
 }
 
 interface INodeMetadataDropDownOption extends INodeMetadataOption {

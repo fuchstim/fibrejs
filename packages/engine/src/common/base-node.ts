@@ -1,8 +1,7 @@
-import { fromZodError } from 'zod-validation-error';
 import { TValidationResult } from '../types/common';
-import { TNodeOptions, TNodeConfig, TNodeExecutorContext, TNodeMetadata, ENodeType } from '../types/node';
+import { TNodeOptions, TNodeConfig, TNodeExecutorContext, TNodeMetadata, ENodeType, TNodeMetadataOption, ENodeMetadataOptionType } from '../types/node';
 import Executor from './executor';
-import { ZodString } from 'zod';
+import z, { ZodString } from 'zod';
 import { validateAgainstSchema } from './util';
 
 export abstract class BaseNode<
@@ -49,15 +48,12 @@ export abstract class BaseNode<
     }
 
     const optionValidationErrors = options
-      .map(option => ({
-        option,
-        result: option.validate(context.nodeOptions[option.id]),
-      }))
-      .filter(({ result, }) => !result.valid);
+      .map(option => this.validateOption(option, context.nodeOptions[option.id]))
+      .filter(result => !result.valid);
     if (optionValidationErrors.length) {
       return {
         valid: false,
-        reason: `Invalid option configs: ${optionValidationErrors.map(e => `${e.option.name} (${e.result.reason})`).join(', ')}`,
+        reason: `Invalid option configs: ${optionValidationErrors.map(e => e.reason).join(', ')}`,
       };
     }
 
@@ -92,5 +88,23 @@ export abstract class BaseNode<
       inputSchema: typeof inputSchema === 'function' ? inputSchema(context) : inputSchema,
       outputSchema: typeof outputSchema === 'function' ? outputSchema(context) : outputSchema,
     };
+  }
+
+  private validateOption(option: TNodeMetadataOption, value: any): TValidationResult {
+    const errorPrefix = `Invalid value for option "${option.name}"`;
+
+    if (option.type === ENodeMetadataOptionType.DROP_DOWN) {
+      const allowedValues = option.dropDownOptions.map(o => o.id);
+
+      const schema = z.enum([ allowedValues[0], ...allowedValues.slice(1), ]);
+
+      return validateAgainstSchema(schema, value, { prefix: errorPrefix, });
+    }
+
+    if (option.type === ENodeMetadataOptionType.INPUT) {
+      return validateAgainstSchema(option.inputSchema, value, { prefix: errorPrefix, });
+    }
+
+    return { valid: false, reason: 'Unknown option type', };
   }
 }
