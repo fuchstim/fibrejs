@@ -20,8 +20,7 @@ export default class ExitNode extends BaseNode<TNodeInputs, TNodeOutputs, Record
       type: ENodeType.EXIT,
       description: 'Return final rule result',
 
-      defaultOptions: {},
-      options: [],
+      options: {},
       inputSchema: INPUT_SCHEMA,
       outputSchema: OUTPUT_SCHEMA,
     });

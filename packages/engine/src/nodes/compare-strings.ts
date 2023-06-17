@@ -28,20 +28,17 @@ export default class CompareStringsNode extends BaseNode<TNodeInputs, TNodeOutpu
       name: 'Compare Strings',
       description: 'Compare string input A to input B',
 
-      defaultOptions: {
-        operation: EOperation.EQUAL,
-      },
-      options: [
-        {
-          id: 'operation',
+      options: {
+        operation: {
           name: 'Operation',
           type: ENodeMetadataOptionType.DROP_DOWN,
+          defaultValue: EOperation.EQUAL,
           dropDownOptions: [
             { id: EOperation.EQUAL, name: 'Equal', },
             { id: EOperation.NOT_EQUAL, name: 'Not Equal', },
           ],
         },
-      ],
+      },
       inputSchema: INPUT_SCHEMA,
       outputSchema: OUTPUT_SCHEMA,
     });

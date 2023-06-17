@@ -32,3 +32,5 @@ export type TExecutorContext = {
   ruleSets: RuleSet[],
   callStack?: Executor<any, any, any>[]
 };
+
+export type TOptional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;

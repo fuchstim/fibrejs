@@ -31,7 +31,7 @@ extends Executor<TRuleStageInputs, TExecutorResult<TRuleStageInputs, TRuleStageR
       ...context,
       ruleStage: this,
       nodeOptions: {
-        ...this.node.getDefaultOptions(),
+        ...this.node.getDefaultOptions(context),
         ...this.nodeOptions,
       },
     };
@@ -132,7 +132,7 @@ extends Executor<TRuleStageInputs, TExecutorResult<TRuleStageInputs, TRuleStageR
       throw new Error(`Unable to find source stage ${stageInput.ruleStageId} for input ${stageInput.inputId}`);
     }
 
-    const { outputSchema: sourceNodeOutputSchema, } = sourceRuleStage.node.getMetadata(
+    const { outputSchema: sourceNodeOutputSchema, } = sourceRuleStage.node.getSchemas(
       sourceRuleStage.createNodeContext(context)
     );
 

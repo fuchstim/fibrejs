@@ -1,11 +1,12 @@
 import { BaseNode } from '../common/base-node';
-import { TNodeExecutorContext, TNodeMetadataOption, ENodeMetadataOptionType } from '../types/node';
+import { TNodeExecutorContext, TNodeMetadataOptions, ENodeMetadataOptionType } from '../types/node';
 import { TSerializedNode, TSerializedNodeOption } from '../types/serializer';
 import { serializeSchema } from './util';
 
 class Serializer {
   serializeNode(node: BaseNode<any, any, any>, context: TNodeExecutorContext<any>): TSerializedNode {
-    const { defaultOptions, options, inputSchema, outputSchema, } = node.getMetadata(context);
+    const options = node.getOptions(context);
+    const { inputSchema, outputSchema, } = node.getSchemas(context);
 
     return {
       id: node.id,
@@ -13,32 +14,29 @@ class Serializer {
       type: node.type,
       description: node.description,
 
-      defaultOptions,
-      options: options.map(option => this.serializeOption(option)),
+      options: Object.entries(options).map(([ id, option, ]) => this.serializeOption(id, option)),
       inputSchema: serializeSchema(inputSchema),
       outputSchema: serializeSchema(outputSchema),
     };
   }
 
-  private serializeOption(option: TNodeMetadataOption): TSerializedNodeOption {
-    if (option.type === ENodeMetadataOptionType.DROP_DOWN) {
-      const { id, name, type, dropDownOptions, } = option;
+  private serializeOption(id: string, option: TNodeMetadataOptions<any>[string]): TSerializedNodeOption {
+    const { name, type, } = option;
 
+    if (type === ENodeMetadataOptionType.DROP_DOWN) {
       return {
         id,
         name,
         type,
-        dropDownOptions,
+        dropDownOptions: option.dropDownOptions,
       };
     }
-
-    const { id, name, type, inputSchema, } = option;
 
     return {
       id,
       name,
       type,
-      inputSchema: serializeSchema(inputSchema),
+      inputSchema: serializeSchema(option.inputSchema),
     };
   }
 }

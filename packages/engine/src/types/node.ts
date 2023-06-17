@@ -1,6 +1,6 @@
 import { AnyZodObject, ZodSchema } from 'zod';
 import type RuleStage from '../executors/rule-stage';
-import { TOptionalGetter } from './common';
+import { TOptional, TOptionalGetter } from './common';
 import type { TRuleStageExecutorContext } from './rule-stage';
 
 export enum ENodeMetadataOptionType {
@@ -18,38 +18,36 @@ export type TNodeMetadataDropDownOption = {
   name: string
 };
 
-interface INodeMetadataOption {
-  id: string,
+interface INodeMetadataOption<T> {
   name: string,
+  defaultValue: T,
 }
 
-interface INodeMetadataInputOption extends INodeMetadataOption {
+interface INodeMetadataInputOption<T> extends INodeMetadataOption<T> {
   type: ENodeMetadataOptionType.INPUT,
   inputSchema: ZodSchema
 }
 
-interface INodeMetadataDropDownOption extends INodeMetadataOption {
+interface INodeMetadataDropDownOption<T> extends INodeMetadataOption<T> {
   type: ENodeMetadataOptionType.DROP_DOWN,
   dropDownOptions: TNodeMetadataDropDownOption[],
 }
 
-export type TNodeMetadataOption = INodeMetadataInputOption | INodeMetadataDropDownOption;
+export type TNodeMetadataOptions<T extends TNodeOptions> = {
+  [K in keyof T]: INodeMetadataInputOption<T[K]> | INodeMetadataDropDownOption<T[K]>
+};
 
 export type TNodeOption = string | number | boolean;
 export type TNodeOptions = Record<string, TNodeOption | never>;
 
 export type TNodeExecutorContext<T extends TNodeOptions> = TRuleStageExecutorContext & { ruleStage?: RuleStage, nodeOptions: T };
 
-export type TNodeMetadata<T extends TNodeOptions> = {
-  defaultOptions: T,
-  options: TOptionalGetter<TNodeExecutorContext<T>, TNodeMetadataOption[]>,
-  inputSchema: TOptionalGetter<TNodeExecutorContext<T>, AnyZodObject>,
-  outputSchema: TOptionalGetter<TNodeExecutorContext<T>, AnyZodObject>,
-};
-
-export type TNodeConfig<T extends TNodeOptions> = TNodeMetadata<T> & {
+export type TNodeConfig<T extends TNodeOptions> = {
   id: string,
   name: string,
   type?: ENodeType,
   description: string,
+  options: TOptionalGetter<TOptional<TNodeExecutorContext<T>, 'nodeOptions'>, TNodeMetadataOptions<T>>,
+  inputSchema: TOptionalGetter<TNodeExecutorContext<T>, AnyZodObject>,
+  outputSchema: TOptionalGetter<TNodeExecutorContext<T>, AnyZodObject>,
 };

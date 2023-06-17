@@ -29,21 +29,18 @@ export default class CompareBooleansNode extends BaseNode<TNodeInputs, TNodeOutp
       name: 'Compare Booleans',
       description: 'Compare boolean input A to input B',
 
-      defaultOptions: {
-        operation: EOperation.BOTH,
-      },
-      options: [
-        {
-          id: 'operation',
+      options: {
+        operation: {
           name: 'Operation',
           type: ENodeMetadataOptionType.DROP_DOWN,
+          defaultValue: EOperation.BOTH,
           dropDownOptions: [
             { id: EOperation.NEITHER, name: 'Neither', },
             { id: EOperation.EITHER, name: 'Either', },
             { id: EOperation.BOTH, name: 'Both', },
           ],
         },
-      ],
+      },
       inputSchema: INPUT_SCHEMA,
       outputSchema: OUTPUT_SCHEMA,
     });

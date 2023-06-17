@@ -39,35 +39,30 @@ export default class StaticValueNode extends BaseNode<TNodeInputs, TNodeOutputs,
       name: 'Static Value',
       description: 'Define a static value',
 
-      defaultOptions: {
-        valueType: EValueType.STRING,
-        isCollection: false,
-        value: '',
-      },
-      options: context => ([
-        {
-          id: 'valueType',
+      options: context => ({
+        valueType: {
           name: 'Value Type',
           type: ENodeMetadataOptionType.DROP_DOWN,
+          defaultValue: EValueType.STRING,
           dropDownOptions: [
             { id: EValueType.STRING, name: 'String', },
             { id: EValueType.NUMBER, name: 'Number', },
             { id: EValueType.BOOLEAN, name: 'Boolean', },
           ],
         },
-        {
-          id: 'isCollection',
+        isCollection: {
           name: 'Is Collection',
           type: ENodeMetadataOptionType.INPUT,
+          defaultValue: false,
           inputSchema: z.boolean(),
         },
-        {
-          id: 'value',
+        value: {
           name: 'Value',
           type: ENodeMetadataOptionType.INPUT,
+          defaultValue: '',
           inputSchema: this.getValueSchema(context.nodeOptions),
         },
-      ]),
+      }),
       inputSchema: z.object({}),
       outputSchema: context => z.object({
         value: this.getValueSchema(context.nodeOptions).describe('Value'),
@@ -75,8 +70,8 @@ export default class StaticValueNode extends BaseNode<TNodeInputs, TNodeOutputs,
     });
   }
 
-  private getValueSchema(nodeOptions: TNodeOptions): ZodSchema {
-    const { valueType, isCollection, } = nodeOptions;
+  private getValueSchema(nodeOptions?: TNodeOptions): ZodSchema {
+    const { valueType, isCollection, } = { valueType: EValueType.STRING, isCollection: false, ...nodeOptions, };
 
     const baseSchema = {
       [EValueType.STRING]: z.string(),

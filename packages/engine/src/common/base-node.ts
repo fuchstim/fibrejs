@@ -1,5 +1,5 @@
-import { TValidationResult } from '../types/common';
-import { TNodeOptions, TNodeConfig, TNodeExecutorContext, TNodeMetadata, ENodeType, TNodeMetadataOption, ENodeMetadataOptionType } from '../types/node';
+import { TOptional, TValidationResult } from '../types/common';
+import { TNodeOptions, TNodeConfig, TNodeExecutorContext, ENodeType, TNodeMetadataOptions, ENodeMetadataOptionType } from '../types/node';
 import Executor from './executor';
 import z, { ZodString } from 'zod';
 import { validateAgainstSchema } from './util';
@@ -9,28 +9,33 @@ export abstract class BaseNode<
   TOutputs extends Record<string, any>,
   TOptions extends TNodeOptions
 > extends Executor<TInputs, TOutputs, TNodeExecutorContext<TOptions>> {
-  readonly id: string;
-  readonly name: string;
-  readonly type?: ENodeType;
-  readonly description: string;
+  readonly id: TNodeConfig<TOptions>['id'];
+  readonly name: TNodeConfig<TOptions>['name'];
+  readonly type?: TNodeConfig<TOptions>['type'];
+  readonly description: TNodeConfig<TOptions>['description'];
 
-  private metadata: TNodeMetadata<TOptions>;
+  private readonly options: TNodeConfig<TOptions>['options'];
+  private readonly inputSchema: TNodeConfig<TOptions>['inputSchema'];
+  private readonly outputSchema: TNodeConfig<TOptions>['outputSchema'];
 
   constructor(config: TNodeConfig<TOptions>) {
     super(config.id, 'node');
 
-    const { id, name, description, type, ...metadata } = config;
+    const { id, name, description, type, options, inputSchema, outputSchema, } = config;
 
     this.id = id;
     this.name = name;
     this.type = type;
     this.description = description;
 
-    this.metadata = metadata;
+    this.options = options;
+    this.inputSchema = inputSchema;
+    this.outputSchema = outputSchema;
   }
 
   override validateContext(context: TNodeExecutorContext<TOptions>): TValidationResult {
-    const { options, outputSchema, } = this.getMetadata(context);
+    const options = this.getOptions(context);
+    const { outputSchema, } = this.getSchemas(context);
 
     if (this.type === ENodeType.EXIT) {
       // TODO: Support more flexible exit node output types
@@ -47,8 +52,8 @@ export abstract class BaseNode<
       }
     }
 
-    const optionValidationErrors = options
-      .map(option => this.validateOption(option, context.nodeOptions[option.id]))
+    const optionValidationErrors = Object.entries(options)
+      .map(([ id, option, ]) => this.validateOption(option, context.nodeOptions[id]))
       .filter(result => !result.valid);
     if (optionValidationErrors.length) {
       return {
@@ -64,33 +69,41 @@ export abstract class BaseNode<
   }
 
   override validateInputs(inputs: TInputs, context: TNodeExecutorContext<TOptions>): TValidationResult {
-    const { inputSchema, } = this.getMetadata(context);
+    const { inputSchema, } = this.getSchemas(context);
 
     return validateAgainstSchema(inputSchema, inputs, { prefix: 'Invalid node inputs', });
   }
 
   override validateOutputs(outputs: TOutputs, context: TNodeExecutorContext<TOptions>): TValidationResult {
-    const { outputSchema, } = this.getMetadata(context);
+    const { outputSchema, } = this.getSchemas(context);
 
     return validateAgainstSchema(outputSchema, outputs, { prefix: 'Invalid node outputs', });
   }
 
-  getDefaultOptions() {
-    return this.metadata.defaultOptions;
+  getOptions(context: TOptional<TNodeExecutorContext<TOptions>, 'nodeOptions'>) {
+    const options = typeof this.options === 'function' ? this.options(context) : this.options;
+
+    return options;
   }
 
-  getMetadata(context: TNodeExecutorContext<TOptions>) {
-    const { defaultOptions, options, inputSchema, outputSchema, } = this.metadata;
+  getDefaultOptions(context: TOptional<TNodeExecutorContext<TOptions>, 'nodeOptions'>) {
+    const options = this.getOptions(context);
 
-    return {
-      defaultOptions,
-      options: typeof options === 'function' ? options(context) : options,
-      inputSchema: typeof inputSchema === 'function' ? inputSchema(context) : inputSchema,
-      outputSchema: typeof outputSchema === 'function' ? outputSchema(context) : outputSchema,
-    };
+    return Object.entries(options)
+      .reduce(
+        (acc, [ optionId, { defaultValue, }, ]) => ({ ...acc, [optionId]: defaultValue, }),
+        {} as { [K in keyof TOptions]: TOptions[K] }
+      );
   }
 
-  private validateOption(option: TNodeMetadataOption, value: any): TValidationResult {
+  getSchemas(context: TNodeExecutorContext<TOptions>) {
+    const inputSchema = typeof this.inputSchema === 'function' ? this.inputSchema(context) : this.inputSchema;
+    const outputSchema = typeof this.outputSchema === 'function' ? this.outputSchema(context) : this.outputSchema;
+
+    return { inputSchema, outputSchema, };
+  }
+
+  private validateOption(option: TNodeMetadataOptions<TNodeOptions>[string], value: any): TValidationResult {
     const errorPrefix = `Invalid value for option "${option.name}"`;
 
     if (option.type === ENodeMetadataOptionType.DROP_DOWN) {

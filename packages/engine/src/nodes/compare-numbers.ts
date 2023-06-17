@@ -34,14 +34,11 @@ export default class CompareNumbersNode extends BaseNode<TNodeInputs, TNodeOutpu
       name: 'Compare Numbers',
       description: 'Compare number input A to input B',
 
-      defaultOptions: {
-        operation: EOperation.EQUAL,
-      },
-      options: [
-        {
-          id: 'operation',
+      options: {
+        operation: {
           name: 'Operation',
           type: ENodeMetadataOptionType.DROP_DOWN,
+          defaultValue: EOperation.EQUAL,
           dropDownOptions: [
             { id: EOperation.EQUAL, name: 'Equal', },
             { id: EOperation.NOT_EQUAL, name: 'Not Equal', },
@@ -52,7 +49,7 @@ export default class CompareNumbersNode extends BaseNode<TNodeInputs, TNodeOutpu
             { id: EOperation.BETWEEN, name: 'Between (exclusive)', },
           ],
         },
-      ],
+      },
       inputSchema: context => INPUT_SCHEMA.omit({
         inputC: context.nodeOptions.operation !== EOperation.BETWEEN || undefined,
       }),

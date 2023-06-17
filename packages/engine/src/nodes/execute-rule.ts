@@ -1,6 +1,6 @@
 import z, { AnyZodObject } from 'zod';
 import { BaseNode } from '../common/base-node';
-import { ENodeMetadataOptionType, TNodeExecutorContext, TNodeMetadataOption } from '../types/node';
+import { ENodeMetadataOptionType, TNodeExecutorContext } from '../types/node';
 
 type TNodeInputs = Record<string, any>;
 type TNodeOutputs = Record<string, any>;
@@ -17,44 +17,32 @@ export default class ExecuteRuleNode extends BaseNode<TNodeInputs, TNodeOutputs,
       name: 'Execute Rule',
       description: 'Execute another rule',
 
-      defaultOptions: {
-        isConditional: false,
-        ruleId: '',
-      },
-      options: context => this.getOptions(context),
+      options: context => ({
+        isConditional: {
+          name: 'Is Conditional',
+          type: ENodeMetadataOptionType.INPUT,
+          defaultValue: false,
+          inputSchema: z.boolean(),
+        },
+        ruleId: {
+          name: 'Rule',
+          type: ENodeMetadataOptionType.DROP_DOWN,
+          defaultValue: '',
+          dropDownOptions: context.rules
+            .filter(rule => rule.id !== context.rule?.id)
+            .map(rule => ({ id: rule.id, name: rule.name, })),
+        },
+      }),
       inputSchema: context => this.getInputSchema(context),
       outputSchema: context => this.getOutputSchema(context),
     });
-  }
-
-  private getOptions(context: TNodeExecutorContext<TNodeOptions>): TNodeMetadataOption[] {
-    const dropDownOptions = context.rules
-      .filter(rule => rule.id !== context.rule?.id)
-      .map(
-        ({ id, name, }) => ({ id, name, })
-      );
-
-    return [
-      {
-        id: 'isConditional',
-        name: 'Is Conditional',
-        type: ENodeMetadataOptionType.INPUT,
-        inputSchema: z.boolean(),
-      },
-      {
-        id: 'ruleId',
-        name: 'Rule',
-        type: ENodeMetadataOptionType.DROP_DOWN,
-        dropDownOptions,
-      },
-    ];
   }
 
   private getInputSchema(context: TNodeExecutorContext<TNodeOptions>): AnyZodObject {
     const rule = context.rules.find(rule => rule.id === context.nodeOptions.ruleId);
     if (!rule) { return z.object({}); }
 
-    const { inputSchema: ruleInputSchema, } = rule.entryStage?.node.getMetadata(context) ?? { inputSchema: z.object({}), };
+    const { inputSchema: ruleInputSchema, } = rule.entryStage?.node.getSchemas(context) ?? { inputSchema: z.object({}), };
     if (!context.nodeOptions.isConditional) {
       return ruleInputSchema;
     }
@@ -68,7 +56,7 @@ export default class ExecuteRuleNode extends BaseNode<TNodeInputs, TNodeOutputs,
     const rule = context.rules.find(rule => rule.id === context.nodeOptions.ruleId);
     if (!rule) { return z.object({}); }
 
-    const { outputSchema, } = rule.exitStage?.node.getMetadata(context) ?? { outputSchema: z.object({}), };
+    const { outputSchema, } = rule.exitStage?.node.getSchemas(context) ?? { outputSchema: z.object({}), };
 
     return context.nodeOptions.isConditional ? outputSchema.deepPartial() : outputSchema;
   }
