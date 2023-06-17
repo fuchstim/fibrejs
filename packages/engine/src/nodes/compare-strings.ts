@@ -13,7 +13,7 @@ const OUTPUT_SCHEMA = z.object({
 type TNodeInputs = z.infer<typeof INPUT_SCHEMA>;
 type TNodeOutputs = z.infer<typeof OUTPUT_SCHEMA>;
 
-export enum EOperation {
+enum EOperation {
   EQUAL = 'EQUAL',
   NOT_EQUAL = 'NOT_EQUAL',
 }
