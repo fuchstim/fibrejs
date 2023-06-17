@@ -1,14 +1,16 @@
+import z from 'zod';
 import { BaseNode } from '../common/base-node';
-import { WBooleanType } from '../common/wrapped-types';
 import { ENodeType } from '../types/node';
 
-type TNodeInputs = {
-  result: boolean | null,
-};
+const INPUT_SCHEMA = z.object({
+  result: z.boolean().nullable().describe('Result'),
+});
+const OUTPUT_SCHEMA = z.object({
+  result: z.boolean().describe('Result'),
+});
 
-type TNodeOutputs = {
-  result: boolean,
-};
+type TNodeInputs = z.infer<typeof INPUT_SCHEMA>;
+type TNodeOutputs = z.infer<typeof OUTPUT_SCHEMA>;
 
 export default class ExitNode extends BaseNode<TNodeInputs, TNodeOutputs, Record<string, never>> {
   constructor() {
@@ -20,20 +22,12 @@ export default class ExitNode extends BaseNode<TNodeInputs, TNodeOutputs, Record
 
       defaultOptions: {},
       options: [],
-      inputs: [
-        { id: 'result', name: 'Rule Result', type: WBooleanType.nullable, },
-      ],
-      outputs: [
-        { id: 'result', name: 'Rule Result', type: WBooleanType, },
-      ],
+      inputSchema: INPUT_SCHEMA,
+      outputSchema: OUTPUT_SCHEMA,
     });
   }
 
   execute({ result, }: TNodeInputs): TNodeOutputs {
-    if (result === null) {
-      return { result: false, };
-    }
-
-    return { result, };
+    return { result: Boolean(result), };
   }
 }

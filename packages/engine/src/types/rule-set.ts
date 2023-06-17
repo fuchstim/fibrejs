@@ -20,9 +20,7 @@ export type TRuleSetOptions = {
   entries: TRuleSetEntry[],
 };
 
-export type TRuleSetInputs = {
-  [key: string]: any
-};
+export type TRuleSetInputs = Record<string, any>;
 
 export type TRuleSetExecutorContext = TExecutorContext;
 

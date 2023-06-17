@@ -1,11 +1,11 @@
 import { BaseNode } from '../common/base-node';
-import { TNodeExecutorContext, TNodeMetadataOption, TNodeMetadataInputOutput, ENodeMetadataOptionType } from '../types/node';
-import { TSerializedNode, TSerializedNodeOption, TSerializedNodeInputOutput, TSerializedType } from '../types/serializer';
-import { IWrappable, ETypeCategory, WrappedComplex, WrappedCollection } from './wrapped-types';
+import { TNodeExecutorContext, TNodeMetadataOption, ENodeMetadataOptionType } from '../types/node';
+import { TSerializedNode, TSerializedNodeOption } from '../types/serializer';
+import { serializeSchema } from './util';
 
 class Serializer {
   serializeNode(node: BaseNode<any, any, any>, context: TNodeExecutorContext<any>): TSerializedNode {
-    const { defaultOptions, options, inputs, outputs, } = node.getMetadata(context);
+    const { defaultOptions, options, inputSchema, outputSchema, } = node.getMetadata(context);
 
     return {
       id: node.id,
@@ -14,15 +14,9 @@ class Serializer {
       description: node.description,
 
       defaultOptions,
-      options: options.map(
-        option => this.serializeOption(option)
-      ),
-      inputs: inputs.map(
-        input => this.serializeInputOutput(input)
-      ),
-      outputs: outputs.map(
-        output => this.serializeInputOutput(output)
-      ),
+      options: options.map(option => this.serializeOption(option)),
+      inputSchema: serializeSchema(inputSchema),
+      outputSchema: serializeSchema(outputSchema),
     };
   }
 
@@ -44,42 +38,9 @@ class Serializer {
       id,
       name,
       type,
-      inputOptions,
-    };
-  }
-
-  private serializeInputOutput(io: TNodeMetadataInputOutput): TSerializedNodeInputOutput {
-    return {
-      id: io.id,
-      name: io.name,
-      type: this.serializeType(io.type),
-    };
-  }
-
-  private serializeType(type: IWrappable<any, any>): TSerializedType {
-    if (type instanceof WrappedComplex<any, any> || type instanceof WrappedCollection<any, any>) {
-      return {
-        id: type.id,
-        name: type.name,
-        category: type.category,
-        fields: Object
-          .entries(type.fields)
-          .reduce(
-            (acc, [ fieldKey, fieldType, ]) => {
-              return {
-                ...acc,
-                [fieldKey]: this.serializeType(fieldType),
-              };
-            },
-            {}
-          ),
-      };
-    }
-
-    return {
-      id: type.id,
-      name: type.name,
-      category: type.category as ETypeCategory.PRIMITIVE,
+      inputOptions: {
+        schema: serializeSchema(inputOptions.schema),
+      },
     };
   }
 }

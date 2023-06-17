@@ -1,5 +1,4 @@
 // Re-Exports
-export * as WrappedTypes from './common/wrapped-types';
 export { BaseNode } from './common/base-node';
 export { ConfigProvider } from './storage/config-provider';
 export * as Types from './types';
@@ -12,7 +11,6 @@ import eventBus from './common/event-bus';
 import EventEmitter from './common/event-emitter';
 import serializer from './common/serializer';
 import CompareBooleansNode from './nodes/compare-booleans';
-import CompareCollectionsNode from './nodes/compare-collections';
 import CompareNumbersNode from './nodes/compare-numbers';
 import CompareStringsNode from './nodes/compare-strings';
 import ExecuteRuleNode from './nodes/execute-rule';
@@ -49,7 +47,6 @@ export default class Engine extends EventEmitter<TEventTypes> {
     this.nodes = [
       ...options.customNodes ?? [],
       new CompareBooleansNode(),
-      new CompareCollectionsNode(),
       new CompareNumbersNode(),
       new CompareStringsNode(),
       new ExecuteRuleNode(),
@@ -67,9 +64,10 @@ export default class Engine extends EventEmitter<TEventTypes> {
   validateRuleConfig(config: TRuleConfig) {
     const rule = ConfigParser.parseRule(config, this.nodes);
 
+    const executionId = `validation-${uuidV4()}`;
     const validationContext = {
-      executionId: 'validation',
-      logger: new Logger('validation'),
+      executionId,
+      logger: new Logger(executionId),
       rules: this.rules,
       ruleSets: this.ruleSets,
     };
@@ -97,7 +95,7 @@ export default class Engine extends EventEmitter<TEventTypes> {
     return result;
   }
 
-  async executeRule(ruleId: string, inputs: TRuleSetInputs) {
+  async executeRule(ruleId: string, inputs: TRuleInputs) {
     const rule = this.rules.find(rule => rule.id === ruleId);
     if (!rule) {
       throw new Error(`Cannot execute unknown rule: ${ruleId}`);

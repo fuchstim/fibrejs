@@ -1,15 +1,17 @@
+import z from 'zod';
 import { BaseNode } from '../common/base-node';
-import { WBooleanType } from '../common/wrapped-types';
 import { ENodeMetadataOptionType, TNodeExecutorContext } from '../types/node';
 
-type TNodeInputs = {
-  inputA: boolean | null,
-  inputB: boolean | null,
-};
+const INPUT_SCHEMA = z.object({
+  inputA: z.boolean().nullable().describe('Input A'),
+  inputB: z.boolean().nullable().describe('Input B'),
+});
+const OUTPUT_SCHEMA = z.object({
+  result: z.boolean().describe('Result'),
+});
 
-type TNodeOutputs = {
-  result: boolean,
-};
+type TNodeInputs = z.infer<typeof INPUT_SCHEMA>;
+type TNodeOutputs = z.infer<typeof OUTPUT_SCHEMA>;
 
 export enum EOperation {
   NEITHER = 'NEITHER',
@@ -49,17 +51,12 @@ export default class CompareBooleansNode extends BaseNode<TNodeInputs, TNodeOutp
           },
         },
       ],
-      inputs: [
-        { id: 'inputA', name: 'Input A', type: WBooleanType.nullable, },
-        { id: 'inputB', name: 'Input B', type: WBooleanType.nullable, },
-      ],
-      outputs: [
-        { id: 'result', name: 'Result', type: WBooleanType, },
-      ],
+      inputSchema: INPUT_SCHEMA,
+      outputSchema: OUTPUT_SCHEMA,
     });
   }
 
-  execute({ inputA, inputB, }: TNodeInputs, context: TNodeExecutorContext<TNodeOptions>): TNodeOutputs {
+  execute({ inputA, inputB, }: TNodeInputs, context: TNodeExecutorContext<TNodeOptions>) {
     if (inputA === null || inputB === null) {
       return { result: false, };
     }

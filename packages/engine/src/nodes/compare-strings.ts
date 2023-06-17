@@ -1,15 +1,17 @@
+import z from 'zod';
 import { BaseNode } from '../common/base-node';
-import { WBooleanType, WStringType } from '../common/wrapped-types';
 import { ENodeMetadataOptionType, TNodeExecutorContext } from '../types/node';
 
-type TNodeInputs = {
-  inputA: string | null,
-  inputB: string | null,
-};
+const INPUT_SCHEMA = z.object({
+  inputA: z.string().nullable().describe('Input A'),
+  inputB: z.string().nullable().describe('Input B'),
+});
+const OUTPUT_SCHEMA = z.object({
+  result: z.boolean().describe('Result'),
+});
 
-type TNodeOutputs = {
-  result: boolean,
-};
+type TNodeInputs = z.infer<typeof INPUT_SCHEMA>;
+type TNodeOutputs = z.infer<typeof OUTPUT_SCHEMA>;
 
 export enum EOperation {
   EQUAL = 'EQUAL',
@@ -47,13 +49,8 @@ export default class CompareStringsNode extends BaseNode<TNodeInputs, TNodeOutpu
           },
         },
       ],
-      inputs: [
-        { id: 'inputA', name: 'Input A', type: WStringType.nullable, },
-        { id: 'inputB', name: 'Input B', type: WStringType.nullable, },
-      ],
-      outputs: [
-        { id: 'result', name: 'Result', type: WBooleanType, },
-      ],
+      inputSchema: INPUT_SCHEMA,
+      outputSchema: OUTPUT_SCHEMA,
     });
   }
 

@@ -1,4 +1,4 @@
-import type { EPrimitive, IWrappable } from '../common/wrapped-types';
+import { AnyZodObject, ZodSchema } from 'zod';
 import type RuleStage from '../executors/rule-stage';
 import { TOptionalGetter, TValidationResult } from './common';
 import type { TRuleStageExecutorContext } from './rule-stage';
@@ -14,7 +14,7 @@ export enum ENodeType {
 }
 
 export type TNodeMetadataInputOptions = {
-  type: EPrimitive
+  schema: ZodSchema
 };
 
 export type TNodeMetadataDropDownOption = {
@@ -40,12 +40,6 @@ interface INodeMetadataDropDownOption extends INodeMetadataOption {
 
 export type TNodeMetadataOption = INodeMetadataInputOption | INodeMetadataDropDownOption;
 
-export type TNodeMetadataInputOutput = {
-  id: string,
-  name: string,
-  type: IWrappable<any, any>,
-};
-
 export type TNodeOption = string | number | boolean;
 export type TNodeOptions = Record<string, TNodeOption | never>;
 
@@ -54,8 +48,8 @@ export type TNodeExecutorContext<T extends TNodeOptions> = TRuleStageExecutorCon
 export type TNodeMetadata<T extends TNodeOptions> = {
   defaultOptions: T,
   options: TOptionalGetter<TNodeExecutorContext<T>, TNodeMetadataOption[]>,
-  inputs: TOptionalGetter<TNodeExecutorContext<T>, TNodeMetadataInputOutput[]>,
-  outputs: TOptionalGetter<TNodeExecutorContext<T>, TNodeMetadataInputOutput[]>,
+  inputSchema: TOptionalGetter<TNodeExecutorContext<T>, AnyZodObject>,
+  outputSchema: TOptionalGetter<TNodeExecutorContext<T>, AnyZodObject>,
 };
 
 export type TNodeConfig<T extends TNodeOptions> = TNodeMetadata<T> & {

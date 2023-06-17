@@ -1,16 +1,18 @@
+import z from 'zod';
 import { BaseNode } from '../common/base-node';
-import { WBooleanType, WNumberType } from '../common/wrapped-types';
 import { ENodeMetadataOptionType, TNodeExecutorContext } from '../types/node';
 
-type TNodeInputs = {
-  inputA: number | null,
-  inputB: number | null,
-  inputC: number | null,
-};
+const INPUT_SCHEMA = z.object({
+  inputA: z.number().nullable().describe('Input A'),
+  inputB: z.number().nullable().describe('Input B'),
+  inputC: z.number().nullable().describe('Input C'),
+});
+const OUTPUT_SCHEMA = z.object({
+  result: z.boolean().describe('Result'),
+});
 
-type TNodeOutputs = {
-  result: boolean,
-};
+type TNodeInputs = z.infer<typeof INPUT_SCHEMA>;
+type TNodeOutputs = z.infer<typeof OUTPUT_SCHEMA>;
 
 export enum EOperation {
   EQUAL = 'EQUAL',
@@ -58,21 +60,10 @@ export default class CompareNumbersNode extends BaseNode<TNodeInputs, TNodeOutpu
           },
         },
       ],
-      inputs: context => {
-        const inputs = [
-          { id: 'inputA', name: 'Input A', type: WNumberType.nullable, },
-          { id: 'inputB', name: 'Input B', type: WNumberType.nullable, },
-        ];
-
-        if (context.nodeOptions.operation === EOperation.BETWEEN) {
-          inputs.push({ id: 'inputC', name: 'Input C', type: WNumberType.nullable, });
-        }
-
-        return inputs;
-      },
-      outputs: [
-        { id: 'result', name: 'Result', type: WBooleanType, },
-      ],
+      inputSchema: context => INPUT_SCHEMA.omit({
+        inputC: context.nodeOptions.operation !== EOperation.BETWEEN || undefined,
+      }),
+      outputSchema: OUTPUT_SCHEMA,
     });
   }
 

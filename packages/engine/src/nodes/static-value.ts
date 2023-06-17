@@ -1,19 +1,39 @@
+import z, { ZodSchema } from 'zod';
 import { BaseNode } from '../common/base-node';
-import { WBooleanType, WNumberType, WStringType, EPrimitive, IWrappable } from '../common/wrapped-types';
-import { TValidationResult } from '../types/common';
 import { ENodeMetadataOptionType, TNodeExecutorContext } from '../types/node';
+import { validateAgainstSchema } from '../common/util';
 
-type TNodeOutputs = {
-  value: string | number | boolean | string[] | number[],
-};
+const INPUT_SCHEMA = z.object({});
+
+const OUTPUT_SCHEMA = z.object({
+  value: z
+    .union([
+      z.string(),
+      z.string().array(),
+      z.number(),
+      z.number().array(),
+      z.boolean(),
+      z.boolean().array(),
+    ])
+    .describe('Value'),
+});
+
+type TNodeInputs = z.infer<typeof INPUT_SCHEMA>;
+type TNodeOutputs = z.infer<typeof OUTPUT_SCHEMA>;
+
+enum EValueType {
+  STRING = 'STRING',
+  NUMBER = 'NUMBER',
+  BOOLEAN = 'BOOLEAN',
+}
 
 type TNodeOptions = {
-  valueType: EPrimitive,
+  valueType: EValueType,
   isCollection: boolean,
   value: string | number | boolean,
 };
 
-export default class StaticValueNode extends BaseNode<never, TNodeOutputs, TNodeOptions> {
+export default class StaticValueNode extends BaseNode<TNodeInputs, TNodeOutputs, TNodeOptions> {
   constructor() {
     super({
       id: 'staticValue',
@@ -21,7 +41,7 @@ export default class StaticValueNode extends BaseNode<never, TNodeOutputs, TNode
       description: 'Define a static value',
 
       defaultOptions: {
-        valueType: EPrimitive.STRING,
+        valueType: EValueType.STRING,
         isCollection: false,
         value: '',
       },
@@ -30,9 +50,13 @@ export default class StaticValueNode extends BaseNode<never, TNodeOutputs, TNode
           id: 'valueType',
           name: 'Value Type',
           type: ENodeMetadataOptionType.DROP_DOWN,
-          dropDownOptions: this.getDropDownOptions(context.nodeOptions),
+          dropDownOptions: [
+            { id: EValueType.STRING, name: 'String', },
+            { id: EValueType.NUMBER, name: 'Number', },
+            { id: EValueType.BOOLEAN, name: 'Boolean', },
+          ],
           validate: v => {
-            if (!this.getDropDownOptions(context.nodeOptions).map(o => o.id).includes(v)) {
+            if (!Object.values(EValueType).includes(v)) {
               return { valid: false, reason: `${v} is not a valid option`, };
             }
 
@@ -43,141 +67,41 @@ export default class StaticValueNode extends BaseNode<never, TNodeOutputs, TNode
           id: 'isCollection',
           name: 'Is Collection',
           type: ENodeMetadataOptionType.INPUT,
-          inputOptions: {
-            type: EPrimitive.BOOLEAN,
-          },
-          validate: v => {
-            if (!(typeof v === 'boolean')) {
-              return { valid: false, reason: `Value ${v} is not a boolean`, };
-            }
-
-            return { valid: true, reason: null, };
-          },
+          inputOptions: { schema: z.boolean(), },
+          validate: v => validateAgainstSchema(z.boolean(), v),
         },
         {
           id: 'value',
           name: 'Value',
           type: ENodeMetadataOptionType.INPUT,
-          inputOptions: {
-            type: context.nodeOptions.isCollection ? EPrimitive.STRING : context.nodeOptions.valueType,
-          },
-          validate: value => this.validateValue(value, context.nodeOptions),
+          inputOptions: { schema: this.getValueSchema(context.nodeOptions), },
+          validate: v => validateAgainstSchema(this.getValueSchema(context.nodeOptions), v), // TODO: Fix collection support
         },
       ]),
-      inputs: [],
-      outputs: context => ([
-        { id: 'value', name: 'Value', type: this.getWrappedValueType(context.nodeOptions), },
-      ]),
+      inputSchema: z.object({}),
+      outputSchema: context => z.object({
+        value: this.getValueSchema(context.nodeOptions).describe('Value'),
+      }),
     });
   }
 
-  private getDropDownOptions(nodeOptions: TNodeOptions) {
-    if (nodeOptions.isCollection) {
-      return [
-        { id: EPrimitive.STRING, name: 'String', },
-        { id: EPrimitive.NUMBER, name: 'Number', },
-      ];
-    }
+  private getValueSchema(nodeOptions: TNodeOptions): ZodSchema {
+    const { valueType, isCollection, } = nodeOptions;
 
-    return [
-      { id: EPrimitive.STRING, name: 'String', },
-      { id: EPrimitive.NUMBER, name: 'Number', },
-      { id: EPrimitive.BOOLEAN, name: 'Boolean', },
-    ];
-  }
-
-  private validateValue(value: any, nodeOptions: TNodeOptions): TValidationResult {
-    const { valueType, } = nodeOptions;
-
-    const nativeValueType = {
-      [EPrimitive.STRING]: 'string',
-      [EPrimitive.NUMBER]: 'number',
-      [EPrimitive.BOOLEAN]: 'boolean',
+    const baseSchema = {
+      [EValueType.STRING]: z.string(),
+      [EValueType.NUMBER]: z.number(),
+      [EValueType.BOOLEAN]: z.boolean(),
     }[valueType];
 
-    const wrappedOutputValue = this.getWrappedOutputValue({ ...nodeOptions, value, });
-    if (!Array.isArray(wrappedOutputValue)) {
-      const valid = typeof wrappedOutputValue === nativeValueType;
-      if (!valid) {
-        return { valid, reason: `Value must be ${nativeValueType} but is ${typeof wrappedOutputValue}`, };
-      }
-
-      return { valid, reason: null, };
+    if (!isCollection) {
+      return baseSchema;
     }
 
-    const invalidInputValidationResults = (wrappedOutputValue as (string | number)[])
-      .map((entry, index) => {
-        if (valueType === EPrimitive.STRING) {
-          const valid = typeof entry === nativeValueType;
-
-          return { index, valid, reason: `Value must be ${nativeValueType} but is ${typeof entry}`, };
-        }
-
-        if (valueType === EPrimitive.NUMBER) {
-          if (Number.isNaN(entry)) {
-            return { index, valid: false, reason: 'Value is not a number', };
-          }
-
-          const valid = typeof entry === nativeValueType;
-          return { index, valid, reason: `Value must be ${nativeValueType} but is ${typeof entry}`, };
-        }
-
-        return { index, valid: false, reason: `Invalid value type: ${valueType}`, };
-      })
-      .filter(r => !r.valid);
-
-    if (invalidInputValidationResults.length) {
-      const reasons = invalidInputValidationResults.map(
-        r => `Index ${r.index + 1} (${r.reason})`
-      );
-
-      return {
-        valid: false,
-        reason: `One or more collection items are invalid: ${reasons.join(', ')}`,
-      };
-    }
-
-    return { valid: true, reason: null, };
-  }
-
-  private getWrappedValueType(nodeOptions: TNodeOptions): IWrappable<any, any> {
-    const wrappedType = {
-      [EPrimitive.STRING]: WStringType,
-      [EPrimitive.NUMBER]: WNumberType,
-      [EPrimitive.BOOLEAN]: WBooleanType,
-    }[nodeOptions.valueType];
-
-    if (!nodeOptions.isCollection) {
-      return wrappedType;
-    }
-
-    return wrappedType.collection;
+    return baseSchema.array();
   }
 
   execute(_: never, context: TNodeExecutorContext<TNodeOptions>) {
-    const value = this.getWrappedOutputValue(context.nodeOptions);
-
-    return { value, };
-  }
-
-  private getWrappedOutputValue(nodeOptions: TNodeOptions): TNodeOutputs['value'] {
-    const { valueType, isCollection, value, } = nodeOptions;
-
-    if (!isCollection) {
-      switch (valueType) {
-        case EPrimitive.STRING: return WStringType.wrap(value as string);
-        case EPrimitive.NUMBER: return WNumberType.wrap(value as number);
-        case EPrimitive.BOOLEAN: return WBooleanType.wrap(value as boolean);
-      }
-    }
-
-    const entries = (value as string).split(',').map(p => p.trim());
-
-    switch (valueType) {
-      case EPrimitive.STRING: return WStringType.collection.wrap(entries);
-      case EPrimitive.NUMBER: return WNumberType.collection.wrap(entries.map(Number));
-    }
-
-    throw new Error(`Invalid value type: ${valueType}`);
+    return { value: context.nodeOptions.value, };
   }
 }

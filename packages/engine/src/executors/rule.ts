@@ -1,8 +1,8 @@
 import Executor from '../common/executor';
 import { TValidationResult } from '../types/common';
-import { ENodeType, TNodeMetadataInputOutput } from '../types/node';
+import { ENodeType } from '../types/node';
 import { TRuleOptions, TRuleInputs, TRuleOutputs, TRuleExecutorContext } from '../types/rule';
-import { TRuleStageResults } from '../types/rule-stage';
+import { TRuleStageExecutorContext, TRuleStageResults } from '../types/rule-stage';
 import RuleStage from './rule-stage';
 
 export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecutorContext> {
@@ -37,18 +37,23 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
     return this.stages.find(stage => stage.node.type === ENodeType.EXIT);
   }
 
-  async execute(unwrappedRuleInputs: TRuleInputs, context: TRuleExecutorContext): Promise<TRuleOutputs> {
-    const ruleStageResults: TRuleStageResults = {};
+  createRuleStageContext(context: TRuleExecutorContext): TRuleStageExecutorContext {
+    return {
+      ...context,
+      rule: this,
+    };
+  }
 
-    const wrappedRuleInputs = this.wrapRuleInputs(unwrappedRuleInputs, context);
+  async execute(ruleInputs: TRuleInputs, context: TRuleExecutorContext): Promise<TRuleOutputs> {
+    const ruleStageResults: TRuleStageResults = {};
 
     for (const stages of this.sortedStages) {
       const stageExecutionPromises = stages.map(async stage => {
-        const stageInputs = this.getStageInputs(stage, wrappedRuleInputs, ruleStageResults);
+        const stageInputs = this.getStageInputs(stage, ruleInputs, ruleStageResults);
 
         const { outputs: ruleStageResult, } = await stage.run(
           stageInputs,
-          { ...context, rule: this, }
+          this.createRuleStageContext(context)
         );
 
         ruleStageResults[stage.id] = ruleStageResult;
@@ -64,18 +69,19 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
       };
     }
 
-    const unwrappedRuleStageResults = this.unwrapRuleStageResults(ruleStageResults, context);
-
     return {
-      exitStageOutputs: this.exitStage ? unwrappedRuleStageResults[this.exitStage.id].outputs : {},
-      stageResults: unwrappedRuleStageResults,
+      exitStageOutputs: this.exitStage ? ruleStageResults[this.exitStage.id].outputs : {},
+      stageResults: ruleStageResults,
     };
   }
 
   override validateContext(context: TRuleExecutorContext): TValidationResult {
     const invalidStages = this.stages
       .map(
-        stage => ({ stage, result: stage.validateContext({ ...context, rule: this, }), })
+        stage => ({
+          stage,
+          result: stage.validateContext(this.createRuleStageContext(context)),
+        })
       )
       .filter(r => r.result.valid === false);
 
@@ -100,41 +106,10 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
       };
     }
 
-    const { inputs: requiredInputs, } = this.entryStage.node.getMetadata(
+    return this.entryStage.node.validateInputs(
+      inputs,
       this.entryStage.createNodeContext(context)
     );
-
-    const invalidInputs = requiredInputs
-      .map(requiredInput => {
-        if (inputs[requiredInput.id] == null) {
-          return { input: requiredInput, valid: false, reason: 'Missing', };
-        }
-
-        try {
-          requiredInput.type.validate(
-            requiredInput.type.wrap(inputs[requiredInput.id])
-          );
-
-          return { input: requiredInput, valid: true, };
-        } catch (e) {
-          const { message, } = e as Error;
-
-          return { input: requiredInput, valid: false, reason: `Invalid (${message})`, };
-        }
-      })
-      .filter(r => !r.valid);
-
-    if (invalidInputs.length) {
-      return {
-        valid: false,
-        reason: `One or more inputs is invalid: ${invalidInputs.map(i => `${i.input.id} (${i.reason})`).join(', ')}`,
-      };
-    }
-
-    return {
-      valid: true,
-      reason: null,
-    };
   }
 
   private sortStages(stages: RuleStage[]): RuleStage[][] {
@@ -169,67 +144,9 @@ export default class Rule extends Executor<TRuleInputs, TRuleOutputs, TRuleExecu
     );
   }
 
-  private wrapRuleInputs(ruleInputs: TRuleInputs, context: TRuleExecutorContext): TRuleInputs {
-    if (!this.entryStage) {
-      return {};
-    }
-
-    const wrappedInputs = this.entryStage.node
-      .getMetadata(this.entryStage.createNodeContext(context))
-      .inputs
-      .reduce(
-        (acc, input) => ({
-          ...acc,
-          [input.id]: input.type.wrap(ruleInputs[input.id]),
-        }),
-        {}
-      );
-
-    return wrappedInputs;
-  }
-
-  private unwrapRuleStageResults(wrappedResults: TRuleStageResults, context: TRuleExecutorContext): TRuleStageResults {
-    const getStage = (stageId: string) => {
-      const stage = this.stages.find(stage => stage.id === stageId);
-      if (!stage) {
-        throw new Error(`Failed to unwrap result of unknown stage: ${stageId}`);
-      }
-
-      return stage;
-    };
-
-    const unwrapInputsOutputs = (io: TNodeMetadataInputOutput[], values: Record<string, any>) => {
-      return io.reduce(
-        (acc, { id, type, }) => ({ ...acc, [id]: type.unwrap(values[id]), }),
-        values
-      );
-    };
-
-    const unwrappedResults = Object.entries(wrappedResults)
-      .reduce(
-        (acc, [ stageId, result, ]) => {
-          const stage = getStage(stageId);
-
-          const { inputs, outputs, } = stage.node.getMetadata(stage.createNodeContext(context));
-
-          return {
-            ...acc,
-            [stageId]: {
-              ...result,
-              inputs: unwrapInputsOutputs(inputs, result.inputs),
-              outputs: unwrapInputsOutputs(outputs, result.outputs),
-            },
-          };
-        },
-        {}
-      );
-
-    return unwrappedResults;
-  }
-
-  private getStageInputs(stage: RuleStage, wrappedRuleInputs: TRuleInputs, previousStageResults: TRuleStageResults) {
+  private getStageInputs(stage: RuleStage, ruleInputs: TRuleInputs, previousStageResults: TRuleStageResults) {
     if (stage.node.type === ENodeType.ENTRY) {
-      return wrappedRuleInputs;
+      return ruleInputs;
     }
 
     return stage.inputs.reduce(

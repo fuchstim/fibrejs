@@ -1,8 +1,9 @@
+import { fromZodError } from 'zod-validation-error';
 import { TValidationResult } from '../types/common';
 import { TNodeOptions, TNodeConfig, TNodeExecutorContext, TNodeMetadata, ENodeType } from '../types/node';
 import Executor from './executor';
-import { detectDuplicates } from './util';
-import { EPrimitive } from './wrapped-types';
+import { ZodString } from 'zod';
+import { validateAgainstSchema } from './util';
 
 export abstract class BaseNode<
   TInputs extends Record<string, any>,
@@ -30,14 +31,13 @@ export abstract class BaseNode<
   }
 
   override validateContext(context: TNodeExecutorContext<TOptions>): TValidationResult {
-    const { options: optionConfigs, inputs, outputs, } = this.getMetadata(context);
+    const { options, outputSchema, } = this.getMetadata(context);
 
     if (this.type === ENodeType.EXIT) {
       // TODO: Support more flexible exit node output types
       const validExitNodeOutputConfig = (
-        outputs.length === 1
-        && outputs[0].id === 'result'
-        && Object.values(EPrimitive).includes(outputs[0].type.id as EPrimitive)
+        Object.keys(outputSchema.shape).length === 1
+        && outputSchema.shape.result instanceof ZodString
       );
 
       if (!validExitNodeOutputConfig) {
@@ -48,26 +48,11 @@ export abstract class BaseNode<
       }
     }
 
-    const duplicateInputIds = detectDuplicates(inputs);
-    if (duplicateInputIds.length) {
-      return {
-        valid: false,
-        reason: `Duplicate input ids: ${duplicateInputIds.join(', ')}`,
-      };
-    }
-
-    const duplicateOutputIds = detectDuplicates(outputs);
-    if (duplicateOutputIds.length) {
-      return {
-        valid: false,
-        reason: `Duplicate output ids: ${duplicateOutputIds.join(', ')}`,
-      };
-    }
-
-    const optionValidationErrors = optionConfigs
-      .map(
-        option => ({ option, result: option.validate(context.nodeOptions[option.id]), })
-      )
+    const optionValidationErrors = options
+      .map(option => ({
+        option,
+        result: option.validate(context.nodeOptions[option.id]),
+      }))
       .filter(({ result, }) => !result.valid);
     if (optionValidationErrors.length) {
       return {
@@ -82,48 +67,16 @@ export abstract class BaseNode<
     };
   }
 
-  override validateInputs(inputValues: TInputs, context: TNodeExecutorContext<TOptions>): TValidationResult {
-    const { inputs, } = this.getMetadata(context);
+  override validateInputs(inputs: TInputs, context: TNodeExecutorContext<TOptions>): TValidationResult {
+    const { inputSchema, } = this.getMetadata(context);
 
-    const inputValidationErrors = inputs
-      .map(
-        input => ({ input, result: input.type.validate(inputValues[input.id]), })
-      )
-      .filter(({ result, }) => !result.valid);
-
-    if (inputValidationErrors.length) {
-      return {
-        valid: false,
-        reason: `Invalid inputs for values: ${inputValidationErrors.map(e => `${e.input.id} (${e.result.reason})`).join(', ')}}`,
-      };
-    }
-
-    return {
-      valid: true,
-      reason: null,
-    };
+    return validateAgainstSchema(inputSchema, inputs, { prefix: 'Invalid node inputs', });
   }
 
-  override validateOutputs(outputValues: TOutputs, context: TNodeExecutorContext<TOptions>): TValidationResult {
-    const { outputs, } = this.getMetadata(context);
+  override validateOutputs(outputs: TOutputs, context: TNodeExecutorContext<TOptions>): TValidationResult {
+    const { outputSchema, } = this.getMetadata(context);
 
-    const outputValidationErrors = outputs
-      .map(
-        output => ({ output, result: output.type.validate(outputValues[output.id]), })
-      )
-      .filter(({ result, }) => !result.valid);
-
-    if (outputValidationErrors.length) {
-      return {
-        valid: false,
-        reason: `Invalid outputs for values: ${outputValidationErrors.map(e => `${e.output.id} (${e.result.reason})`).join(', ')}}`,
-      };
-    }
-
-    return {
-      valid: true,
-      reason: null,
-    };
+    return validateAgainstSchema(outputSchema, outputs, { prefix: 'Invalid node outputs', });
   }
 
   getDefaultOptions() {
@@ -131,13 +84,13 @@ export abstract class BaseNode<
   }
 
   getMetadata(context: TNodeExecutorContext<TOptions>) {
-    const { defaultOptions, options, inputs, outputs, } = this.metadata;
+    const { defaultOptions, options, inputSchema, outputSchema, } = this.metadata;
 
     return {
       defaultOptions,
       options: typeof options === 'function' ? options(context) : options,
-      inputs: typeof inputs === 'function' ? inputs(context) : inputs,
-      outputs: typeof outputs === 'function' ? outputs(context) : outputs,
+      inputSchema: typeof inputSchema === 'function' ? inputSchema(context) : inputSchema,
+      outputSchema: typeof outputSchema === 'function' ? outputSchema(context) : outputSchema,
     };
   }
 }

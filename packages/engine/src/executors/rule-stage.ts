@@ -1,7 +1,7 @@
+import { ZodSchema } from 'zod';
 import { BaseNode } from '../common/base-node';
 import Executor from '../common/executor';
 import { detectDuplicates } from '../common/util';
-import { WrappedComplex, IWrappable, WrappedCollection, isNullableOf, isNullable } from '../common/wrapped-types';
 import { TExecutorResult, TValidationResult } from '../types/common';
 import { ENodeType, TNodeExecutorContext, TNodeOptions } from '../types/node';
 import { TRuleStageExecutorContext, TRuleStageInput, TRuleStageInputs, TRuleStageOptions, TRuleStageResults } from '../types/rule-stage';
@@ -37,19 +37,11 @@ extends Executor<TRuleStageInputs, TExecutorResult<TRuleStageInputs, TRuleStageR
     };
   }
 
-  async execute(wrappedInputs: TRuleStageInputs, context: TRuleStageExecutorContext) {
+  async execute(inputs: TRuleStageInputs, context: TRuleStageExecutorContext) {
     const nodeContext = this.createNodeContext(context);
 
-    const preparedInputs = this.node
-      .getMetadata(nodeContext)
-      .inputs
-      .reduce(
-        (acc, { id: inputId, }) => ({ ...acc, [inputId]: wrappedInputs[inputId] ?? null, }),
-        {}
-      );
-
     const result = await this.node.run(
-      preparedInputs,
+      inputs,
       nodeContext
     );
 
@@ -83,81 +75,77 @@ extends Executor<TRuleStageInputs, TExecutorResult<TRuleStageInputs, TRuleStageR
   }
 
   private validateStageInputs(context: TNodeExecutorContext<TNodeOptions>): TValidationResult {
-    const nodeInputs = this.node.getMetadata(context).inputs;
+    // TODO: Compare output and input schemas
 
-    const stageInputTypes = this.inputs
-      .map(input => ({ input, type: this.getStageInputType(input, context), }))
-      .filter(({ type, }) => type !== null)
-      .reduce(
-        (acc, { input, type, }) => ({ ...acc, [input.inputId]: type as IWrappable<any, any>, }),
-        {} as Record<string, IWrappable<any, any>>
-      );
+    // const { inputSchema: nodeInputSchema, } = this.node.getMetadata(context);
 
-    const invalidStageInputs = nodeInputs
-      .map(
-        ({ id: inputId, type: nodeInputType, }) => {
-          const stageInputType = stageInputTypes[inputId];
-          if (!stageInputType) {
-            if (isNullable(nodeInputType)) {
-              return { inputId, valid: true, };
-            }
+    // const stageInputSchemas = this.inputs
+    //   .map(input => ({ input, schema: this.getStageInputSchema(input, context), }))
+    //   .filter(({ schema, }) => schema !== null)
+    //   .reduce(
+    //     (acc, { input, schema, }) => ({ ...acc, [input.inputId]: schema, }),
+    //     {} as Record<string, ZodSchema>
+    //   );
 
-            return { inputId, valid: false, reason: `Missing input: ${inputId}`, };
-          }
+    debugger;
 
-          if (nodeInputType.id === stageInputType.id) {
-            return { inputId, valid: true, };
-          }
+    // const invalidStageInputs = nodeInputs
+    //   .map(
+    //     ({ id: inputId, type: nodeInputType, }) => {
+    //       const stageInputType = stageInputTypes[inputId];
+    //       if (!stageInputType) {
+    //         if (isNullable(nodeInputType)) {
+    //           return { inputId, valid: true, };
+    //         }
 
-          if (isNullableOf(stageInputType, nodeInputType)) {
-            return { inputId, valid: true, };
-          }
+    //         return { inputId, valid: false, reason: `Missing input: ${inputId}`, };
+    //       }
 
-          return { inputId, valid: false, reason: `Stage input ${stageInputType.name} is not valid for node input ${nodeInputType.name}`, };
-        }
-      )
-      .filter(r => !r.valid);
+    //       if (nodeInputType.id === stageInputType.id) {
+    //         return { inputId, valid: true, };
+    //       }
 
-    if (invalidStageInputs.length) {
-      const reasons = invalidStageInputs.map(r => `${r.inputId} (${r.reason})`);
+    //       if (isNullableOf(stageInputType, nodeInputType)) {
+    //         return { inputId, valid: true, };
+    //       }
 
-      return {
-        valid: false,
-        reason: `One or more stage inputs are invalid: ${reasons.join(', ')}`,
-      };
-    }
+    //       return { inputId, valid: false, reason: `Stage input ${stageInputType.name} is not valid for node input ${nodeInputType.name}`, };
+    //     }
+    //   )
+    //   .filter(r => !r.valid);
+
+    // if (invalidStageInputs.length) {
+    //   const reasons = invalidStageInputs.map(r => `${r.inputId} (${r.reason})`);
+
+    //   return {
+    //     valid: false,
+    //     reason: `One or more stage inputs are invalid: ${reasons.join(', ')}`,
+    //   };
+    // }
 
     return { valid: true, reason: null, };
   }
 
-  private getStageInputType(stageInput: TRuleStageInput, context: TRuleStageExecutorContext): IWrappable<any, any> | null {
-    const sourceRuleStage = context.rule?.stages.find(s => s.id === stageInput.ruleStageId);
+  private getStageInputSchema(stageInput: TRuleStageInput, context: TRuleStageExecutorContext): ZodSchema {
+    const sourceRuleStage = context.rule?.stages.find(stage => stage.id === stageInput.ruleStageId);
     if (!sourceRuleStage) {
       throw new Error(`Unable to find source stage ${stageInput.ruleStageId} for input ${stageInput.inputId}`);
     }
 
-    const { outputs: sourceRuleStageOutputs, } = sourceRuleStage.node.getMetadata(
+    const { outputSchema: sourceNodeOutputSchema, } = sourceRuleStage.node.getMetadata(
       sourceRuleStage.createNodeContext(context)
     );
 
     const [ outputId, ...outputKeyParts ] = stageInput.outputId.split('.');
 
-    const sourceRuleStageOutput = sourceRuleStageOutputs.find(o => o.id === outputId);
-    if (!sourceRuleStageOutput) {
+    const sourceNodeOutput = sourceNodeOutputSchema.shape[outputId];
+    if (!sourceNodeOutput) {
       throw new Error(`Unable to find output ${outputId} in stage ${sourceRuleStage.id}`);
     }
 
-    const outputType = outputKeyParts.reduce(
-      (acc, keyPart) => {
-        if (acc instanceof WrappedComplex<any, any> || acc instanceof WrappedCollection<any, any>) {
-          return acc.fields[keyPart];
-        }
-
-        return null;
-      },
-      sourceRuleStageOutput.type as IWrappable<any, any> | null
+    return outputKeyParts.reduce(
+      (acc, keyPart) => acc?.shape?.[keyPart] ?? null,
+      sourceNodeOutput
     );
-
-    return outputType;
   }
 }

@@ -26,9 +26,16 @@ export default class RuleSet extends Executor<TRuleSetInputs, TRuleSetExecutorRe
     this.entries = options.entries;
   }
 
+  createRuleContext(context: TRuleSetExecutorContext): TRuleExecutorContext {
+    return {
+      ...context,
+      ruleSet: this,
+    };
+  }
+
   async execute(inputs: TRuleSetInputs, context: TRuleSetExecutorContext): Promise<TRuleSetExecutorResult> {
     const results = await Promise.all(
-      this.entries.map(entry => this.executeEntry(entry, inputs, { ...context, ruleSet: this, }))
+      this.entries.map(entry => this.executeEntry(entry, inputs, this.createRuleContext(context)))
     );
 
     const orderedResults = results.sort(
@@ -69,7 +76,7 @@ export default class RuleSet extends Executor<TRuleSetInputs, TRuleSetExecutorRe
 
           return {
             entry,
-            result: this.getRuleFromContext(entry.ruleId, context).validateContext({ ...context, ruleSet: this, }),
+            result: this.getRuleFromContext(entry.ruleId, context).validateContext(this.createRuleContext(context)),
           };
         }
       )

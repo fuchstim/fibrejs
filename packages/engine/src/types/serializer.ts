@@ -1,18 +1,4 @@
-import type { ETypeCategory } from '../common/wrapped-types';
-import type { ENodeMetadataOptionType, ENodeType, TNodeMetadataDropDownOption, TNodeMetadataInputOptions, TNodeOptions } from './node';
-
-interface ISerializedType {
-  id: string,
-  name: string,
-  category: ETypeCategory.COLLECTION | ETypeCategory.COMPLEX,
-  fields: Record<string, TSerializedType>
-}
-
-interface ISerializedPrimitiveType extends Omit<ISerializedType, 'category' | 'fields'> {
-  category: ETypeCategory.PRIMITIVE,
-}
-
-export type TSerializedType = ISerializedType | ISerializedPrimitiveType;
+import type { ENodeMetadataOptionType, ENodeType, TNodeMetadataDropDownOption, TNodeOptions } from './node';
 
 interface ISerializedNodeOption {
   id: string,
@@ -21,7 +7,7 @@ interface ISerializedNodeOption {
 
 interface ISerializedNodeInputOption extends ISerializedNodeOption {
   type: ENodeMetadataOptionType.INPUT,
-  inputOptions: TNodeMetadataInputOptions,
+  inputOptions: { schema: string },
 }
 
 interface ISerializedNodeDropDownOption extends ISerializedNodeOption {
@@ -31,12 +17,6 @@ interface ISerializedNodeDropDownOption extends ISerializedNodeOption {
 
 export type TSerializedNodeOption = ISerializedNodeInputOption | ISerializedNodeDropDownOption;
 
-export type TSerializedNodeInputOutput = {
-  id: string,
-  name: string,
-  type: TSerializedType,
-};
-
 export type TSerializedNode = {
   id: string,
   name: string,
@@ -45,8 +25,8 @@ export type TSerializedNode = {
 
   defaultOptions: Record<string, any>,
   options: TSerializedNodeOption[],
-  inputs: TSerializedNodeInputOutput[],
-  outputs: TSerializedNodeInputOutput[],
+  inputSchema: string,
+  outputSchema: string
 };
 
 export type TSerializationContext = {

@@ -1,9 +1,9 @@
+import z, { AnyZodObject } from 'zod';
 import { BaseNode } from '../common/base-node';
-import { EPrimitive, WBooleanType } from '../common/wrapped-types';
-import { ENodeMetadataOptionType, TNodeExecutorContext, TNodeMetadataInputOutput, TNodeMetadataOption } from '../types/node';
+import { ENodeMetadataOptionType, TNodeExecutorContext, TNodeMetadataOption } from '../types/node';
+import { validateAgainstSchema } from '../common/util';
 
 type TNodeInputs = Record<string, any>;
-
 type TNodeOutputs = Record<string, any>;
 
 type TNodeOptions = {
@@ -23,8 +23,8 @@ export default class ExecuteRuleNode extends BaseNode<TNodeInputs, TNodeOutputs,
         ruleId: '',
       },
       options: context => this.getOptions(context),
-      inputs: context => this.getInputs(context),
-      outputs: context => this.getOutputs(context),
+      inputSchema: context => this.getInputSchema(context),
+      outputSchema: context => this.getOutputSchema(context),
     });
   }
 
@@ -40,14 +40,8 @@ export default class ExecuteRuleNode extends BaseNode<TNodeInputs, TNodeOutputs,
         id: 'isConditional',
         name: 'Is Conditional',
         type: ENodeMetadataOptionType.INPUT,
-        inputOptions: { type: EPrimitive.BOOLEAN, },
-        validate: input => {
-          if (!(typeof input === 'boolean')) {
-            return { valid: false, reason: `Value ${input} is not a boolean`, };
-          }
-
-          return { valid: true, reason: null, };
-        },
+        inputOptions: { schema: z.boolean(), },
+        validate: input => validateAgainstSchema(z.boolean(), input),
       },
       {
         id: 'ruleId',
@@ -65,31 +59,27 @@ export default class ExecuteRuleNode extends BaseNode<TNodeInputs, TNodeOutputs,
     ];
   }
 
-  private getInputs(context: TNodeExecutorContext<TNodeOptions>): TNodeMetadataInputOutput[] {
+  private getInputSchema(context: TNodeExecutorContext<TNodeOptions>): AnyZodObject {
     const rule = context.rules.find(rule => rule.id === context.nodeOptions.ruleId);
-    if (!rule) { return []; }
+    if (!rule) { return z.object({}); }
 
-    const ruleInputs = rule.entryStage?.node.getMetadata(context).inputs ?? [];
-    const conditionalRuleInputs = context.nodeOptions.isConditional ? [ { id: 'executeRule', name: 'Execute Rule', type: WBooleanType, }, ] : [];
+    const { inputSchema: ruleInputSchema, } = rule.entryStage?.node.getMetadata(context) ?? { inputSchema: z.object({}), };
+    if (!context.nodeOptions.isConditional) {
+      return ruleInputSchema;
+    }
 
-    return [
-      ...conditionalRuleInputs,
-      ...ruleInputs,
-    ];
+    return ruleInputSchema.extend({
+      executeRule: z.boolean().describe('Execute Rule'),
+    });
   }
 
-  private getOutputs(context: TNodeExecutorContext<TNodeOptions>): TNodeMetadataInputOutput[] {
+  private getOutputSchema(context: TNodeExecutorContext<TNodeOptions>): AnyZodObject {
     const rule = context.rules.find(rule => rule.id === context.nodeOptions.ruleId);
-    if (!rule) { return []; }
+    if (!rule) { return z.object({}); }
 
-    const ruleOutputs = rule.exitStage?.node.getMetadata(context).outputs ?? [];
+    const { outputSchema, } = rule.exitStage?.node.getMetadata(context) ?? { outputSchema: z.object({}), };
 
-    return ruleOutputs.map(
-      output => ({
-        ...output,
-        type: context.nodeOptions.isConditional ? output.type.nullable : output.type,
-      })
-    );
+    return context.nodeOptions.isConditional ? outputSchema.deepPartial() : outputSchema;
   }
 
   async execute(inputs: TNodeInputs, context: TNodeExecutorContext<TNodeOptions>): Promise<TNodeOutputs> {
@@ -98,39 +88,15 @@ export default class ExecuteRuleNode extends BaseNode<TNodeInputs, TNodeOutputs,
       throw new Error(`Cannot execute unknown rule: ${context.nodeOptions.ruleId}`);
     }
 
-    if (context.nodeOptions.isConditional && !WBooleanType.unwrap(inputs.executeRule)) {
+    if (context.nodeOptions.isConditional && !inputs.executeRule) {
       return {};
     }
 
-    const metadata = this.getMetadata(context);
+    const result = await rule.execute(inputs, context);
 
-    const unwrappedInputs = metadata.inputs
-      .reduce(
-        (acc, input) => ({
-          ...acc,
-          [input.id]: input.type.unwrap(inputs[input.id]),
-        }),
-        {}
-      );
-
-    const result = await rule.execute(unwrappedInputs, context);
-
-    if (context.isPreview) {
-      return {
-        ...result.exitStageOutputs,
-        stageResults: result.stageResults,
-      };
-    }
-
-    const wrappedOutputs = metadata.outputs
-      .reduce(
-        (acc, output) => ({
-          ...acc,
-          [output.id]: output.type.wrap(result.exitStageOutputs[output.id]),
-        }),
-        { stageResults: result.stageResults, }
-      );
-
-    return wrappedOutputs;
+    return {
+      ...result.exitStageOutputs,
+      stageResults: result.stageResults,
+    };
   }
 }
