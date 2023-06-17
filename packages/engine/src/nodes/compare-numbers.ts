@@ -3,9 +3,9 @@ import { BaseNode } from '../common/base-node';
 import { ENodeMetadataOptionType, TNodeExecutorContext } from '../types/node';
 
 const INPUT_SCHEMA = z.object({
-  inputA: z.number().nullable().describe('Input A'),
-  inputB: z.number().nullable().describe('Input B'),
-  inputC: z.number().nullable().describe('Input C'),
+  inputA: z.number().default(0).describe('Input A'),
+  inputB: z.number().default(0).describe('Input B'),
+  inputC: z.number().default(0).describe('Input C'),
 });
 const OUTPUT_SCHEMA = z.object({
   result: z.boolean().describe('Result'),
@@ -58,10 +58,6 @@ export default class CompareNumbersNode extends BaseNode<TNodeInputs, TNodeOutpu
   }
 
   execute({ inputA, inputB, inputC, }: TNodeInputs, context: TNodeExecutorContext<TNodeOptions>): TNodeOutputs {
-    if (inputA === null || inputB === null || inputC === null) {
-      return { result: false, };
-    }
-
     const result = {
       [EOperation.EQUAL]: inputA === inputB,
       [EOperation.NOT_EQUAL]: inputA !== inputB,

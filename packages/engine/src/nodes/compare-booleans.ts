@@ -3,8 +3,8 @@ import { BaseNode } from '../common/base-node';
 import { ENodeMetadataOptionType, TNodeExecutorContext } from '../types/node';
 
 const INPUT_SCHEMA = z.object({
-  inputA: z.boolean().nullable().describe('Input A'),
-  inputB: z.boolean().nullable().describe('Input B'),
+  inputA: z.boolean().default(false).describe('Input A'),
+  inputB: z.boolean().default(false).describe('Input B'),
 });
 const OUTPUT_SCHEMA = z.object({
   result: z.boolean().describe('Result'),
@@ -47,10 +47,6 @@ export default class CompareBooleansNode extends BaseNode<TNodeInputs, TNodeOutp
   }
 
   execute({ inputA, inputB, }: TNodeInputs, context: TNodeExecutorContext<TNodeOptions>) {
-    if (inputA === null || inputB === null) {
-      return { result: false, };
-    }
-
     const result = {
       [EOperation.NEITHER]: !inputA && !inputB,
       [EOperation.EITHER]: inputA || inputB,

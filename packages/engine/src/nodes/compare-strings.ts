@@ -3,8 +3,8 @@ import { BaseNode } from '../common/base-node';
 import { ENodeMetadataOptionType, TNodeExecutorContext } from '../types/node';
 
 const INPUT_SCHEMA = z.object({
-  inputA: z.string().nullable().describe('Input A'),
-  inputB: z.string().nullable().describe('Input B'),
+  inputA: z.string().default('').describe('Input A'),
+  inputB: z.string().default('').describe('Input B'),
 });
 const OUTPUT_SCHEMA = z.object({
   result: z.boolean().describe('Result'),
@@ -45,10 +45,6 @@ export default class CompareStringsNode extends BaseNode<TNodeInputs, TNodeOutpu
   }
 
   execute({ inputA, inputB, }: TNodeInputs, context: TNodeExecutorContext<TNodeOptions>): TNodeOutputs {
-    if (inputA === null || inputB === null) {
-      return { result: false, };
-    }
-
     const result = {
       [EOperation.EQUAL]: inputA === inputB,
       [EOperation.NOT_EQUAL]: inputA !== inputB,

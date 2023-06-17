@@ -3,7 +3,7 @@ import { BaseNode } from '../common/base-node';
 import { ENodeType } from '../types/node';
 
 const INPUT_SCHEMA = z.object({
-  result: z.boolean().nullable().describe('Result'),
+  result: z.boolean().default(false).describe('Result'),
 });
 const OUTPUT_SCHEMA = z.object({
   result: z.boolean().describe('Result'),
@@ -27,6 +27,6 @@ export default class ExitNode extends BaseNode<TNodeInputs, TNodeOutputs, Record
   }
 
   execute({ result, }: TNodeInputs): TNodeOutputs {
-    return { result: Boolean(result), };
+    return { result, };
   }
 }

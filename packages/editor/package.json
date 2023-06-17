@@ -4,7 +4,8 @@
   "main": "dist/src/index.js",
   "scripts": {
     "clean": "rm -rf ./dist",
-    "build": "npm run build:backend && npm run build:frontend",
+    "build2": "npm run build:backend && npm run build:frontend",
+    "build": "npm run build:backend",
     "build:backend": "tsc -p ./tsconfig.json",
     "build:frontend": "NODE_ENV=production webpack",
     "rebuild": "npm run clean && npm run build",
